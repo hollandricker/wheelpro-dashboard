@@ -1,0 +1,4117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WheelPro™ — Options Wheel Strategy Dashboard</title>
+<meta name="description" content="Professional options wheel strategy dashboard with real-time technical analysis. Developed by Holland Ricker.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+/* ============================================================
+   WheelPro™ Dashboard — Developed by Holland Ricker
+   All Rights Reserved. Unauthorized reproduction prohibited.
+   ============================================================ */
+
+:root {
+  --bg-primary: #0a0e17;
+  --bg-secondary: #111827;
+  --bg-card: #151d2e;
+  --bg-card-hover: #1a2438;
+  --bg-elevated: #1e293b;
+  --border: #1e293b;
+  --border-focus: #3b82f6;
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --accent-blue: #3b82f6;
+  --accent-blue-glow: rgba(59, 130, 246, 0.15);
+  --accent-green: #10b981;
+  --accent-green-glow: rgba(16, 185, 129, 0.15);
+  --accent-red: #ef4444;
+  --accent-red-glow: rgba(239, 68, 68, 0.15);
+  --accent-amber: #f59e0b;
+  --accent-amber-glow: rgba(245, 158, 11, 0.15);
+  --accent-purple: #8b5cf6;
+  --gradient-hero: linear-gradient(135deg, #0a0e17 0%, #1a1040 50%, #0a0e17 100%);
+  --gradient-card: linear-gradient(145deg, #151d2e 0%, #111827 100%);
+  --gradient-accent: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  --font-body: 'DM Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-display: 'Playfair Display', serif;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --shadow-card: 0 4px 24px rgba(0,0,0,0.3);
+  --shadow-glow: 0 0 40px rgba(59,130,246,0.08);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-primary); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* Selection */
+::selection { background: var(--accent-blue); color: white; }
+
+/* Animations */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(59,130,246,0.1); }
+  50% { box-shadow: 0 0 40px rgba(59,130,246,0.2); }
+}
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-in { animation: fadeInUp 0.5s ease-out forwards; }
+.animate-fade { animation: fadeIn 0.3s ease-out forwards; }
+
+/* ===== ANTI-COPY PROTECTIONS ===== */
+body.protected {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+body.protected img { pointer-events: none; }
+
+/* ===== LAYOUT ===== */
+.app-container { min-height: 100vh; display: flex; flex-direction: column; }
+
+/* ===== LANDING PAGE ===== */
+.landing-hero {
+  min-height: 100vh;
+  background: var(--gradient-hero);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+.landing-hero::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -30%;
+  width: 80%;
+  height: 80%;
+  background: radial-gradient(circle, rgba(139,92,246,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+.landing-hero::after {
+  content: '';
+  position: absolute;
+  bottom: -30%;
+  left: -20%;
+  width: 60%;
+  height: 60%;
+  background: radial-gradient(circle, rgba(59,130,246,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.landing-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 40px;
+  position: relative;
+  z-index: 10;
+}
+.landing-logo {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 800;
+  background: var(--gradient-accent);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.5px;
+}
+.landing-logo span {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 14px;
+  -webkit-text-fill-color: var(--text-muted);
+  margin-left: 8px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.landing-nav-links { display: flex; gap: 32px; align-items: center; }
+.landing-nav-links a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: color 0.2s;
+  cursor: pointer;
+}
+.landing-nav-links a:hover { color: var(--text-primary); }
+
+.landing-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0 40px;
+  position: relative;
+  z-index: 10;
+}
+
+.landing-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  background: rgba(59,130,246,0.1);
+  border: 1px solid rgba(59,130,246,0.2);
+  border-radius: 100px;
+  font-size: 13px;
+  color: var(--accent-blue);
+  font-weight: 500;
+  margin-bottom: 32px;
+  animation: fadeInUp 0.6s ease-out;
+}
+.landing-badge .dot {
+  width: 6px; height: 6px;
+  background: var(--accent-green);
+  border-radius: 50%;
+  animation: pulse-glow 2s infinite;
+}
+
+.landing-h1 {
+  font-family: var(--font-display);
+  font-size: clamp(40px, 6vw, 72px);
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 24px;
+  animation: fadeInUp 0.6s ease-out 0.1s both;
+  max-width: 800px;
+}
+.landing-h1 .gradient-text {
+  background: var(--gradient-accent);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.landing-subtitle {
+  font-size: 18px;
+  color: var(--text-secondary);
+  max-width: 560px;
+  margin-bottom: 48px;
+  animation: fadeInUp 0.6s ease-out 0.2s both;
+  line-height: 1.7;
+}
+
+.landing-cta-group {
+  display: flex;
+  gap: 16px;
+  animation: fadeInUp 0.6s ease-out 0.3s both;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 28px;
+  border-radius: var(--radius-md);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  text-decoration: none;
+  font-family: var(--font-body);
+}
+.btn-primary {
+  background: var(--gradient-accent);
+  color: white;
+  box-shadow: 0 4px 20px rgba(59,130,246,0.3);
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(59,130,246,0.4);
+}
+.btn-secondary {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+}
+.btn-secondary:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--text-muted);
+}
+.btn-sm {
+  padding: 8px 16px;
+  font-size: 13px;
+}
+.btn-danger {
+  background: var(--accent-red);
+  color: white;
+}
+
+.landing-stats {
+  display: flex;
+  gap: 64px;
+  margin-top: 80px;
+  animation: fadeInUp 0.6s ease-out 0.4s both;
+}
+.landing-stat { text-align: center; }
+.landing-stat-value {
+  font-family: var(--font-mono);
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.landing-stat-label {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Features Grid */
+.landing-features {
+  padding: 100px 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
+}
+.feature-card {
+  background: var(--gradient-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  transition: all 0.3s;
+}
+.feature-card:hover {
+  border-color: rgba(59,130,246,0.3);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-glow);
+}
+.feature-icon {
+  width: 48px; height: 48px;
+  background: var(--accent-blue-glow);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  margin-bottom: 20px;
+}
+.feature-card h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.feature-card p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+/* Pricing */
+.pricing-section {
+  padding: 100px 40px;
+  text-align: center;
+}
+.pricing-section h2 {
+  font-family: var(--font-display);
+  font-size: 36px;
+  margin-bottom: 12px;
+}
+.pricing-section .subtitle {
+  color: var(--text-secondary);
+  margin-bottom: 48px;
+  font-size: 16px;
+}
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+.pricing-card {
+  background: var(--gradient-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 40px 32px;
+  text-align: left;
+  position: relative;
+  transition: all 0.3s;
+}
+.pricing-card.featured {
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 40px rgba(59,130,246,0.15);
+}
+.pricing-card.featured::before {
+  content: 'MOST POPULAR';
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--gradient-accent);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 16px;
+  border-radius: 100px;
+  letter-spacing: 1px;
+}
+.pricing-tier {
+  font-size: 14px;
+  color: var(--accent-blue);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+}
+.pricing-amount {
+  font-family: var(--font-mono);
+  font-size: 48px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.pricing-amount span {
+  font-size: 16px;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+.pricing-desc {
+  color: var(--text-secondary);
+  font-size: 14px;
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border);
+}
+.pricing-features {
+  list-style: none;
+  margin-bottom: 32px;
+}
+.pricing-features li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+.pricing-features li .check {
+  color: var(--accent-green);
+  font-weight: 700;
+  font-size: 16px;
+}
+.pricing-btn {
+  width: 100%;
+  justify-content: center;
+}
+
+/* ===== AUTH MODAL ===== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+.modal {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 40px;
+  width: 100%;
+  max-width: 420px;
+  animation: fadeInUp 0.3s ease;
+}
+.modal h2 {
+  font-family: var(--font-display);
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+.modal p {
+  color: var(--text-secondary);
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+.form-group {
+  margin-bottom: 16px;
+}
+.form-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+.form-input {
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 14px;
+  font-family: var(--font-body);
+  transition: border-color 0.2s;
+  outline: none;
+}
+.form-input:focus {
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px var(--accent-blue-glow);
+}
+.form-input::placeholder {
+  color: var(--text-muted);
+}
+.form-error {
+  color: var(--accent-red);
+  font-size: 12px;
+  margin-top: 4px;
+}
+.form-footer {
+  text-align: center;
+  margin-top: 16px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.form-footer a {
+  color: var(--accent-blue);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+/* ===== DASHBOARD LAYOUT ===== */
+.dashboard-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 260px;
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 100;
+  transition: transform 0.3s;
+}
+.sidebar-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border);
+}
+.sidebar-logo {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 800;
+  background: var(--gradient-accent);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.sidebar-logo-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+.sidebar-nav { padding: 16px 12px; flex: 1; }
+.sidebar-section-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  padding: 8px 12px;
+  margin-top: 16px;
+}
+.sidebar-section-label:first-child { margin-top: 0; }
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-decoration: none;
+}
+.sidebar-link:hover {
+  background: var(--bg-card);
+  color: var(--text-primary);
+}
+.sidebar-link.active {
+  background: var(--accent-blue-glow);
+  color: var(--accent-blue);
+}
+.sidebar-link .icon { font-size: 18px; width: 24px; text-align: center; }
+
+.sidebar-footer {
+  padding: 16px 12px;
+  border-top: 1px solid var(--border);
+}
+.sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+}
+.sidebar-avatar {
+  width: 36px; height: 36px;
+  background: var(--gradient-accent);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  color: white;
+}
+.sidebar-user-info { flex: 1; min-width: 0; }
+.sidebar-user-name {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sidebar-user-plan {
+  font-size: 11px;
+  color: var(--accent-green);
+  font-weight: 500;
+}
+
+/* Main Content */
+.main-content {
+  flex: 1;
+  margin-left: 260px;
+  min-height: 100vh;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 32px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(10,14,23,0.8);
+  backdrop-filter: blur(12px);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.topbar-title {
+  font-size: 20px;
+  font-weight: 700;
+}
+.topbar-actions { display: flex; gap: 12px; align-items: center; }
+.topbar-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--accent-green);
+  font-weight: 500;
+  padding: 4px 12px;
+  background: var(--accent-green-glow);
+  border-radius: 100px;
+}
+.topbar-badge .pulse {
+  width: 6px; height: 6px;
+  background: var(--accent-green);
+  border-radius: 50%;
+  animation: pulse-glow 2s infinite;
+}
+
+.page-content { padding: 32px; }
+
+/* ===== DASHBOARD COMPONENTS ===== */
+/* Stats Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.stat-card {
+  background: var(--gradient-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  transition: all 0.2s;
+}
+.stat-card:hover {
+  border-color: rgba(59,130,246,0.2);
+}
+.stat-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+.stat-value {
+  font-family: var(--font-mono);
+  font-size: 28px;
+  font-weight: 700;
+  animation: countUp 0.4s ease-out;
+}
+.stat-change {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 4px;
+  padding: 2px 8px;
+  border-radius: 100px;
+}
+.stat-change.positive { color: var(--accent-green); background: var(--accent-green-glow); }
+.stat-change.negative { color: var(--accent-red); background: var(--accent-red-glow); }
+
+/* Tables */
+.data-table-container {
+  background: var(--gradient-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.data-table-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border);
+}
+.data-table-header h3 {
+  font-size: 16px;
+  font-weight: 600;
+}
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.data-table th {
+  text-align: left;
+  padding: 12px 16px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(0,0,0,0.2);
+  white-space: nowrap;
+}
+.data-table td {
+  padding: 14px 16px;
+  font-size: 13px;
+  border-bottom: 1px solid rgba(30,41,59,0.5);
+  white-space: nowrap;
+}
+.data-table tbody tr {
+  transition: background 0.15s;
+}
+.data-table tbody tr:hover {
+  background: var(--bg-card-hover);
+}
+.data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Score Badge */
+.score-badge {
+  position: relative;
+}
+
+/* ===== TOOLTIP SYSTEM ===== */
+.tip-wrap {
+  position: relative;
+  display: inline-flex;
+  cursor: help;
+}
+.tip-wrap .tip-box {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1a1f2e;
+  color: #e2e8f0;
+  border: 1px solid rgba(99,102,241,0.3);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 12px;
+  font-family: var(--font-primary);
+  line-height: 1.5;
+  white-space: pre-line;
+  width: max-content;
+  max-width: 300px;
+  z-index: 9999;
+  pointer-events: none;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  transition: opacity 0.15s, visibility 0.15s;
+}
+.tip-wrap .tip-box::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: #1a1f2e;
+}
+.tip-wrap:hover .tip-box {
+  visibility: visible;
+  opacity: 1;
+}
+.tip-label { color: #818cf8; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.tip-val { color: #10b981; font-weight: 700; font-family: var(--font-mono); }
+.tip-dim { color: #94a3b8; }
+.tip-warn { color: #f59e0b; }
+.tip-bad { color: #ef4444; }
+
+.score-badge-inner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 48px;
+  padding: 4px 10px;
+  border-radius: 100px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+}
+.score-high { background: var(--accent-green-glow); color: var(--accent-green); }
+.score-mid { background: var(--accent-amber-glow); color: var(--accent-amber); }
+.score-low { background: var(--accent-red-glow); color: var(--accent-red); }
+
+/* Signal Badge */
+.signal-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.signal-bullish { background: var(--accent-green-glow); color: var(--accent-green); }
+.signal-bearish { background: var(--accent-red-glow); color: var(--accent-red); }
+.signal-neutral { background: rgba(100,116,139,0.15); color: var(--text-muted); }
+
+/* Ticker Badge */
+.ticker {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--accent-blue);
+}
+
+/* Indicator Pills */
+.indicator-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.indicator-pill {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 100px;
+  font-weight: 600;
+  font-family: var(--font-mono);
+}
+.pill-green { background: var(--accent-green-glow); color: var(--accent-green); }
+.pill-red { background: var(--accent-red-glow); color: var(--accent-red); }
+.pill-amber { background: var(--accent-amber-glow); color: var(--accent-amber); }
+
+/* Mini Chart */
+.mini-chart {
+  width: 80px;
+  height: 32px;
+}
+
+/* ===== SCREENER ===== */
+.screener-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding: 20px;
+  background: var(--gradient-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+.filter-group { display: flex; flex-direction: column; gap: 4px; }
+.filter-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.filter-select, .filter-input {
+  padding: 8px 12px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 13px;
+  font-family: var(--font-body);
+  outline: none;
+  min-width: 140px;
+}
+.filter-select:focus, .filter-input:focus {
+  border-color: var(--accent-blue);
+}
+.filter-select option { background: var(--bg-secondary); }
+
+/* ===== STOCK DETAIL ===== */
+.stock-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+.detail-card {
+  background: var(--gradient-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+}
+.detail-card h4 {
+  font-size: 14px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 16px;
+}
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(30,41,59,0.3);
+}
+.detail-row:last-child { border-bottom: none; }
+.detail-row .label { font-size: 13px; color: var(--text-secondary); }
+.detail-row .value {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* Progress Bar */
+.progress-bar {
+  height: 6px;
+  background: var(--bg-primary);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+/* ===== SETTINGS ===== */
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 24px;
+}
+.settings-card {
+  background: var(--gradient-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+}
+.settings-card h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(30,41,59,0.3);
+}
+.settings-row:last-child { border-bottom: none; }
+.settings-row .label-group { flex: 1; }
+.settings-row .label-main { font-size: 14px; font-weight: 500; }
+.settings-row .label-desc { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+/* Toggle Switch */
+.toggle {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  cursor: pointer;
+}
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+  position: absolute;
+  inset: 0;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  transition: all 0.2s;
+}
+.toggle-slider::before {
+  content: '';
+  position: absolute;
+  width: 18px; height: 18px;
+  background: var(--text-muted);
+  border-radius: 50%;
+  top: 2px;
+  left: 2px;
+  transition: all 0.2s;
+}
+.toggle input:checked + .toggle-slider {
+  background: var(--accent-blue);
+  border-color: var(--accent-blue);
+}
+.toggle input:checked + .toggle-slider::before {
+  background: white;
+  transform: translateX(20px);
+}
+
+/* Range Slider */
+.range-slider {
+  width: 100%;
+  -webkit-appearance: none;
+  height: 4px;
+  background: var(--bg-primary);
+  border-radius: 2px;
+  outline: none;
+}
+.range-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px; height: 16px;
+  background: var(--accent-blue);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+/* ===== ADMIN PANEL ===== */
+.admin-card {
+  background: var(--gradient-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+.admin-card h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+.subscriber-list { list-style: none; }
+.subscriber-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(30,41,59,0.3);
+}
+.subscriber-item:last-child { border-bottom: none; }
+.subscriber-info { display: flex; align-items: center; gap: 12px; }
+.subscriber-avatar {
+  width: 32px; height: 32px;
+  background: var(--bg-elevated);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+}
+.subscriber-name { font-size: 14px; font-weight: 500; }
+.subscriber-email { font-size: 12px; color: var(--text-muted); }
+.status-badge {
+  padding: 3px 10px;
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.status-active { background: var(--accent-green-glow); color: var(--accent-green); }
+.status-trial { background: var(--accent-amber-glow); color: var(--accent-amber); }
+.status-expired { background: var(--accent-red-glow); color: var(--accent-red); }
+
+/* Loading */
+.spinner {
+  width: 20px; height: 20px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent-blue);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px;
+  gap: 16px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+/* ===== FOOTER ===== */
+.footer {
+  padding: 16px 32px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-left: 260px;
+}
+.footer-copyright {
+  font-weight: 500;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1024px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+  .main-content { margin-left: 0; }
+  .footer { margin-left: 0; }
+  .stock-detail-grid { grid-template-columns: 1fr; }
+  .landing-stats { flex-direction: column; gap: 24px; }
+}
+@media (max-width: 768px) {
+  .landing-nav { padding: 16px 20px; }
+  .landing-content { padding: 0 20px; }
+  .page-content { padding: 20px; }
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .settings-grid { grid-template-columns: 1fr; }
+  .pricing-grid { grid-template-columns: 1fr; }
+  .data-table { font-size: 12px; }
+  .data-table th, .data-table td { padding: 10px 8px; }
+}
+
+/* ===== WATERMARK ===== */
+.watermark {
+  position: fixed;
+  bottom: 8px;
+  right: 8px;
+  font-size: 9px;
+  color: rgba(100,116,139,0.2);
+  font-family: var(--font-mono);
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* Table overflow */
+.table-scroll {
+  overflow-x: auto;
+}
+</style>
+</head>
+<body class="protected">
+
+<div id="root"></div>
+
+<script type="text/babel">
+/* ================================================================
+   WheelPro™ Options Wheel Strategy Dashboard
+   Developed and Created by Holland Ricker — All Rights Reserved
+   Unauthorized reproduction, distribution, or modification prohibited.
+   ================================================================ */
+
+const { useState, useEffect, useMemo, useCallback, useRef, createContext, useContext } = React;
+
+// ===== CONFIGURATION =====
+const CONFIG = {
+  APP_NAME: 'WheelPro™',
+  OWNER: 'Holland Ricker',
+  VERSION: '2.5.0',
+  // Stripe Configuration - Replace with your live keys
+  STRIPE_PUBLISHABLE_KEY: 'pk_live_YOUR_STRIPE_KEY_HERE',
+  STRIPE_PRICE_FREE: 'price_FREE_TIER',
+  STRIPE_PRICE_STARTER: 'price_STARTER_MONTHLY_ID',
+  STRIPE_PRICE_PRO: 'price_PRO_MONTHLY_ID',
+  STRIPE_PRICE_ELITE: 'price_ELITE_MONTHLY_ID',
+  // Tier Limits
+  TIER_LIMITS: {
+    free: { maxStocks: 10, screener: false, maxPortfolio: 1, journal: false, alerts: false },
+    starter: { maxStocks: 40, screener: true, maxPortfolio: 10, journal: false, alerts: false },
+    pro: { maxStocks: 2000, screener: true, maxPortfolio: 999, journal: true, alerts: true },
+    elite: { maxStocks: 2000, screener: true, maxPortfolio: 999, journal: true, alerts: true },
+  },
+  // Backend API URL — REPLACE WITH YOUR RAILWAY DEPLOYMENT URL
+  API_BASE_URL: 'https://web-production-e726.up.railway.app',
+  // Data Settings
+  REFRESH_INTERVAL: 60000, // 1 minute
+  MAX_STOCKS: 2000,
+  MIN_WEEKLY_YIELD: 0.015, // Lowered from 0.02 — medium confidence at 1.5%+
+  MAX_DELTA: 0.30,
+  // Recommendation Thresholds (tuned v2.2)
+  SELL_PUT_STRONG: { minScore: 75, minYield: 0.02, maxDelta: 0.30, minEarningsDays: 7 },
+  SELL_PUT_MEDIUM: { minScore: 65, minYield: 0.015, maxDelta: 0.30, minEarningsDays: 7 },
+  // Strike Selection
+  MIN_OTM_PCT: 0.03,  // Minimum 3% out-of-the-money
+  MAX_OTM_PCT: 0.15,  // Maximum 15% out-of-the-money
+};
+
+// ===== TECHNICAL INDICATOR CALCULATIONS =====
+const TechnicalAnalysis = {
+  // Simple Moving Average
+  SMA(data, period) {
+    if (data.length < period) return null;
+    const slice = data.slice(-period);
+    return slice.reduce((sum, v) => sum + v, 0) / period;
+  },
+
+  // Exponential Moving Average
+  EMA(data, period) {
+    if (data.length < period) return null;
+    const k = 2 / (period + 1);
+    let ema = data.slice(0, period).reduce((s, v) => s + v, 0) / period;
+    for (let i = period; i < data.length; i++) {
+      ema = data[i] * k + ema * (1 - k);
+    }
+    return ema;
+  },
+
+  // RSI (Relative Strength Index)
+  RSI(closes, period = 14) {
+    if (closes.length < period + 1) return null;
+    let gains = 0, losses = 0;
+    for (let i = 1; i <= period; i++) {
+      const diff = closes[closes.length - period - 1 + i] - closes[closes.length - period - 1 + i - 1];
+      if (diff > 0) gains += diff;
+      else losses -= diff;
+    }
+    let avgGain = gains / period;
+    let avgLoss = losses / period;
+    if (avgLoss === 0) return 100;
+    const rs = avgGain / avgLoss;
+    return 100 - (100 / (1 + rs));
+  },
+
+  // MACD
+  MACD(closes, fast = 12, slow = 26, signal = 9) {
+    if (closes.length < slow + signal) return null;
+    const emaFast = this.EMA(closes, fast);
+    const emaSlow = this.EMA(closes, slow);
+    if (emaFast === null || emaSlow === null) return null;
+    
+    // Calculate MACD line for all points
+    const macdLine = [];
+    const kFast = 2 / (fast + 1);
+    const kSlow = 2 / (slow + 1);
+    
+    let emaF = closes.slice(0, fast).reduce((s, v) => s + v, 0) / fast;
+    let emaS = closes.slice(0, slow).reduce((s, v) => s + v, 0) / slow;
+    
+    for (let i = slow; i < closes.length; i++) {
+      emaF = closes[i] * kFast + emaF * (1 - kFast);
+      emaS = closes[i] * kSlow + emaS * (1 - kSlow);
+      macdLine.push(emaF - emaS);
+    }
+    
+    if (macdLine.length < signal) return null;
+    
+    const signalLine = this.EMA(macdLine, signal);
+    const currentMACD = macdLine[macdLine.length - 1];
+    const histogram = currentMACD - signalLine;
+    
+    return { macd: currentMACD, signal: signalLine, histogram };
+  },
+
+  // Bollinger Bands
+  BollingerBands(closes, period = 20, stdDev = 2) {
+    if (closes.length < period) return null;
+    const slice = closes.slice(-period);
+    const sma = slice.reduce((s, v) => s + v, 0) / period;
+    const variance = slice.reduce((s, v) => s + Math.pow(v - sma, 2), 0) / period;
+    const sd = Math.sqrt(variance);
+    return {
+      upper: sma + stdDev * sd,
+      middle: sma,
+      lower: sma - stdDev * sd,
+      bandwidth: ((sma + stdDev * sd) - (sma - stdDev * sd)) / sma,
+      percentB: (closes[closes.length - 1] - (sma - stdDev * sd)) / ((sma + stdDev * sd) - (sma - stdDev * sd))
+    };
+  },
+
+  // Average True Range (for volatility)
+  ATR(highs, lows, closes, period = 14) {
+    if (closes.length < period + 1) return null;
+    const trueRanges = [];
+    for (let i = 1; i < closes.length; i++) {
+      const tr = Math.max(
+        highs[i] - lows[i],
+        Math.abs(highs[i] - closes[i - 1]),
+        Math.abs(lows[i] - closes[i - 1])
+      );
+      trueRanges.push(tr);
+    }
+    return this.SMA(trueRanges.slice(-period), period);
+  },
+
+  // Volume Weighted Average Price (simplified)
+  VWAP(closes, volumes) {
+    if (closes.length === 0) return null;
+    let cumPV = 0, cumV = 0;
+    for (let i = 0; i < closes.length; i++) {
+      cumPV += closes[i] * volumes[i];
+      cumV += volumes[i];
+    }
+    return cumV > 0 ? cumPV / cumV : null;
+  },
+
+  // Support Level — lowest of recent swing lows (20-day low within 60-day lookback)
+  SupportLevel(lows, closes, period = 60) {
+    if (!lows || lows.length < 20) return closes ? closes[closes.length - 1] * 0.95 : null;
+    const recentLows = lows.slice(-period);
+    // Find the two lowest points and average them for a stronger support line
+    const sorted = [...recentLows].sort((a, b) => a - b);
+    return +((sorted[0] + sorted[1] + sorted[2]) / 3).toFixed(2);
+  },
+
+  // Resistance Level — highest of recent swing highs (20-day high within 60-day lookback)
+  ResistanceLevel(highs, closes, period = 60) {
+    if (!highs || highs.length < 20) return closes ? closes[closes.length - 1] * 1.05 : null;
+    const recentHighs = highs.slice(-period);
+    const sorted = [...recentHighs].sort((a, b) => b - a);
+    return +((sorted[0] + sorted[1] + sorted[2]) / 3).toFixed(2);
+  },
+
+  // IV Percentile — where current IV sits relative to the last 60 days of realized volatility
+  // Uses historical close-to-close volatility as proxy since we don't have historical IV data
+  IVPercentile(closes, currentIV, period = 60) {
+    if (!closes || closes.length < period || !currentIV) return 50;
+    // Calculate rolling 20-day realized volatility for each window in the lookback
+    const volReadings = [];
+    for (let i = 20; i <= Math.min(period, closes.length); i++) {
+      const window = closes.slice(i - 20, i);
+      let sumSqReturns = 0;
+      for (let j = 1; j < window.length; j++) {
+        const logReturn = Math.log(window[j] / window[j - 1]);
+        sumSqReturns += logReturn * logReturn;
+      }
+      const realizedVol = Math.sqrt(sumSqReturns / (window.length - 1)) * Math.sqrt(252) * 100;
+      volReadings.push(realizedVol);
+    }
+    if (volReadings.length === 0) return 50;
+    // Percentile = % of readings that current IV exceeds
+    const below = volReadings.filter(v => currentIV > v).length;
+    return Math.round((below / volReadings.length) * 100);
+  },
+
+  // Composite Signal: -1 (bearish) to +1 (bullish)
+  getCompositeSignal(closes, highs, lows, volumes) {
+    let score = 0;
+    let signals = 0;
+
+    // RSI Signal
+    const rsi = this.RSI(closes);
+    if (rsi !== null) {
+      if (rsi < 30) { score += 1; signals++; } // Oversold = bullish
+      else if (rsi > 70) { score -= 1; signals++; } // Overbought = bearish
+      else if (rsi < 50) { score += 0.3; signals++; }
+      else { score -= 0.3; signals++; }
+    }
+
+    // MACD Signal
+    const macd = this.MACD(closes);
+    if (macd !== null) {
+      if (macd.histogram > 0 && macd.macd > macd.signal) { score += 1; signals++; }
+      else if (macd.histogram < 0 && macd.macd < macd.signal) { score -= 1; signals++; }
+      else { score += macd.histogram > 0 ? 0.3 : -0.3; signals++; }
+    }
+
+    // Bollinger Band Signal
+    const bb = this.BollingerBands(closes);
+    if (bb !== null) {
+      if (bb.percentB < 0.2) { score += 1; signals++; } // Near lower band = bullish
+      else if (bb.percentB > 0.8) { score -= 0.5; signals++; } // Near upper band
+      else { score += 0; signals++; }
+    }
+
+    // Trend (EMA crossover)
+    const ema9 = this.EMA(closes, 9);
+    const ema21 = this.EMA(closes, 21);
+    if (ema9 !== null && ema21 !== null) {
+      if (ema9 > ema21) { score += 0.8; signals++; }
+      else { score -= 0.8; signals++; }
+    }
+
+    // Price vs SMA 50
+    const sma50 = this.SMA(closes, Math.min(50, closes.length));
+    if (sma50 !== null) {
+      const priceLoc = closes[closes.length - 1];
+      if (priceLoc > sma50) { score += 0.5; signals++; }
+      else { score -= 0.5; signals++; }
+    }
+
+    return signals > 0 ? score / signals : 0;
+  }
+};
+
+// ===== WHEEL STRATEGY SCORING =====
+const WheelScoring = {
+  // Calculate comprehensive wheel score (0-100)
+  calculateScore(stock) {
+    let score = 0;
+    let maxScore = 0;
+
+    // 1. Premium Yield (30 points max)
+    const weeklyYield = stock.weeklyYield || 0;
+    if (weeklyYield >= 0.03) score += 30;
+    else if (weeklyYield >= 0.025) score += 25;
+    else if (weeklyYield >= 0.02) score += 20;
+    else if (weeklyYield >= 0.015) score += 15;
+    else if (weeklyYield >= 0.01) score += 8;
+    else score += 3;
+    maxScore += 30;
+
+    // 2. Delta Safety (20 points max)
+    const delta = stock.delta || 0.3;
+    if (delta <= 0.15) score += 20;
+    else if (delta <= 0.20) score += 17;
+    else if (delta <= 0.25) score += 14;
+    else if (delta <= 0.30) score += 10;
+    else score += 3;
+    maxScore += 20;
+
+    // 3. Technical Score (20 points max)
+    const techSignal = stock.technicalSignal || 0;
+    score += Math.max(0, Math.min(20, (techSignal + 1) * 10));
+    maxScore += 20;
+
+    // 4. Liquidity (15 points max)
+    const optionVolume = stock.optionVolume || 0;
+    if (optionVolume >= 10000) score += 15;
+    else if (optionVolume >= 5000) score += 12;
+    else if (optionVolume >= 1000) score += 8;
+    else if (optionVolume >= 500) score += 5;
+    else score += 2;
+    maxScore += 15;
+
+    // 5. IV Rank (15 points max) - Higher IV = more premium
+    const ivRank = stock.ivRank || 50;
+    if (ivRank >= 60) score += 15;
+    else if (ivRank >= 45) score += 12;
+    else if (ivRank >= 30) score += 8;
+    else score += 4;
+    maxScore += 15;
+
+    return Math.round((score / maxScore) * 100);
+  },
+
+  // Get strategy recommendation with confidence level
+  getRecommendation(stock) {
+    const score = stock.wheelScore || 0;
+    const signal = stock.technicalSignal || 0;
+    const rsi = stock.rsi || 50;
+    const delta = stock.delta || 0.5;
+    const weeklyYield = stock.weeklyYield || 0;
+    const earningsIn = stock.earningsIn || 999;
+    const daysToExpiry = stock.daysToExpiry || 7;
+    const bidAskSpread = stock.bidAskSpread || 1;
+    const premium = stock.premium || 0;
+    const otmPct = stock.otmPercent || 0;
+
+    // EARNINGS WARNING: Only block if earnings date is confirmed AND falls before expiry
+    const earningsBeforeExpiry = earningsIn <= daysToExpiry;
+    const earningsConfirmed = stock.earningsConfirmed === true; // Only block when EXPLICITLY confirmed
+    if (earningsBeforeExpiry && earningsConfirmed) {
+      return { type: 'WAIT', label: '⚠️ Earnings Risk', color: 'red', confidence: 'NONE', reason: `Confirmed earnings in ${earningsIn}d — do not sell` };
+    }
+
+    // EX-DIVIDEND WARNING: Early assignment risk if ex-div is before expiry
+    const exDivRisk = stock.exDivBeforeExpiry;
+    if (exDivRisk) {
+      return { type: 'WAIT', label: '⚠️ Ex-Div Risk', color: 'red', confidence: 'NONE', reason: `Ex-dividend before expiry — early assignment risk` };
+    }
+
+    // STRIKE VALIDATION: Reject deep OTM (>15%) or too close to ATM (<3%)
+    if (otmPct > 0.15 || otmPct < 0.02) {
+      return { type: 'WAIT', label: 'No Good Strike', color: 'red', confidence: 'NONE', reason: `Strike ${(otmPct*100).toFixed(1)}% OTM — outside 3-15% range` };
+    }
+
+    // SPREAD CHECK: Wide bid-ask eats into profit
+    const spreadPct = premium > 0 ? bidAskSpread / premium : 1;
+
+    // STRONG SELL PUT: Score ≥75, yield ≥2%, delta ≤0.30, bullish technicals
+    if (score >= 75 && weeklyYield >= 0.02 && delta <= 0.30 && signal > 0 && spreadPct < 0.3) {
+      return { type: 'SELL_PUT', label: '🟢 Sell Put', color: 'green', confidence: 'HIGH', reason: 'Strong candidate — all criteria met' };
+    }
+
+    // MEDIUM SELL PUT: Score ≥65, yield ≥1.5%, delta ≤0.30
+    if (score >= 65 && weeklyYield >= 0.015 && delta <= 0.30 && signal > -0.2) {
+      return { type: 'SELL_PUT', label: '🟡 Sell Put', color: 'amber', confidence: 'MEDIUM', reason: spreadPct >= 0.3 ? 'Watch bid-ask spread' : 'Good setup — monitor entry' };
+    }
+
+    // SELL COVERED CALL (if bearish and holding shares)
+    if (signal < -0.3 && rsi > 60) {
+      return { type: 'SELL_CALL', label: '📤 Sell Call', color: 'amber', confidence: 'MEDIUM', reason: 'Bearish — sell covered calls if holding' };
+    }
+
+    // WAIT
+    let reason = [];
+    if (score < 65) reason.push(`Score ${score} < 65`);
+    if (weeklyYield < 0.015) reason.push(`Yield ${(weeklyYield*100).toFixed(2)}% < 1.5%`);
+    if (delta > 0.30) reason.push(`Delta ${delta.toFixed(2)} > 0.30`);
+    if (signal <= -0.2) reason.push('Bearish signal');
+    
+    return { type: 'WAIT', label: '⏳ Wait', color: 'red', confidence: 'NONE', reason: reason.join(' · ') || 'Does not meet criteria' };
+  },
+
+  // Calculate probability of profit (1 - delta for puts)
+  getProbOfProfit(delta) {
+    return Math.round((1 - (delta || 0.3)) * 100);
+  },
+
+  // Calculate cash required to sell a cash-secured put
+  getCashRequired(strikePrice) {
+    return (strikePrice || 0) * 100;
+  },
+
+  // Get confidence badge styling
+  getConfidenceStyle(confidence) {
+    switch(confidence) {
+      case 'HIGH': return { bg: 'rgba(16,185,129,0.15)', color: '#10b981', border: '1px solid rgba(16,185,129,0.3)' };
+      case 'MEDIUM': return { bg: 'rgba(245,158,11,0.15)', color: '#f59e0b', border: '1px solid rgba(245,158,11,0.3)' };
+      default: return { bg: 'rgba(239,68,68,0.1)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.2)' };
+    }
+  }
+};
+
+// ===== MOCK DATA GENERATOR (Replace with real API) =====
+const generateStockData = () => {
+  const stocks = [
+    { symbol: 'AAPL', name: 'Apple Inc.', sector: 'Technology', basePrice: 228 },
+    { symbol: 'MSFT', name: 'Microsoft Corp.', sector: 'Technology', basePrice: 415 },
+    { symbol: 'NVDA', name: 'NVIDIA Corp.', sector: 'Technology', basePrice: 138 },
+    { symbol: 'AMZN', name: 'Amazon.com Inc.', sector: 'Consumer Cyclical', basePrice: 225 },
+    { symbol: 'GOOGL', name: 'Alphabet Inc.', sector: 'Technology', basePrice: 195 },
+    { symbol: 'META', name: 'Meta Platforms', sector: 'Technology', basePrice: 610 },
+    { symbol: 'TSLA', name: 'Tesla Inc.', sector: 'Consumer Cyclical', basePrice: 390 },
+    { symbol: 'AMD', name: 'Advanced Micro Devices', sector: 'Technology', basePrice: 120 },
+    { symbol: 'JPM', name: 'JPMorgan Chase', sector: 'Financial Services', basePrice: 255 },
+    { symbol: 'V', name: 'Visa Inc.', sector: 'Financial Services', basePrice: 320 },
+    { symbol: 'JNJ', name: 'Johnson & Johnson', sector: 'Healthcare', basePrice: 148 },
+    { symbol: 'WMT', name: 'Walmart Inc.', sector: 'Consumer Defensive', basePrice: 96 },
+    { symbol: 'PG', name: 'Procter & Gamble', sector: 'Consumer Defensive', basePrice: 165 },
+    { symbol: 'MA', name: 'Mastercard Inc.', sector: 'Financial Services', basePrice: 530 },
+    { symbol: 'HD', name: 'Home Depot Inc.', sector: 'Consumer Cyclical', basePrice: 405 },
+    { symbol: 'XOM', name: 'Exxon Mobil', sector: 'Energy', basePrice: 108 },
+    { symbol: 'BAC', name: 'Bank of America', sector: 'Financial Services', basePrice: 45 },
+    { symbol: 'COST', name: 'Costco Wholesale', sector: 'Consumer Defensive', basePrice: 950 },
+    { symbol: 'DIS', name: 'Walt Disney Co.', sector: 'Communication', basePrice: 112 },
+    { symbol: 'CRM', name: 'Salesforce Inc.', sector: 'Technology', basePrice: 330 },
+    { symbol: 'NFLX', name: 'Netflix Inc.', sector: 'Communication', basePrice: 950 },
+    { symbol: 'INTC', name: 'Intel Corp.', sector: 'Technology', basePrice: 22 },
+    { symbol: 'PFE', name: 'Pfizer Inc.', sector: 'Healthcare', basePrice: 26 },
+    { symbol: 'KO', name: 'Coca-Cola Co.', sector: 'Consumer Defensive', basePrice: 62 },
+    { symbol: 'T', name: 'AT&T Inc.', sector: 'Communication', basePrice: 23 },
+    { symbol: 'PLTR', name: 'Palantir Technologies', sector: 'Technology', basePrice: 80 },
+    { symbol: 'SOFI', name: 'SoFi Technologies', sector: 'Financial Services', basePrice: 16 },
+    { symbol: 'F', name: 'Ford Motor Co.', sector: 'Consumer Cyclical', basePrice: 10 },
+    { symbol: 'RIVN', name: 'Rivian Automotive', sector: 'Consumer Cyclical', basePrice: 14 },
+    { symbol: 'COIN', name: 'Coinbase Global', sector: 'Financial Services', basePrice: 280 },
+    { symbol: 'SQ', name: 'Block Inc.', sector: 'Technology', basePrice: 82 },
+    { symbol: 'UBER', name: 'Uber Technologies', sector: 'Technology', basePrice: 72 },
+    { symbol: 'SHOP', name: 'Shopify Inc.', sector: 'Technology', basePrice: 115 },
+    { symbol: 'ABNB', name: 'Airbnb Inc.', sector: 'Consumer Cyclical', basePrice: 140 },
+    { symbol: 'SNAP', name: 'Snap Inc.', sector: 'Communication', basePrice: 12 },
+    { symbol: 'MARA', name: 'Marathon Digital', sector: 'Technology', basePrice: 22 },
+    { symbol: 'NIO', name: 'NIO Inc.', sector: 'Consumer Cyclical', basePrice: 4.5 },
+    { symbol: 'PYPL', name: 'PayPal Holdings', sector: 'Financial Services', basePrice: 82 },
+    { symbol: 'MU', name: 'Micron Technology', sector: 'Technology', basePrice: 98 },
+    { symbol: 'QCOM', name: 'Qualcomm Inc.', sector: 'Technology', basePrice: 168 },
+  ];
+
+  return stocks.map(s => {
+    const priceVar = (Math.random() - 0.5) * s.basePrice * 0.05;
+    const price = +(s.basePrice + priceVar).toFixed(2);
+    const change = +priceVar.toFixed(2);
+    const changePct = +((change / s.basePrice) * 100).toFixed(2);
+    
+    // Generate fake historical closes for indicator calculation
+    const closes = Array.from({ length: 60 }, (_, i) => {
+      return s.basePrice * (1 + (Math.random() - 0.48) * 0.03 * (60 - i) / 60);
+    });
+    closes.push(price);
+
+    const highs = closes.map(c => c * (1 + Math.random() * 0.015));
+    const lows = closes.map(c => c * (1 - Math.random() * 0.015));
+    const volumes = closes.map(() => Math.floor(Math.random() * 50000000) + 1000000);
+
+    // Calculate indicators
+    const rsi = TechnicalAnalysis.RSI(closes) || 50;
+    const macd = TechnicalAnalysis.MACD(closes);
+    const bb = TechnicalAnalysis.BollingerBands(closes);
+    const ema9 = TechnicalAnalysis.EMA(closes, 9);
+    const ema21 = TechnicalAnalysis.EMA(closes, 21);
+    const sma50 = TechnicalAnalysis.SMA(closes, 50);
+    const technicalSignal = TechnicalAnalysis.getCompositeSignal(closes, highs, lows, volumes);
+    
+    // NEW: Support & Resistance levels from price data
+    const supportLevel = TechnicalAnalysis.SupportLevel(lows, closes);
+    const resistanceLevel = TechnicalAnalysis.ResistanceLevel(highs, closes);
+    
+    // Options data
+    const iv = +(20 + Math.random() * 60).toFixed(1);
+    const ivRank = +(Math.random() * 100).toFixed(0);
+    // NEW: IV Percentile from historical vol comparison
+    const ivPercentile = TechnicalAnalysis.IVPercentile(closes, iv);
+    const delta = +(0.10 + Math.random() * 0.25).toFixed(2);
+    // FIX: Strike selection within 3-15% OTM range (prevents deep OTM like Ford $8 on $14)
+    const otmPercent = +(0.03 + Math.random() * 0.12).toFixed(4); // 3% to 15% OTM
+    const strikePrice = +(price * (1 - otmPercent)).toFixed(2);
+    const premium = +(price * (0.005 + Math.random() * 0.025)).toFixed(2);
+    const weeklyYield = +(premium / strikePrice).toFixed(4);
+    const annualizedYield = +(weeklyYield * 52 * 100).toFixed(1);
+    const optionVolume = Math.floor(Math.random() * 20000) + 100;
+    const openInterest = Math.floor(optionVolume * (2 + Math.random() * 5));
+    const bidAskSpread = +(0.01 + Math.random() * 0.15).toFixed(2);
+    const daysToExpiry = [7, 14, 21, 30, 45][Math.floor(Math.random() * 5)];
+    // NEW: Calculate actual expiration date from today + DTE
+    const today = new Date();
+    const expirationDate = new Date(today.getTime() + daysToExpiry * 86400000);
+    const expDateStr = `${(expirationDate.getMonth()+1).toString().padStart(2,'0')}/${expirationDate.getDate().toString().padStart(2,'0')}/${expirationDate.getFullYear().toString().slice(-2)}`;
+    // FIXED: Realistic earnings dates — most companies report quarterly (60-90 days out)
+    // Only ~15% of stocks should have earnings within 30 days at any given time
+    const earningsRoll = Math.random();
+    const earningsIn = earningsRoll < 0.05 ? Math.floor(Math.random() * 7) + 1 :    // 5% imminent (1-7d)
+                        earningsRoll < 0.15 ? Math.floor(Math.random() * 23) + 8 :   // 10% soon (8-30d)
+                        Math.floor(Math.random() * 60) + 31;                          // 85% typical (31-90d)
+    const earningsConfirmed = earningsIn <= 30; // Only "confirmed" when close enough to be real
+    // NEW: Actual earnings date
+    const earningsDate = new Date(today.getTime() + earningsIn * 86400000);
+    const earningsDateStr = `${(earningsDate.getMonth()+1).toString().padStart(2,'0')}/${earningsDate.getDate().toString().padStart(2,'0')}`;
+    const marketCap = +(price * (Math.random() * 3000 + 50)).toFixed(0);
+    // NEW: Cash required, probability of profit
+    const cashRequired = Math.round(strikePrice * 100);
+    const probOfProfit = Math.round((1 - delta) * 100);
+    // NEW: Max loss per contract = (Strike - Premium) × 100
+    const maxLoss = Math.round((strikePrice - premium) * 100);
+    // NEW: Put/Call OI ratio — values > 1 = more puts (bearish sentiment), < 1 = more calls (bullish)
+    const callOpenInterest = Math.floor(openInterest * (0.5 + Math.random() * 1.5));
+    const putCallRatio = callOpenInterest > 0 ? +(openInterest / callOpenInterest).toFixed(2) : 1;
+    // NEW: Ex-dividend data
+    const hasDividend = ['AAPL','MSFT','JPM','V','JNJ','WMT','PG','MA','HD','XOM','BAC','COST','KO','T','QCOM','PFE','DIS','INTC','F'].includes(s.symbol);
+    const exDivDaysOut = hasDividend ? Math.floor(Math.random() * 90) + 1 : null;
+    const exDivDate = hasDividend ? new Date(today.getTime() + exDivDaysOut * 86400000) : null;
+    const exDivDateStr = exDivDate ? `${(exDivDate.getMonth()+1).toString().padStart(2,'0')}/${exDivDate.getDate().toString().padStart(2,'0')}` : null;
+    const exDivBeforeExpiry = hasDividend && exDivDaysOut <= daysToExpiry;
+
+    const stockData = {
+      ...s, price, change, changePct, closes, highs, lows, volumes,
+      rsi: +rsi.toFixed(1),
+      macd, bb, ema9, ema21, sma50,
+      technicalSignal: +technicalSignal.toFixed(3),
+      supportLevel, resistanceLevel,
+      iv, ivRank: +ivRank, ivPercentile,
+      delta, strikePrice, premium,
+      weeklyYield, annualizedYield, optionVolume, openInterest,
+      bidAskSpread, daysToExpiry, expDateStr,
+      earningsIn, earningsDateStr, earningsConfirmed, marketCap,
+      otmPercent, cashRequired, probOfProfit, maxLoss,
+      putCallRatio, callOpenInterest,
+      hasDividend, exDivDaysOut, exDivDateStr, exDivBeforeExpiry
+    };
+
+    stockData.wheelScore = WheelScoring.calculateScore(stockData);
+    stockData.recommendation = WheelScoring.getRecommendation(stockData);
+
+    return stockData;
+  });
+};
+
+// ===== AUTH CONTEXT =====
+const AuthContext = createContext(null);
+
+const useAuth = () => useContext(AuthContext);
+
+// ===== LOCAL STORAGE HELPERS =====
+const Storage = {
+  get(key, fallback = null) {
+    try {
+      const val = localStorage.getItem(`wheelpro_${key}`);
+      return val ? JSON.parse(val) : fallback;
+    } catch { return fallback; }
+  },
+  set(key, value) {
+    try { localStorage.setItem(`wheelpro_${key}`, JSON.stringify(value)); } catch {}
+  },
+  remove(key) {
+    try { localStorage.removeItem(`wheelpro_${key}`); } catch {}
+  }
+};
+
+// ===== SVG ICONS =====
+const Icons = {
+  dashboard: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>,
+  screener: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>,
+  settings: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>,
+  admin: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
+  logout: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>,
+  menu: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>,
+  arrowUp: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="18,15 12,9 6,15"/></svg>,
+  arrowDown: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="6,9 12,15 18,9"/></svg>,
+  refresh: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="23,4 23,10 17,10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>,
+  close: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
+  check: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20,6 9,17 4,12"/></svg>,
+  lock: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>,
+  star: <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="1"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>,
+  chart: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>,
+  portfolio: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>,
+  journal: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="12" y2="15"/></svg>,
+  upgrade: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>,
+};
+
+// ===== MINI SPARKLINE COMPONENT =====
+function Sparkline({ data, width = 80, height = 32, color = '#3b82f6' }) {
+  if (!data || data.length < 2) return null;
+  const min = Math.min(...data);
+  const max = Math.max(...data);
+  const range = max - min || 1;
+  const points = data.map((v, i) => {
+    const x = (i / (data.length - 1)) * width;
+    const y = height - ((v - min) / range) * (height - 4) - 2;
+    return `${x},${y}`;
+  }).join(' ');
+
+  return (
+    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
+      <polyline points={points} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  );
+}
+
+// ===== LANDING PAGE =====
+function LandingPage({ onLogin, onSignup }) {
+  return (
+    <div className="landing-hero">
+      <nav className="landing-nav">
+        <div className="landing-logo">WheelPro<span>™</span></div>
+        <div className="landing-nav-links">
+          <a href="#features">Features</a>
+          <a href="#pricing">Pricing</a>
+          <a onClick={onLogin} style={{cursor:'pointer'}}>Log In</a>
+          <button className="btn btn-primary btn-sm" onClick={onSignup}>Start Free Trial</button>
+        </div>
+      </nav>
+
+      <div className="landing-content">
+        <div className="landing-badge">
+          <span className="dot"></span>
+          Live Market Analysis
+        </div>
+        <h1 className="landing-h1">
+          Master the <span className="gradient-text">Wheel Strategy</span> with Precision
+        </h1>
+        <p className="landing-subtitle">
+          Professional-grade options scanner with real-time technical analysis. 
+          RSI, MACD, Bollinger Bands, and proprietary scoring identify the highest-probability 
+          wheel trades across 2,000+ stocks.
+        </p>
+        <div className="landing-cta-group">
+          <button className="btn btn-primary" onClick={onSignup}>
+            Start 7-Day Free Trial →
+          </button>
+          <button className="btn btn-secondary" onClick={onLogin}>
+            Sign In
+          </button>
+        </div>
+        <div className="landing-stats">
+          <div className="landing-stat">
+            <div className="landing-stat-value">2,000+</div>
+            <div className="landing-stat-label">Stocks Scanned</div>
+          </div>
+          <div className="landing-stat">
+            <div className="landing-stat-value">2%+</div>
+            <div className="landing-stat-label">Weekly Yield Target</div>
+          </div>
+          <div className="landing-stat">
+            <div className="landing-stat-value">5</div>
+            <div className="landing-stat-label">Technical Indicators</div>
+          </div>
+          <div className="landing-stat">
+            <div className="landing-stat-value">≤0.30</div>
+            <div className="landing-stat-label">Delta Threshold</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="landing-features" id="features">
+        <div className="features-grid">
+          <div className="feature-card">
+            <div className="feature-icon">📊</div>
+            <h3>Multi-Factor Scoring</h3>
+            <p>Proprietary algorithm combines premium yield, delta safety, technical signals, liquidity, and IV rank into a single actionable score for every candidate.</p>
+          </div>
+          <div className="feature-card">
+            <div className="feature-icon" style={{background:'var(--accent-green-glow)'}}>📈</div>
+            <h3>5 Technical Indicators</h3>
+            <p>RSI, MACD, Bollinger Bands, EMA crossovers, and trend analysis work together to identify optimal entry points and minimize assignment risk.</p>
+          </div>
+          <div className="feature-card">
+            <div className="feature-icon" style={{background:'var(--accent-purple) linear-gradient(135deg, rgba(139,92,246,0.15), rgba(59,130,246,0.15))'}}>⚡</div>
+            <h3>Real-Time Scanner</h3>
+            <p>Continuously monitors the market for wheel opportunities. Filter by sector, yield, delta, technical signal, and more to find your perfect trade.</p>
+          </div>
+          <div className="feature-card">
+            <div className="feature-icon" style={{background:'var(--accent-amber-glow)'}}>🛡️</div>
+            <h3>Risk Protection</h3>
+            <p>Built-in earnings date warnings, liquidity checks, and composite bearish/bullish signals help you avoid trades that are likely to result in unwanted assignment.</p>
+          </div>
+          <div className="feature-card">
+            <div className="feature-icon" style={{background:'var(--accent-red-glow)'}}>🎯</div>
+            <h3>Smart Recommendations</h3>
+            <p>Every stock gets a clear recommendation with HIGH, MEDIUM, or WAIT confidence. Tells you exactly which puts to sell, at what strike, and when.</p>
+          </div>
+          <div className="feature-card">
+            <div className="feature-icon" style={{background:'rgba(236,72,153,0.15)'}}>📱</div>
+            <h3>Works Everywhere</h3>
+            <p>Responsive dashboard works on desktop, tablet, and mobile. Access your wheel analysis on the go from any device with a browser.</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="pricing-section" id="pricing">
+        <h2>Choose Your Plan</h2>
+        <p className="subtitle">Start free. Upgrade when you're ready. Cancel anytime.</p>
+        <div className="pricing-grid" style={{gridTemplateColumns:'repeat(auto-fit, minmax(240px, 1fr))', maxWidth:'1200px'}}>
+          <div className="pricing-card">
+            <div className="pricing-tier">Free</div>
+            <div className="pricing-amount">$0<span>/mo</span></div>
+            <div className="pricing-desc">Explore the wheel strategy with real data</div>
+            <ul className="pricing-features">
+              <li><span className="check">✓</span> Top 10 wheel candidates</li>
+              <li><span className="check">✓</span> Wheel scoring algorithm</li>
+              <li><span className="check">✓</span> 1 portfolio position</li>
+              <li><span className="check">✓</span> Basic indicators (RSI, MACD)</li>
+            </ul>
+            <button className="btn btn-secondary pricing-btn" onClick={onSignup}>Get Started Free</button>
+          </div>
+          <div className="pricing-card">
+            <div className="pricing-tier">Starter</div>
+            <div className="pricing-amount">$29<span>/mo</span></div>
+            <div className="pricing-desc">Perfect for beginners learning the wheel</div>
+            <ul className="pricing-features">
+              <li><span className="check">✓</span> 40 stock candidates</li>
+              <li><span className="check">✓</span> All 5 technical indicators</li>
+              <li><span className="check">✓</span> Full screener with filters</li>
+              <li><span className="check">✓</span> 10 portfolio positions</li>
+            </ul>
+            <button className="btn btn-secondary pricing-btn" onClick={onSignup}>Start 7-Day Trial</button>
+          </div>
+          <div className="pricing-card featured">
+            <div className="pricing-tier">Pro</div>
+            <div className="pricing-amount">$79<span>/mo</span></div>
+            <div className="pricing-desc">Full power for active options traders</div>
+            <ul className="pricing-features">
+              <li><span className="check">✓</span> All 2,000+ stock scans</li>
+              <li><span className="check">✓</span> Advanced screener & filters</li>
+              <li><span className="check">✓</span> Unlimited portfolio positions</li>
+              <li><span className="check">✓</span> Trade journal & P&L tracking</li>
+              <li><span className="check">✓</span> Email alerts & notifications</li>
+            </ul>
+            <button className="btn btn-primary pricing-btn" onClick={onSignup}>Start 7-Day Trial</button>
+          </div>
+          <div className="pricing-card">
+            <div className="pricing-tier">Elite</div>
+            <div className="pricing-amount">$149<span>/mo</span></div>
+            <div className="pricing-desc">For professionals & fund managers</div>
+            <ul className="pricing-features">
+              <li><span className="check">✓</span> Everything in Pro</li>
+              <li><span className="check">✓</span> API access</li>
+              <li><span className="check">✓</span> Priority data refresh</li>
+              <li><span className="check">✓</span> Custom watchlists</li>
+              <li><span className="check">✓</span> Monthly 1-on-1 strategy call</li>
+            </ul>
+            <button className="btn btn-secondary pricing-btn" onClick={onSignup}>Start 7-Day Trial</button>
+          </div>
+        </div>
+      </div>
+
+      <div style={{textAlign:'center', padding:'40px', color:'var(--text-muted)', fontSize:'12px', borderTop:'1px solid var(--border)'}}>
+        <p>Developed and Created by Holland Ricker — All Rights Reserved</p>
+        <p style={{marginTop:'8px'}}>WheelPro™ is a registered trademark. Options trading involves risk of loss.</p>
+      </div>
+    </div>
+  );
+}
+
+// ===== AUTH MODAL =====
+function AuthModal({ mode, onClose, onSubmit, onToggle }) {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    if (!email || !password) { setError('Please fill in all fields.'); return; }
+    if (mode === 'signup' && !name) { setError('Please enter your name.'); return; }
+    
+    setLoading(true);
+    // Simulate API call - replace with real Stripe/auth integration
+    setTimeout(() => {
+      setLoading(false);
+      onSubmit({ email, password, name, plan: 'pro' });
+    }, 800);
+  };
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal" onClick={e => e.stopPropagation()}>
+        <div style={{display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:'4px'}}>
+          <h2>{mode === 'login' ? 'Welcome Back' : 'Start Your Free Trial'}</h2>
+          <button onClick={onClose} style={{background:'none',border:'none',color:'var(--text-muted)',cursor:'pointer',padding:'4px'}}>{Icons.close}</button>
+        </div>
+        <p>{mode === 'login' ? 'Sign in to access your dashboard' : '7 days free, then $99/month. Cancel anytime.'}</p>
+        
+        <form onSubmit={handleSubmit}>
+          {mode === 'signup' && (
+            <div className="form-group">
+              <label className="form-label">Full Name</label>
+              <input className="form-input" type="text" placeholder="Holland Ricker" value={name} onChange={e => setName(e.target.value)} />
+            </div>
+          )}
+          <div className="form-group">
+            <label className="form-label">Email Address</label>
+            <input className="form-input" type="email" placeholder="you@example.com" value={email} onChange={e => setEmail(e.target.value)} />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Password</label>
+            <input className="form-input" type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} />
+          </div>
+          {error && <div className="form-error">{error}</div>}
+          <button className="btn btn-primary" type="submit" style={{width:'100%',justifyContent:'center',marginTop:'8px'}} disabled={loading}>
+            {loading ? <span className="spinner" style={{width:16,height:16,borderWidth:2}}></span> : (mode === 'login' ? 'Sign In' : 'Create Account')}
+          </button>
+        </form>
+        
+        <div className="form-footer">
+          {mode === 'login' ? (
+            <>Don't have an account? <a onClick={onToggle}>Sign up</a></>
+          ) : (
+            <>Already have an account? <a onClick={onToggle}>Sign in</a></>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ===== DASHBOARD PAGE =====
+function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock }) {
+  const topStocks = useMemo(() => {
+    return [...stocks]
+      .filter(s => s.weeklyYield >= 0.01 && s.delta <= 0.35)
+      .sort((a, b) => b.wheelScore - a.wheelScore)
+      .slice(0, 20);
+  }, [stocks]);
+
+  // NEW: Recommended puts — only SELL_PUT with HIGH or MEDIUM confidence
+  const recommendedPuts = useMemo(() => {
+    return [...stocks]
+      .filter(s => s.recommendation && s.recommendation.type === 'SELL_PUT' && (s.recommendation.confidence === 'HIGH' || s.recommendation.confidence === 'MEDIUM'))
+      .sort((a, b) => {
+        // HIGH confidence first, then by score
+        if (a.recommendation.confidence === 'HIGH' && b.recommendation.confidence !== 'HIGH') return -1;
+        if (b.recommendation.confidence === 'HIGH' && a.recommendation.confidence !== 'HIGH') return 1;
+        return b.wheelScore - a.wheelScore;
+      });
+  }, [stocks]);
+
+  const avgScore = useMemo(() => {
+    if (topStocks.length === 0) return 0;
+    return Math.round(topStocks.reduce((s, t) => s + t.wheelScore, 0) / topStocks.length);
+  }, [topStocks]);
+
+  const avgYield = useMemo(() => {
+    if (topStocks.length === 0) return 0;
+    return +(topStocks.reduce((s, t) => s + t.annualizedYield, 0) / topStocks.length).toFixed(1);
+  }, [topStocks]);
+
+  const bullishCount = stocks.filter(s => s.technicalSignal > 0.2).length;
+  const bearishCount = stocks.filter(s => s.technicalSignal < -0.2).length;
+
+  // v2.5: Capital Allocation
+  const totalCashNeeded = useMemo(() => {
+    return recommendedPuts.reduce((sum, s) => sum + (s.cashRequired || Math.round(s.strikePrice * 100)), 0);
+  }, [recommendedPuts]);
+  const avgCashPerTrade = recommendedPuts.length > 0 ? Math.round(totalCashNeeded / recommendedPuts.length) : 0;
+
+  return (
+    <div>
+      <div className="stats-grid">
+        <div className="stat-card" style={{borderLeft:'3px solid var(--accent-green)'}}>
+          <div className="stat-label">Recommended Puts</div>
+          <div className="stat-value" style={{color:'var(--accent-green)'}}>{recommendedPuts.length}</div>
+          <div className="stat-change positive">{recommendedPuts.filter(s=>s.recommendation.confidence==='HIGH').length} high confidence</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-label">Top Wheel Score</div>
+          <div className="stat-value" style={{color:'var(--accent-blue)'}}>{topStocks[0]?.wheelScore || 0}</div>
+          <div className="stat-change positive">{topStocks[0]?.symbol}</div>
+        </div>
+        <div className="stat-card" style={{borderLeft:'3px solid var(--accent-amber)'}}>
+          <div className="stat-label">Capital Needed (All Recs)</div>
+          <div className="stat-value" style={{color:'var(--accent-amber)'}}>${totalCashNeeded.toLocaleString()}</div>
+          <div className="stat-change" style={{color:'var(--text-muted)', background:'none'}}>~${avgCashPerTrade.toLocaleString()} avg/trade</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-label">Market Sentiment</div>
+          <div className="stat-value" style={{color: bullishCount > bearishCount ? 'var(--accent-green)' : 'var(--accent-red)'}}>
+            {bullishCount > bearishCount ? '🟢' : '🔴'}
+          </div>
+          <div className="stat-change" style={{color:'var(--text-muted)',background:'none'}}>
+            {bullishCount}↑ / {bearishCount}↓
+          </div>
+        </div>
+      </div>
+
+      {/* ===== RECOMMENDED TRADES PANEL ===== */}
+      {recommendedPuts.length > 0 && (
+        <div className="data-table-container" style={{marginBottom:'24px', border:'1px solid rgba(16,185,129,0.25)', background:'linear-gradient(145deg, rgba(16,185,129,0.05) 0%, var(--bg-card) 100%)'}}>
+          <div className="data-table-header" style={{borderBottom:'1px solid rgba(16,185,129,0.15)'}}>
+            <div style={{display:'flex',alignItems:'center',gap:'10px'}}>
+              <span style={{fontSize:'20px'}}>🎯</span>
+              <div>
+                <h3 style={{color:'var(--accent-green)', margin:0}}>Recommended Puts to Sell</h3>
+                <span style={{fontSize:'11px', color:'var(--text-muted)'}}>These options pass all screening criteria — sorted by confidence then score</span>
+              </div>
+            </div>
+            <span style={{padding:'4px 12px', borderRadius:'20px', fontSize:'12px', fontWeight:600, background:'rgba(16,185,129,0.15)', color:'var(--accent-green)', border:'1px solid rgba(16,185,129,0.3)'}}>
+              {recommendedPuts.length} Active Signal{recommendedPuts.length !== 1 ? 's' : ''}
+            </span>
+          </div>
+          <div className="table-scroll">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Confidence</th>
+                  <th>Symbol</th>
+                  <th>Price</th>
+                  <th>Strike</th>
+                  <th>Support</th>
+                  <th>Resistance</th>
+                  <th>Exp Date</th>
+                  <th>Premium</th>
+                  <th>Wk Yield</th>
+                  <th>Mo. Yield</th>
+                  <th>Delta</th>
+                  <th>P.O.P.</th>
+                  <th>Cash Req.</th>
+                  <th>Max Loss</th>
+                  <th>IV %ile</th>
+                  <th>P/C Ratio</th>
+                  <th>Bid-Ask</th>
+                  <th>Earnings</th>
+                  <th>Ex-Div</th>
+                  <th>Score</th>
+                  <th>Reason</th>
+                </tr>
+              </thead>
+              <tbody>
+                {recommendedPuts.map((stock, i) => {
+                  const confStyle = WheelScoring.getConfidenceStyle(stock.recommendation.confidence);
+                  const pop = stock.probOfProfit || WheelScoring.getProbOfProfit(stock.delta);
+                  const cashReq = stock.cashRequired || WheelScoring.getCashRequired(stock.strikePrice);
+                  const maxLoss = stock.maxLoss || Math.round((stock.strikePrice - stock.premium) * 100);
+                  const strikeVsSupport = stock.supportLevel ? stock.strikePrice <= stock.supportLevel : false;
+                  return (
+                    <tr key={stock.symbol} style={{animation: `slideIn 0.3s ease-out ${i * 0.04}s both`, background: stock.recommendation.confidence === 'HIGH' ? 'rgba(16,185,129,0.03)' : 'transparent'}}>
+                      <td>
+                        <span style={{padding:'3px 10px', borderRadius:'12px', fontSize:'11px', fontWeight:700, background:confStyle.bg, color:confStyle.color, border:confStyle.border, letterSpacing:'0.5px'}}>
+                          {stock.recommendation.confidence}
+                        </span>
+                      </td>
+                      <td>
+                        <div className="ticker" style={{cursor:'pointer'}} onClick={() => onSelectStock && onSelectStock(stock)}>{stock.symbol}</div>
+                        <div style={{fontSize:'10px', color:'var(--text-muted)'}}>{stock.name}</div>
+                      </td>
+                      <td style={{fontFamily:'var(--font-mono)', fontWeight:600}}>${stock.price.toFixed(2)}</td>
+                      <td style={{fontFamily:'var(--font-mono)', fontWeight:700, color:'var(--accent-blue)'}}>
+                        ${stock.strikePrice.toFixed(2)}
+                        <div style={{fontSize:'10px', color:'var(--text-muted)'}}>{((1 - stock.strikePrice/stock.price)*100).toFixed(1)}% OTM</div>
+                      </td>
+                      <td style={{fontFamily:'var(--font-mono)', fontSize:'12px', color: stock.strikePrice < (stock.supportLevel||0) ? 'var(--accent-green)' : 'var(--accent-amber)'}}>
+                        ${(stock.supportLevel||0).toFixed(2)}
+                        {stock.strikePrice < (stock.supportLevel||0) && <div style={{fontSize:'9px',color:'var(--accent-green)'}}>✓ Below</div>}
+                      </td>
+                      <td style={{fontFamily:'var(--font-mono)', fontSize:'12px', color:'var(--text-muted)'}}>
+                        ${(stock.resistanceLevel||0).toFixed(2)}
+                      </td>
+                      <td style={{fontFamily:'var(--font-mono)', fontSize:'12px'}}>{stock.expDateStr || `${stock.daysToExpiry}d`}</td>
+                      <td style={{fontFamily:'var(--font-mono)', color:'var(--accent-green)', fontWeight:700}}>${stock.premium.toFixed(2)}</td>
+                      <td style={{fontFamily:'var(--font-mono)', fontWeight:700, color:'var(--accent-blue)'}}>
+                        {(stock.weeklyYield * 100).toFixed(2)}%
+                      </td>
+                      <td>
+                        <Tip text={`MONTHLY YIELD: ${(stock.weeklyYield * (stock.daysToExpiry || 7) / 30 * 100).toFixed(2)}%\n= Weekly yield × (${stock.daysToExpiry || 7} DTE ÷ 30)\nThis is your actual expected return\nfor this specific contract period.`}>
+                        <span style={{fontFamily:'var(--font-mono)', fontWeight:700, color:'var(--accent-purple)'}}>
+                          {(stock.weeklyYield * (stock.daysToExpiry || 7) / 30 * 100).toFixed(2)}%
+                        </span>
+                        </Tip>
+                      </td>
+                      <td>
+                        <Tip text={TipText.delta(stock)}>
+                        <span className={`indicator-pill ${stock.delta <= 0.20 ? 'pill-green' : stock.delta <= 0.28 ? 'pill-amber' : 'pill-red'}`}>
+                          {stock.delta.toFixed(2)}
+                        </span>
+                        </Tip>
+                      </td>
+                      <td>
+                        <Tip text={TipText.pop(stock)}>
+                        <span style={{fontFamily:'var(--font-mono)', fontWeight:600, color: pop >= 80 ? 'var(--accent-green)' : pop >= 70 ? 'var(--accent-amber)' : 'var(--accent-red)'}}>
+                        {pop}%
+                        </span>
+                        </Tip>
+                      </td>
+                      <td style={{fontFamily:'var(--font-mono)', fontSize:'12px'}}>${cashReq.toLocaleString()}</td>
+                      <td style={{fontFamily:'var(--font-mono)', fontSize:'12px', color:'var(--accent-red)'}}>${maxLoss.toLocaleString()}</td>
+                      <td>
+                        <span className={`indicator-pill ${(stock.ivPercentile||50) >= 50 ? 'pill-green' : 'pill-amber'}`}>
+                          {stock.ivPercentile || 50}%
+                        </span>
+                      </td>
+                      <td style={{fontFamily:'var(--font-mono)', fontSize:'11px', color: (stock.putCallRatio||1) > 1.2 ? 'var(--accent-red)' : (stock.putCallRatio||1) < 0.8 ? 'var(--accent-green)' : 'var(--text-muted)'}}>
+                        {(stock.putCallRatio||1).toFixed(2)}
+                        <div style={{fontSize:'9px', color:'var(--text-muted)'}}>{(stock.putCallRatio||1) > 1.2 ? 'Bearish' : (stock.putCallRatio||1) < 0.8 ? 'Bullish' : 'Neutral'}</div>
+                      </td>
+                      <td>
+                        <span style={{fontFamily:'var(--font-mono)', fontSize:'11px', color: stock.bidAskSpread <= 0.05 ? 'var(--accent-green)' : stock.bidAskSpread <= 0.10 ? 'var(--text-secondary)' : 'var(--accent-amber)'}}>
+                          ${stock.bidAskSpread.toFixed(2)}
+                        </span>
+                      </td>
+                      <td>
+                        {stock.earningsIn <= 14 && stock.earningsConfirmed !== false ? (
+                          <span style={{fontSize:'11px', padding:'2px 6px', borderRadius:'4px', background:'rgba(239,68,68,0.15)', color:'var(--accent-red)'}}>
+                            ⚠ {stock.earningsDateStr || stock.earningsIn+'d'}
+                          </span>
+                        ) : stock.earningsConfirmed === false ? (
+                          <span style={{fontFamily:'var(--font-mono)', fontSize:'11px', color:'var(--text-muted)'}}>~{stock.earningsDateStr || stock.earningsIn+'d'}</span>
+                        ) : (
+                          <span style={{fontFamily:'var(--font-mono)', fontSize:'11px', color:'var(--text-muted)'}}>{stock.earningsDateStr || stock.earningsIn+'d'}</span>
+                        )}
+                      </td>
+                      <td>
+                        {stock.exDivBeforeExpiry ? (
+                          <span style={{fontSize:'11px', padding:'2px 6px', borderRadius:'4px', background:'rgba(245,158,11,0.15)', color:'var(--accent-amber)'}}>
+                            ⚠ {stock.exDivDateStr}
+                          </span>
+                        ) : stock.exDivDateStr ? (
+                          <span style={{fontFamily:'var(--font-mono)', fontSize:'11px', color:'var(--text-muted)'}}>{stock.exDivDateStr}</span>
+                        ) : (
+                          <span style={{fontSize:'11px', color:'var(--text-muted)'}}>—</span>
+                        )}
+                      </td>
+                      <td>
+                        <Tip text={TipText.score(stock)}>
+                        <span className={`score-badge ${stock.wheelScore >= 75 ? 'score-high' : stock.wheelScore >= 50 ? 'score-mid' : 'score-low'}`}>
+                          {stock.wheelScore}
+                        </span>
+                        </Tip>
+                      </td>
+                      <td style={{fontSize:'11px', color:'var(--text-muted)', maxWidth:'140px'}}>{stock.recommendation.reason}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* ===== FULL CANDIDATE TABLE ===== */}
+      <div className="data-table-container">
+        <div className="data-table-header">
+          <h3>📊 All Wheel Strategy Candidates</h3>
+          <div style={{display:'flex', gap:12, alignItems:'center'}}>
+            <button className="btn btn-sm btn-secondary" onClick={() => exportCSV(topStocks, `wheelpro-candidates-${new Date().toISOString().slice(0,10)}.csv`)} style={{fontSize:11}}>📥 Export CSV</button>
+            <span style={{fontSize:'12px', color:'var(--text-muted)'}}>Sorted by Wheel Score · {topStocks.length} stocks</span>
+          </div>
+        </div>
+        <div className="table-scroll">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Symbol</th>
+                <th>Price</th>
+                <th>Score</th>
+                <th>Action</th>
+                <th>Strike</th>
+                <th>Support</th>
+                <th>Resist.</th>
+                <th>Exp Date</th>
+                <th>Premium</th>
+                <th>Wk Yield</th>
+                <th>Ann. Yield</th>
+                <th>Delta</th>
+                <th>P.O.P.</th>
+                <th>Cash Req.</th>
+                <th>Max Loss</th>
+                <th>RSI</th>
+                <th>Signal</th>
+                <th>IV %ile</th>
+                <th>P/C Ratio</th>
+                <th>Earnings</th>
+                <th>Ex-Div</th>
+                <th>Trend</th>
+                <th>IV Rank</th>
+              </tr>
+            </thead>
+            <tbody>
+              {topStocks.map((stock, i) => {
+                const isRecommended = stock.recommendation && stock.recommendation.type === 'SELL_PUT' && (stock.recommendation.confidence === 'HIGH' || stock.recommendation.confidence === 'MEDIUM');
+                const pop = stock.probOfProfit || WheelScoring.getProbOfProfit(stock.delta);
+                const cashReq = stock.cashRequired || WheelScoring.getCashRequired(stock.strikePrice);
+                const maxLoss = stock.maxLoss || Math.round((stock.strikePrice - stock.premium) * 100);
+                return (
+                <tr key={stock.symbol} style={{animation: `slideIn 0.3s ease-out ${i * 0.03}s both`, borderLeft: isRecommended ? '3px solid var(--accent-green)' : '3px solid transparent'}}>
+                  <td style={{color:'var(--text-muted)', fontFamily:'var(--font-mono)', fontSize:'12px'}}>{i + 1}</td>
+                  <td>
+                    <div style={{display:'flex', alignItems:'center', gap:'10px'}}>
+                      <div>
+                        <div className="ticker">{stock.symbol}</div>
+                        <div style={{fontSize:'11px', color:'var(--text-muted)'}}>{stock.sector}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div style={{fontFamily:'var(--font-mono)', fontWeight:600}}>${stock.price.toFixed(2)}</div>
+                    <div style={{fontSize:'11px', color: stock.change >= 0 ? 'var(--accent-green)' : 'var(--accent-red)'}}>{stock.change >= 0 ? '+' : ''}{stock.changePct}%</div>
+                  </td>
+                  <td>
+                    <Tip text={TipText.score(stock)}>
+                    <span className={`score-badge ${stock.wheelScore >= 75 ? 'score-high' : stock.wheelScore >= 50 ? 'score-mid' : 'score-low'}`}>
+                      {stock.wheelScore}
+                    </span>
+                    </Tip>
+                  </td>
+                  <td>
+                    <Tip text={TipText.action(stock)}>
+                    <span className={`signal-badge signal-${stock.recommendation.color === 'green' ? 'bullish' : stock.recommendation.color === 'amber' ? 'neutral' : 'bearish'}`}>
+                      {stock.recommendation.label}
+                    </span>
+                    </Tip>
+                  </td>
+                  <td style={{fontFamily:'var(--font-mono)'}}>
+                    <Tip text={TipText.strike(stock)}>
+                    <span>${stock.strikePrice.toFixed(2)}
+                    <div style={{fontSize:'10px',color:'var(--text-muted)'}}>{((1 - stock.strikePrice/stock.price)*100).toFixed(1)}% OTM</div>
+                    </span>
+                    </Tip>
+                  </td>
+                  <td style={{fontFamily:'var(--font-mono)', fontSize:'12px', color: stock.strikePrice < (stock.supportLevel||0) ? 'var(--accent-green)' : 'var(--text-muted)'}}>
+                    ${(stock.supportLevel||0).toFixed(2)}
+                  </td>
+                  <td style={{fontFamily:'var(--font-mono)', fontSize:'12px', color:'var(--text-muted)'}}>
+                    ${(stock.resistanceLevel||0).toFixed(2)}
+                  </td>
+                  <td style={{fontFamily:'var(--font-mono)', fontSize:'12px'}}>{stock.expDateStr || `${stock.daysToExpiry}d`}</td>
+                  <td style={{fontFamily:'var(--font-mono)', color:'var(--accent-green)'}}>${stock.premium.toFixed(2)}</td>
+                  <td>
+                    <Tip text={TipText.yield(stock)}>
+                    <span style={{fontFamily:'var(--font-mono)', fontWeight:700, color:'var(--accent-blue)'}}>
+                    {(stock.weeklyYield * 100).toFixed(2)}%
+                    </span>
+                    </Tip>
+                  </td>
+                  <td>
+                    <Tip text={TipText.annYield(stock)}>
+                    <span style={{fontFamily:'var(--font-mono)', fontWeight:700, color:'var(--accent-green)'}}>
+                    {stock.annualizedYield}%
+                    </span>
+                    </Tip>
+                  </td>
+                  <td>
+                    <Tip text={TipText.delta(stock)}>
+                    <span className={`indicator-pill ${stock.delta <= 0.20 ? 'pill-green' : stock.delta <= 0.28 ? 'pill-amber' : 'pill-red'}`}>
+                      {stock.delta.toFixed(2)}
+                    </span>
+                    </Tip>
+                  </td>
+                  <td>
+                    <Tip text={TipText.pop(stock)}>
+                    <span style={{fontFamily:'var(--font-mono)', fontSize:'12px', color: pop >= 80 ? 'var(--accent-green)' : pop >= 70 ? 'var(--text-secondary)' : 'var(--accent-red)'}}>
+                    {pop}%
+                    </span>
+                    </Tip>
+                  </td>
+                  <td style={{fontFamily:'var(--font-mono)', fontSize:'12px'}}>${cashReq.toLocaleString()}</td>
+                  <td>
+                    <Tip text={TipText.maxLoss(stock)}>
+                    <span style={{fontFamily:'var(--font-mono)', fontSize:'12px', color:'var(--accent-red)'}}>${maxLoss.toLocaleString()}</span>
+                    </Tip>
+                  </td>
+                  <td>
+                    <Tip text={TipText.rsi(stock)}>
+                    <span className={`indicator-pill ${stock.rsi < 35 ? 'pill-green' : stock.rsi > 65 ? 'pill-red' : 'pill-amber'}`}>
+                      {stock.rsi}
+                    </span>
+                    </Tip>
+                  </td>
+                  <td>
+                    <Tip text={TipText.signal(stock)}>
+                    <span className={`signal-badge ${stock.technicalSignal > 0.2 ? 'signal-bullish' : stock.technicalSignal < -0.2 ? 'signal-bearish' : 'signal-neutral'}`}>
+                      {stock.technicalSignal > 0.2 ? '↑ Bull' : stock.technicalSignal < -0.2 ? '↓ Bear' : '— Neutral'}
+                    </span>
+                    </Tip>
+                  </td>
+                  <td>
+                    <Tip text={TipText.iv(stock)}>
+                    <span className={`indicator-pill ${(stock.ivPercentile||50) >= 50 ? 'pill-green' : 'pill-amber'}`}>
+                      {stock.ivPercentile || 50}%
+                    </span>
+                    </Tip>
+                  </td>
+                  <td>
+                    <Tip text={TipText.pcRatio(stock)}>
+                    <span style={{fontFamily:'var(--font-mono)', fontSize:'11px', color: (stock.putCallRatio||1) > 1.2 ? 'var(--accent-red)' : (stock.putCallRatio||1) < 0.8 ? 'var(--accent-green)' : 'var(--text-muted)'}}>
+                    {(stock.putCallRatio||1).toFixed(2)}
+                    </span>
+                    </Tip>
+                  </td>
+                  <td>
+                    <Tip text={TipText.earnings(stock)}>
+                    {stock.earningsIn <= 14 && stock.earningsConfirmed !== false ? (
+                      <span style={{fontSize:'11px', padding:'2px 6px', borderRadius:'4px', background:'rgba(239,68,68,0.15)', color:'var(--accent-red)'}}>
+                        ⚠ {stock.earningsDateStr || stock.earningsIn+'d'}
+                      </span>
+                    ) : stock.earningsConfirmed === false ? (
+                      <span style={{fontFamily:'var(--font-mono)', fontSize:'11px', color:'var(--text-muted)'}}>~{stock.earningsDateStr || stock.earningsIn+'d'}</span>
+                    ) : (
+                      <span style={{fontFamily:'var(--font-mono)', fontSize:'11px', color:'var(--text-muted)'}}>{stock.earningsDateStr || stock.earningsIn+'d'}</span>
+                    )}
+                    </Tip>
+                  </td>
+                  <td>
+                    <Tip text={TipText.exDiv(stock)}>
+                    {stock.exDivBeforeExpiry ? (
+                      <span style={{fontSize:'11px', padding:'2px 6px', borderRadius:'4px', background:'rgba(245,158,11,0.15)', color:'var(--accent-amber)'}}>⚠ {stock.exDivDateStr}</span>
+                    ) : stock.exDivDateStr ? (
+                      <span style={{fontFamily:'var(--font-mono)', fontSize:'11px', color:'var(--text-muted)'}}>{stock.exDivDateStr}</span>
+                    ) : (
+                      <span style={{fontSize:'11px', color:'var(--text-muted)'}}>—</span>
+                    )}
+                    </Tip>
+                  </td>
+                  <td>
+                    <Sparkline data={stock.closes.slice(-20)} color={stock.technicalSignal > 0 ? '#10b981' : '#ef4444'} />
+                  </td>
+                  <td>
+                    <div style={{display:'flex', alignItems:'center', gap:'6px'}}>
+                      <div style={{width:40, height:4, background:'var(--bg-primary)', borderRadius:2, overflow:'hidden'}}>
+                        <div style={{width:`${stock.ivRank}%`, height:'100%', background: stock.ivRank > 50 ? 'var(--accent-green)' : 'var(--accent-amber)', borderRadius:2}}></div>
+                      </div>
+                      <span style={{fontFamily:'var(--font-mono)', fontSize:'11px'}}>{stock.ivRank}%</span>
+                    </div>
+                  </td>
+                </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ===== SCREENER PAGE =====
+function ScreenerPage({ stocks, user, onSelectStock, onExport }) {
+  // Free tier: no screener access
+  const tierLimits = CONFIG.TIER_LIMITS[user?.plan || 'free'];
+  if (!tierLimits.screener && !user?.isOwner) {
+    return (
+      <div className="loading-state" style={{gap:20}}>
+        <div style={{fontSize:'48px'}}>🔍</div>
+        <h3 style={{color:'var(--text-primary)', margin:0}}>Advanced Screener</h3>
+        <p style={{maxWidth:400, textAlign:'center', lineHeight:1.7}}>Filter and sort all stocks by yield, delta, score, sector, and technical signal. Search for specific tickers. Available on Starter, Pro, and Elite plans.</p>
+        <button className="btn btn-primary" style={{marginTop:8}}>Upgrade to Starter — $29/mo</button>
+      </div>
+    );
+  }
+  const [filters, setFilters] = useState({
+    sector: 'All',
+    minYield: 0,
+    maxDelta: 0.35,
+    minScore: 0,
+    signal: 'All',
+    search: '',
+    sortBy: 'wheelScore',
+    sortDir: 'desc'
+  });
+
+  const sectors = useMemo(() => ['All', ...new Set(stocks.map(s => s.sector))], [stocks]);
+
+  const filteredStocks = useMemo(() => {
+    let result = stocks.filter(s => {
+      if (filters.sector !== 'All' && s.sector !== filters.sector) return false;
+      if (s.weeklyYield < filters.minYield / 100) return false;
+      if (s.delta > filters.maxDelta) return false;
+      if (s.wheelScore < filters.minScore) return false;
+      if (filters.signal === 'Bullish' && s.technicalSignal <= 0.2) return false;
+      if (filters.signal === 'Bearish' && s.technicalSignal >= -0.2) return false;
+      if (filters.signal === 'Neutral' && (s.technicalSignal > 0.2 || s.technicalSignal < -0.2)) return false;
+      if (filters.search && !s.symbol.toLowerCase().includes(filters.search.toLowerCase()) && !s.name.toLowerCase().includes(filters.search.toLowerCase())) return false;
+      return true;
+    });
+
+    result.sort((a, b) => {
+      const mult = filters.sortDir === 'desc' ? -1 : 1;
+      return (a[filters.sortBy] - b[filters.sortBy]) * mult;
+    });
+
+    return result;
+  }, [stocks, filters]);
+
+  const handleSort = (field) => {
+    setFilters(f => ({
+      ...f,
+      sortBy: field,
+      sortDir: f.sortBy === field && f.sortDir === 'desc' ? 'asc' : 'desc'
+    }));
+  };
+
+  const SortIcon = ({ field }) => {
+    if (filters.sortBy !== field) return null;
+    return filters.sortDir === 'desc' ? Icons.arrowDown : Icons.arrowUp;
+  };
+
+  return (
+    <div>
+      <div className="screener-filters">
+        <div className="filter-group">
+          <label className="filter-label">Search</label>
+          <input className="filter-input" placeholder="Symbol or name..." value={filters.search} onChange={e => setFilters(f => ({...f, search: e.target.value}))} style={{minWidth:180}} />
+        </div>
+        <div className="filter-group">
+          <label className="filter-label">Sector</label>
+          <select className="filter-select" value={filters.sector} onChange={e => setFilters(f => ({...f, sector: e.target.value}))}>
+            {sectors.map(s => <option key={s} value={s}>{s}</option>)}
+          </select>
+        </div>
+        <div className="filter-group">
+          <label className="filter-label">Min Yield %</label>
+          <input className="filter-input" type="number" step="0.5" min="0" max="10" value={filters.minYield} onChange={e => setFilters(f => ({...f, minYield: +e.target.value}))} style={{minWidth:80}} />
+        </div>
+        <div className="filter-group">
+          <label className="filter-label">Max Delta</label>
+          <input className="filter-input" type="number" step="0.05" min="0" max="1" value={filters.maxDelta} onChange={e => setFilters(f => ({...f, maxDelta: +e.target.value}))} style={{minWidth:80}} />
+        </div>
+        <div className="filter-group">
+          <label className="filter-label">Min Score</label>
+          <input className="filter-input" type="number" step="5" min="0" max="100" value={filters.minScore} onChange={e => setFilters(f => ({...f, minScore: +e.target.value}))} style={{minWidth:80}} />
+        </div>
+        <div className="filter-group">
+          <label className="filter-label">Signal</label>
+          <select className="filter-select" value={filters.signal} onChange={e => setFilters(f => ({...f, signal: e.target.value}))}>
+            <option>All</option>
+            <option>Bullish</option>
+            <option>Bearish</option>
+            <option>Neutral</option>
+          </select>
+        </div>
+        <div className="filter-group" style={{display:'flex', alignItems:'flex-end', gap:8}}>
+          <button className="btn btn-sm btn-secondary" onClick={() => setFilters({sector:'All',minYield:0,maxDelta:0.35,minScore:0,signal:'All',search:'',sortBy:'wheelScore',sortDir:'desc'})}>
+            Reset
+          </button>
+          <button className="btn btn-sm btn-secondary" onClick={() => onExport && onExport(filteredStocks)} style={{fontSize:11}}>
+            📥 CSV
+          </button>
+        </div>
+      </div>
+
+      <div style={{marginBottom:'16px', fontSize:'13px', color:'var(--text-muted)'}}>
+        Showing {filteredStocks.length} of {stocks.length} stocks
+      </div>
+
+      <div className="data-table-container">
+        <div className="table-scroll">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th style={{cursor:'pointer'}} onClick={() => handleSort('symbol')}>Symbol <SortIcon field="symbol"/></th>
+                <th>Name</th>
+                <th style={{cursor:'pointer'}} onClick={() => handleSort('price')}>Price <SortIcon field="price"/></th>
+                <th style={{cursor:'pointer'}} onClick={() => handleSort('wheelScore')}>Score <SortIcon field="wheelScore"/></th>
+                <th>Recommendation</th>
+                <th>Strike</th>
+                <th>Exp Date</th>
+                <th style={{cursor:'pointer'}} onClick={() => handleSort('weeklyYield')}>Wk Yield <SortIcon field="weeklyYield"/></th>
+                <th style={{cursor:'pointer'}} onClick={() => handleSort('annualizedYield')}>Ann Yield <SortIcon field="annualizedYield"/></th>
+                <th style={{cursor:'pointer'}} onClick={() => handleSort('delta')}>Delta <SortIcon field="delta"/></th>
+                <th style={{cursor:'pointer'}} onClick={() => handleSort('rsi')}>RSI <SortIcon field="rsi"/></th>
+                <th>MACD</th>
+                <th>BB %B</th>
+                <th style={{cursor:'pointer'}} onClick={() => handleSort('iv')}>IV <SortIcon field="iv"/></th>
+                <th style={{cursor:'pointer'}} onClick={() => handleSort('optionVolume')}>Opt Vol <SortIcon field="optionVolume"/></th>
+                <th>Earnings</th>
+                <th>Trend</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredStocks.map((stock, i) => (
+                <tr key={stock.symbol}>
+                  <td><span className="ticker">{stock.symbol}</span></td>
+                  <td style={{fontSize:'12px', color:'var(--text-secondary)', maxWidth:140, overflow:'hidden', textOverflow:'ellipsis'}}>{stock.name}</td>
+                  <td>
+                    <span style={{fontFamily:'var(--font-mono)', fontWeight:600}}>${stock.price.toFixed(2)}</span>
+                    <span style={{fontSize:'11px', marginLeft:4, color: stock.change >= 0 ? 'var(--accent-green)' : 'var(--accent-red)'}}>
+                      {stock.change >= 0 ? '+' : ''}{stock.changePct}%
+                    </span>
+                  </td>
+                  <td>
+                    <Tip text={TipText.score(stock)}>
+                    <span className={`score-badge ${stock.wheelScore >= 75 ? 'score-high' : stock.wheelScore >= 50 ? 'score-mid' : 'score-low'}`}>
+                      {stock.wheelScore}
+                    </span>
+                    </Tip>
+                  </td>
+                  <td>
+                    <Tip text={TipText.action(stock)}>
+                    <span className={`signal-badge signal-${stock.recommendation.color === 'green' ? 'bullish' : stock.recommendation.color === 'amber' ? 'neutral' : 'bearish'}`} style={{fontSize:'11px'}}>
+                      {stock.recommendation.label}
+                    </span>
+                    </Tip>
+                  </td>
+                  <td style={{fontFamily:'var(--font-mono)', fontSize:'12px'}}>${stock.strikePrice.toFixed(2)}</td>
+                  <td style={{fontFamily:'var(--font-mono)', fontSize:'12px'}}>{stock.expDateStr || `${stock.daysToExpiry}d`}</td>
+                  <td><Tip text={TipText.yield(stock)}><span style={{fontFamily:'var(--font-mono)', fontWeight:700, color:'var(--accent-blue)'}}>{(stock.weeklyYield * 100).toFixed(2)}%</span></Tip></td>
+                  <td><Tip text={TipText.annYield(stock)}><span style={{fontFamily:'var(--font-mono)', fontWeight:700, color:'var(--accent-green)'}}>{stock.annualizedYield}%</span></Tip></td>
+                  <td><Tip text={TipText.delta(stock)}><span className={`indicator-pill ${stock.delta <= 0.20 ? 'pill-green' : stock.delta <= 0.28 ? 'pill-amber' : 'pill-red'}`}>{stock.delta.toFixed(2)}</span></Tip></td>
+                  <td><Tip text={TipText.rsi(stock)}><span className={`indicator-pill ${stock.rsi < 35 ? 'pill-green' : stock.rsi > 65 ? 'pill-red' : 'pill-amber'}`}>{stock.rsi}</span></Tip></td>
+                  <td style={{fontFamily:'var(--font-mono)', fontSize:'11px', color: stock.macd && stock.macd.histogram > 0 ? 'var(--accent-green)' : 'var(--accent-red)'}}>
+                    {stock.macd ? (stock.macd.histogram > 0 ? '↑' : '↓') + ' ' + Math.abs(stock.macd.histogram).toFixed(2) : '—'}
+                  </td>
+                  <td>
+                    {stock.bb ? (
+                      <span className={`indicator-pill ${stock.bb.percentB < 0.3 ? 'pill-green' : stock.bb.percentB > 0.7 ? 'pill-red' : 'pill-amber'}`}>
+                        {(stock.bb.percentB * 100).toFixed(0)}%
+                      </span>
+                    ) : '—'}
+                  </td>
+                  <td style={{fontFamily:'var(--font-mono)', fontSize:'12px'}}>{stock.iv}%</td>
+                  <td style={{fontFamily:'var(--font-mono)', fontSize:'12px'}}>{stock.optionVolume.toLocaleString()}</td>
+                  <td>
+                    <Tip text={TipText.earnings(stock)}>
+                    <span className={`indicator-pill ${stock.earningsConfirmed === false ? 'pill-amber' : stock.earningsIn <= 7 ? 'pill-red' : stock.earningsIn <= 14 ? 'pill-amber' : 'pill-green'}`}>
+                      {stock.earningsConfirmed === false ? '~' : ''}{stock.earningsDateStr || stock.earningsIn+'d'}
+                    </span>
+                    </Tip>
+                  </td>
+                  <td><Sparkline data={stock.closes.slice(-15)} width={60} height={24} color={stock.technicalSignal > 0 ? '#10b981' : '#ef4444'} /></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ===== SETTINGS PAGE =====
+// ===== PORTFOLIO PAGE =====
+function PortfolioPage({ stocks }) {
+  const [positions, setPositions] = useState(() => Storage.get('positions', []));
+  const [showAdd, setShowAdd] = useState(false);
+  const [newPos, setNewPos] = useState({ symbol: '', strike: '', premium: '', contracts: 1, expDate: '', type: 'CSP' });
+
+  useEffect(() => { Storage.set('positions', positions); }, [positions]);
+
+  const addPosition = () => {
+    if (!newPos.symbol || !newPos.strike || !newPos.premium) return;
+    const stock = stocks.find(s => s.symbol.toUpperCase() === newPos.symbol.toUpperCase());
+    setPositions(prev => [...prev, {
+      id: Date.now(),
+      symbol: newPos.symbol.toUpperCase(),
+      type: newPos.type,
+      strike: +newPos.strike,
+      premium: +newPos.premium,
+      contracts: +newPos.contracts || 1,
+      expDate: newPos.expDate,
+      openedAt: new Date().toISOString().slice(0, 10),
+      currentPrice: stock?.price || 0,
+    }]);
+    setNewPos({ symbol: '', strike: '', premium: '', contracts: 1, expDate: '', type: 'CSP' });
+    setShowAdd(false);
+  };
+
+  const removePosition = (id) => setPositions(prev => prev.filter(p => p.id !== id));
+
+  // Enrich positions with live data
+  const enriched = positions.map(p => {
+    const stock = stocks.find(s => s.symbol === p.symbol);
+    const currentPrice = stock?.price || p.currentPrice;
+    const cashLocked = p.strike * 100 * p.contracts;
+    const premiumCollected = p.premium * 100 * p.contracts;
+    const maxLoss = (p.strike - p.premium) * 100 * p.contracts;
+    const isITM = currentPrice < p.strike;
+    const daysLeft = p.expDate ? Math.max(0, Math.ceil((new Date(p.expDate) - new Date()) / 86400000)) : null;
+    const costBasis = p.strike - p.premium; // What you'd own the stock at if assigned
+    return { ...p, currentPrice, cashLocked, premiumCollected, maxLoss, isITM, daysLeft, costBasis, stock };
+  });
+
+  // Portfolio-level aggregates
+  const totalCashLocked = enriched.reduce((s, p) => s + p.cashLocked, 0);
+  const totalPremium = enriched.reduce((s, p) => s + p.premiumCollected, 0);
+  const totalMaxLoss = enriched.reduce((s, p) => s + p.maxLoss, 0);
+  const itmCount = enriched.filter(p => p.isITM).length;
+
+  // Sector concentration
+  const sectorMap = {};
+  enriched.forEach(p => {
+    const sector = p.stock?.sector || 'Unknown';
+    sectorMap[sector] = (sectorMap[sector] || 0) + p.cashLocked;
+  });
+  const sectors = Object.entries(sectorMap).sort((a, b) => b[1] - a[1]);
+
+  return (
+    <div>
+      {/* Summary Cards */}
+      <div className="stats-grid">
+        <div className="stat-card" style={{borderLeft:'3px solid var(--accent-blue)'}}>
+          <div className="stat-label">Open Positions</div>
+          <div className="stat-value">{enriched.length}</div>
+          <div className="stat-change" style={{color: itmCount > 0 ? 'var(--accent-red)' : 'var(--accent-green)', background: itmCount > 0 ? 'rgba(239,68,68,0.1)' : 'rgba(16,185,129,0.1)'}}>
+            {itmCount > 0 ? `${itmCount} ITM ⚠` : 'All OTM ✓'}
+          </div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-label">Total Cash Locked</div>
+          <div className="stat-value" style={{color:'var(--accent-amber)'}}>${totalCashLocked.toLocaleString()}</div>
+          <div className="stat-change" style={{color:'var(--text-muted)', background:'none'}}>Across {enriched.length} positions</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-label">Premium Collected</div>
+          <div className="stat-value" style={{color:'var(--accent-green)'}}>${totalPremium.toLocaleString()}</div>
+          <div className="stat-change positive">
+            {totalCashLocked > 0 ? ((totalPremium / totalCashLocked) * 100).toFixed(2) : 0}% return on capital
+          </div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-label">Total Max Loss</div>
+          <div className="stat-value" style={{color:'var(--accent-red)'}}>${totalMaxLoss.toLocaleString()}</div>
+          <div className="stat-change" style={{color:'var(--text-muted)', background:'none'}}>Worst-case if all assigned at $0</div>
+        </div>
+      </div>
+
+      {/* Sector Concentration */}
+      {sectors.length > 0 && (
+        <div className="data-table-container" style={{marginBottom:24}}>
+          <div className="data-table-header">
+            <h3>🏗️ Sector Concentration</h3>
+            <span style={{fontSize:'12px', color:'var(--text-muted)'}}>Diversification across {sectors.length} sector{sectors.length !== 1 ? 's' : ''}</span>
+          </div>
+          <div style={{padding:'16px 20px', display:'flex', flexWrap:'wrap', gap:'12px'}}>
+            {sectors.map(([sector, amount]) => {
+              const pct = totalCashLocked > 0 ? (amount / totalCashLocked * 100) : 0;
+              const isOverweight = pct > 40;
+              return (
+                <div key={sector} style={{background:'var(--bg-elevated)', borderRadius:'var(--radius-md)', padding:'12px 16px', minWidth:180, border: isOverweight ? '1px solid rgba(239,68,68,0.3)' : '1px solid var(--border)'}}>
+                  <div style={{fontSize:'12px', color:'var(--text-muted)', marginBottom:4}}>{sector}</div>
+                  <div style={{display:'flex', alignItems:'baseline', gap:8}}>
+                    <span style={{fontFamily:'var(--font-mono)', fontWeight:700, fontSize:'16px'}}>${amount.toLocaleString()}</span>
+                    <span style={{fontFamily:'var(--font-mono)', fontSize:'12px', color: isOverweight ? 'var(--accent-red)' : 'var(--accent-green)'}}>
+                      {pct.toFixed(0)}% {isOverweight ? '⚠ Heavy' : ''}
+                    </span>
+                  </div>
+                  <div style={{width:'100%', height:4, background:'var(--bg-primary)', borderRadius:2, marginTop:8, overflow:'hidden'}}>
+                    <div style={{width:`${Math.min(pct, 100)}%`, height:'100%', background: isOverweight ? 'var(--accent-red)' : 'var(--accent-blue)', borderRadius:2}}></div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Positions Table */}
+      <div className="data-table-container">
+        <div className="data-table-header">
+          <h3>📋 Open Positions</h3>
+          <button className="btn btn-sm btn-primary" onClick={() => setShowAdd(true)}>+ Add Position</button>
+        </div>
+
+        {/* Add Position Form */}
+        {showAdd && (
+          <div style={{padding:'16px 20px', background:'var(--bg-elevated)', borderBottom:'1px solid var(--border)', display:'flex', flexWrap:'wrap', gap:'10px', alignItems:'flex-end'}}>
+            <div>
+              <div style={{fontSize:'11px', color:'var(--text-muted)', marginBottom:4}}>Symbol</div>
+              <input style={{background:'var(--bg-primary)', border:'1px solid var(--border)', borderRadius:'var(--radius-sm)', padding:'6px 10px', color:'var(--text-primary)', fontFamily:'var(--font-mono)', width:80, fontSize:'13px'}}
+                value={newPos.symbol} onChange={e => setNewPos(p => ({...p, symbol: e.target.value.toUpperCase()}))} placeholder="AAPL" />
+            </div>
+            <div>
+              <div style={{fontSize:'11px', color:'var(--text-muted)', marginBottom:4}}>Type</div>
+              <select style={{background:'var(--bg-primary)', border:'1px solid var(--border)', borderRadius:'var(--radius-sm)', padding:'6px 10px', color:'var(--text-primary)', fontSize:'13px'}}
+                value={newPos.type} onChange={e => setNewPos(p => ({...p, type: e.target.value}))}>
+                <option value="CSP">Cash-Secured Put</option>
+                <option value="CC">Covered Call</option>
+              </select>
+            </div>
+            <div>
+              <div style={{fontSize:'11px', color:'var(--text-muted)', marginBottom:4}}>Strike $</div>
+              <input type="number" style={{background:'var(--bg-primary)', border:'1px solid var(--border)', borderRadius:'var(--radius-sm)', padding:'6px 10px', color:'var(--text-primary)', fontFamily:'var(--font-mono)', width:90, fontSize:'13px'}}
+                value={newPos.strike} onChange={e => setNewPos(p => ({...p, strike: e.target.value}))} placeholder="150.00" />
+            </div>
+            <div>
+              <div style={{fontSize:'11px', color:'var(--text-muted)', marginBottom:4}}>Premium $</div>
+              <input type="number" style={{background:'var(--bg-primary)', border:'1px solid var(--border)', borderRadius:'var(--radius-sm)', padding:'6px 10px', color:'var(--text-primary)', fontFamily:'var(--font-mono)', width:80, fontSize:'13px'}}
+                value={newPos.premium} onChange={e => setNewPos(p => ({...p, premium: e.target.value}))} placeholder="2.50" />
+            </div>
+            <div>
+              <div style={{fontSize:'11px', color:'var(--text-muted)', marginBottom:4}}>Contracts</div>
+              <input type="number" style={{background:'var(--bg-primary)', border:'1px solid var(--border)', borderRadius:'var(--radius-sm)', padding:'6px 10px', color:'var(--text-primary)', fontFamily:'var(--font-mono)', width:60, fontSize:'13px'}}
+                value={newPos.contracts} onChange={e => setNewPos(p => ({...p, contracts: e.target.value}))} min="1" />
+            </div>
+            <div>
+              <div style={{fontSize:'11px', color:'var(--text-muted)', marginBottom:4}}>Exp Date</div>
+              <input type="date" style={{background:'var(--bg-primary)', border:'1px solid var(--border)', borderRadius:'var(--radius-sm)', padding:'6px 10px', color:'var(--text-primary)', fontSize:'13px'}}
+                value={newPos.expDate} onChange={e => setNewPos(p => ({...p, expDate: e.target.value}))} />
+            </div>
+            <button className="btn btn-sm btn-primary" onClick={addPosition}>Save</button>
+            <button className="btn btn-sm btn-secondary" onClick={() => setShowAdd(false)}>Cancel</button>
+          </div>
+        )}
+
+        {enriched.length === 0 ? (
+          <div style={{padding:'40px 20px', textAlign:'center', color:'var(--text-muted)'}}>
+            <div style={{fontSize:'32px', marginBottom:12}}>📭</div>
+            <p>No positions tracked yet. Click <strong>+ Add Position</strong> to start tracking your wheel trades.</p>
+            <p style={{fontSize:'12px', marginTop:8}}>Your positions are saved locally and auto-update with live prices.</p>
+          </div>
+        ) : (
+          <div className="table-scroll">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Symbol</th>
+                  <th>Type</th>
+                  <th>Current Price</th>
+                  <th>Strike</th>
+                  <th>Status</th>
+                  <th>Cost Basis</th>
+                  <th>Premium</th>
+                  <th>Cash Locked</th>
+                  <th>Max Loss</th>
+                  <th>Days Left</th>
+                  <th>Opened</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {enriched.map(p => (
+                  <tr key={p.id} style={{borderLeft: p.isITM ? '3px solid var(--accent-red)' : '3px solid var(--accent-green)'}}>
+                    <td><span className="ticker">{p.symbol}</span></td>
+                    <td><span style={{fontSize:'11px', padding:'2px 8px', borderRadius:'10px', background: p.type === 'CSP' ? 'rgba(59,130,246,0.1)' : 'rgba(139,92,246,0.1)', color: p.type === 'CSP' ? 'var(--accent-blue)' : 'var(--accent-purple)'}}>{p.type === 'CSP' ? 'Put' : 'Call'}</span></td>
+                    <td style={{fontFamily:'var(--font-mono)', fontWeight:600}}>${p.currentPrice.toFixed(2)}</td>
+                    <td style={{fontFamily:'var(--font-mono)'}}>${p.strike.toFixed(2)}</td>
+                    <td>
+                      <span style={{fontSize:'11px', padding:'2px 8px', borderRadius:'10px', fontWeight:600,
+                        background: p.isITM ? 'rgba(239,68,68,0.15)' : 'rgba(16,185,129,0.15)',
+                        color: p.isITM ? 'var(--accent-red)' : 'var(--accent-green)'}}>
+                        {p.isITM ? '⚠ ITM' : '✓ OTM'}
+                      </span>
+                    </td>
+                    <td style={{fontFamily:'var(--font-mono)', fontSize:'12px'}}>${p.costBasis.toFixed(2)}/share</td>
+                    <td style={{fontFamily:'var(--font-mono)', color:'var(--accent-green)'}}>${p.premiumCollected.toLocaleString()}<span style={{fontSize:'10px', color:'var(--text-muted)'}}> ({p.contracts}x)</span></td>
+                    <td style={{fontFamily:'var(--font-mono)', fontSize:'12px'}}>${p.cashLocked.toLocaleString()}</td>
+                    <td style={{fontFamily:'var(--font-mono)', fontSize:'12px', color:'var(--accent-red)'}}>${p.maxLoss.toLocaleString()}</td>
+                    <td>
+                      {p.daysLeft !== null ? (
+                        <span style={{fontFamily:'var(--font-mono)', fontWeight:600, color: p.daysLeft <= 3 ? 'var(--accent-amber)' : 'var(--text-secondary)'}}>
+                          {p.daysLeft}d
+                        </span>
+                      ) : '—'}
+                    </td>
+                    <td style={{fontFamily:'var(--font-mono)', fontSize:'11px', color:'var(--text-muted)'}}>{p.openedAt}</td>
+                    <td>
+                      <button onClick={() => removePosition(p.id)} style={{background:'none', border:'none', cursor:'pointer', color:'var(--accent-red)', fontSize:'14px', padding:'4px'}} title="Remove position">✕</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ===== TRADE JOURNAL PAGE =====
+function TradeJournalPage({ user }) {
+  const [trades, setTrades] = useState(() => Storage.get('journal', []));
+  const [showAdd, setShowAdd] = useState(false);
+  const [newTrade, setNewTrade] = useState({ symbol: '', type: 'CSP', strike: '', premium: '', contracts: 1, openDate: '', closeDate: '', outcome: 'expired', pnl: '' });
+
+  useEffect(() => { Storage.set('journal', trades); }, [trades]);
+
+  const addTrade = () => {
+    if (!newTrade.symbol || !newTrade.strike || !newTrade.pnl) return;
+    setTrades(prev => [{
+      id: Date.now(),
+      symbol: newTrade.symbol.toUpperCase(),
+      type: newTrade.type,
+      strike: +newTrade.strike,
+      premium: +newTrade.premium || 0,
+      contracts: +newTrade.contracts || 1,
+      openDate: newTrade.openDate || new Date().toISOString().slice(0, 10),
+      closeDate: newTrade.closeDate || new Date().toISOString().slice(0, 10),
+      outcome: newTrade.outcome,
+      pnl: +newTrade.pnl,
+    }, ...prev]);
+    setNewTrade({ symbol: '', type: 'CSP', strike: '', premium: '', contracts: 1, openDate: '', closeDate: '', outcome: 'expired', pnl: '' });
+    setShowAdd(false);
+  };
+
+  const removeTrade = (id) => setTrades(prev => prev.filter(t => t.id !== id));
+
+  // Aggregates
+  const totalTrades = trades.length;
+  const totalPnl = trades.reduce((s, t) => s + t.pnl, 0);
+  const wins = trades.filter(t => t.pnl > 0).length;
+  const winRate = totalTrades > 0 ? Math.round((wins / totalTrades) * 100) : 0;
+  const avgReturn = totalTrades > 0 ? (totalPnl / totalTrades).toFixed(0) : 0;
+  const bestTrade = trades.length > 0 ? trades.reduce((best, t) => t.pnl > best.pnl ? t : best, trades[0]) : null;
+  const worstTrade = trades.length > 0 ? trades.reduce((worst, t) => t.pnl < worst.pnl ? t : worst, trades[0]) : null;
+
+  // Check tier access
+  const tierLimits = CONFIG.TIER_LIMITS[user?.plan || 'free'];
+  if (!tierLimits.journal && !user?.isOwner) {
+    return (
+      <div className="loading-state" style={{gap:20}}>
+        <div style={{fontSize:'48px'}}>📓</div>
+        <h3 style={{color:'var(--text-primary)', margin:0}}>Trade Journal</h3>
+        <p style={{maxWidth:400, textAlign:'center', lineHeight:1.7}}>Track your completed trades, measure win rate, and see your actual P&L over time. Available on Pro and Elite plans.</p>
+        <button className="btn btn-primary" style={{marginTop:8}}>Upgrade to Pro — $79/mo</button>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div className="stats-grid">
+        <div className="stat-card" style={{borderLeft:'3px solid var(--accent-blue)'}}>
+          <div className="stat-label">Total Trades</div>
+          <div className="stat-value">{totalTrades}</div>
+          <div className="stat-change" style={{color:'var(--text-muted)', background:'none'}}>All-time logged</div>
+        </div>
+        <div className="stat-card" style={{borderLeft:'3px solid var(--accent-green)'}}>
+          <div className="stat-label">Win Rate</div>
+          <div className="stat-value" style={{color: winRate >= 70 ? 'var(--accent-green)' : winRate >= 50 ? 'var(--accent-amber)' : 'var(--accent-red)'}}>{winRate}%</div>
+          <div className="stat-change positive">{wins} of {totalTrades} profitable</div>
+        </div>
+        <div className="stat-card" style={{borderLeft: totalPnl >= 0 ? '3px solid var(--accent-green)' : '3px solid var(--accent-red)'}}>
+          <div className="stat-label">Total P&L</div>
+          <div className="stat-value" style={{color: totalPnl >= 0 ? 'var(--accent-green)' : 'var(--accent-red)'}}>{totalPnl >= 0 ? '+' : ''}${totalPnl.toLocaleString()}</div>
+          <div className="stat-change" style={{color:'var(--text-muted)', background:'none'}}>Avg ${avgReturn}/trade</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-label">Best / Worst</div>
+          <div style={{display:'flex', gap:'8px', alignItems:'center', marginTop:8}}>
+            {bestTrade && <span style={{fontFamily:'var(--font-mono)', fontSize:'13px', color:'var(--accent-green)'}}>+${bestTrade.pnl.toLocaleString()} {bestTrade.symbol}</span>}
+            {worstTrade && worstTrade.pnl < 0 && <span style={{fontFamily:'var(--font-mono)', fontSize:'13px', color:'var(--accent-red)'}}>${worstTrade.pnl.toLocaleString()} {worstTrade.symbol}</span>}
+            {!bestTrade && <span style={{color:'var(--text-muted)', fontSize:'13px'}}>No trades yet</span>}
+          </div>
+        </div>
+      </div>
+
+      <div className="data-table-container">
+        <div className="data-table-header">
+          <h3>📓 Trade History</h3>
+          <button className="btn btn-sm btn-primary" onClick={() => setShowAdd(true)}>+ Log Trade</button>
+        </div>
+
+        {showAdd && (
+          <div style={{padding:'16px 20px', background:'var(--bg-elevated)', borderBottom:'1px solid var(--border)', display:'flex', flexWrap:'wrap', gap:'10px', alignItems:'flex-end'}}>
+            <div>
+              <div style={{fontSize:'11px', color:'var(--text-muted)', marginBottom:4}}>Symbol</div>
+              <input style={{background:'var(--bg-primary)', border:'1px solid var(--border)', borderRadius:'var(--radius-sm)', padding:'6px 10px', color:'var(--text-primary)', fontFamily:'var(--font-mono)', width:80, fontSize:'13px'}}
+                value={newTrade.symbol} onChange={e => setNewTrade(t => ({...t, symbol: e.target.value.toUpperCase()}))} placeholder="AAPL" />
+            </div>
+            <div>
+              <div style={{fontSize:'11px', color:'var(--text-muted)', marginBottom:4}}>Type</div>
+              <select style={{background:'var(--bg-primary)', border:'1px solid var(--border)', borderRadius:'var(--radius-sm)', padding:'6px 10px', color:'var(--text-primary)', fontSize:'13px'}}
+                value={newTrade.type} onChange={e => setNewTrade(t => ({...t, type: e.target.value}))}>
+                <option value="CSP">Cash-Secured Put</option>
+                <option value="CC">Covered Call</option>
+              </select>
+            </div>
+            <div>
+              <div style={{fontSize:'11px', color:'var(--text-muted)', marginBottom:4}}>Strike $</div>
+              <input type="number" style={{background:'var(--bg-primary)', border:'1px solid var(--border)', borderRadius:'var(--radius-sm)', padding:'6px 10px', color:'var(--text-primary)', fontFamily:'var(--font-mono)', width:90, fontSize:'13px'}}
+                value={newTrade.strike} onChange={e => setNewTrade(t => ({...t, strike: e.target.value}))} placeholder="150" />
+            </div>
+            <div>
+              <div style={{fontSize:'11px', color:'var(--text-muted)', marginBottom:4}}>Premium $</div>
+              <input type="number" style={{background:'var(--bg-primary)', border:'1px solid var(--border)', borderRadius:'var(--radius-sm)', padding:'6px 10px', color:'var(--text-primary)', fontFamily:'var(--font-mono)', width:80, fontSize:'13px'}}
+                value={newTrade.premium} onChange={e => setNewTrade(t => ({...t, premium: e.target.value}))} placeholder="2.50" />
+            </div>
+            <div>
+              <div style={{fontSize:'11px', color:'var(--text-muted)', marginBottom:4}}>Contracts</div>
+              <input type="number" style={{background:'var(--bg-primary)', border:'1px solid var(--border)', borderRadius:'var(--radius-sm)', padding:'6px 10px', color:'var(--text-primary)', fontFamily:'var(--font-mono)', width:60, fontSize:'13px'}}
+                value={newTrade.contracts} onChange={e => setNewTrade(t => ({...t, contracts: e.target.value}))} min="1" />
+            </div>
+            <div>
+              <div style={{fontSize:'11px', color:'var(--text-muted)', marginBottom:4}}>Outcome</div>
+              <select style={{background:'var(--bg-primary)', border:'1px solid var(--border)', borderRadius:'var(--radius-sm)', padding:'6px 10px', color:'var(--text-primary)', fontSize:'13px'}}
+                value={newTrade.outcome} onChange={e => setNewTrade(t => ({...t, outcome: e.target.value}))}>
+                <option value="expired">Expired Worthless</option>
+                <option value="assigned">Assigned</option>
+                <option value="closed">Closed Early</option>
+                <option value="rolled">Rolled</option>
+              </select>
+            </div>
+            <div>
+              <div style={{fontSize:'11px', color:'var(--text-muted)', marginBottom:4}}>P&L $</div>
+              <input type="number" style={{background:'var(--bg-primary)', border:'1px solid var(--border)', borderRadius:'var(--radius-sm)', padding:'6px 10px', color:'var(--text-primary)', fontFamily:'var(--font-mono)', width:90, fontSize:'13px'}}
+                value={newTrade.pnl} onChange={e => setNewTrade(t => ({...t, pnl: e.target.value}))} placeholder="250" />
+            </div>
+            <div>
+              <div style={{fontSize:'11px', color:'var(--text-muted)', marginBottom:4}}>Open Date</div>
+              <input type="date" style={{background:'var(--bg-primary)', border:'1px solid var(--border)', borderRadius:'var(--radius-sm)', padding:'6px 10px', color:'var(--text-primary)', fontSize:'13px'}}
+                value={newTrade.openDate} onChange={e => setNewTrade(t => ({...t, openDate: e.target.value}))} />
+            </div>
+            <div>
+              <div style={{fontSize:'11px', color:'var(--text-muted)', marginBottom:4}}>Close Date</div>
+              <input type="date" style={{background:'var(--bg-primary)', border:'1px solid var(--border)', borderRadius:'var(--radius-sm)', padding:'6px 10px', color:'var(--text-primary)', fontSize:'13px'}}
+                value={newTrade.closeDate} onChange={e => setNewTrade(t => ({...t, closeDate: e.target.value}))} />
+            </div>
+            <button className="btn btn-sm btn-primary" onClick={addTrade}>Save</button>
+            <button className="btn btn-sm btn-secondary" onClick={() => setShowAdd(false)}>Cancel</button>
+          </div>
+        )}
+
+        {trades.length === 0 ? (
+          <div style={{padding:'40px 20px', textAlign:'center', color:'var(--text-muted)'}}>
+            <div style={{fontSize:'32px', marginBottom:12}}>📓</div>
+            <p>No trades logged yet. Click <strong>+ Log Trade</strong> to start building your track record.</p>
+            <p style={{fontSize:'12px', marginTop:8}}>Tracking your trades helps measure your actual performance vs WheelPro recommendations.</p>
+          </div>
+        ) : (
+          <div className="table-scroll">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Symbol</th>
+                  <th>Type</th>
+                  <th>Strike</th>
+                  <th>Premium</th>
+                  <th>Contracts</th>
+                  <th>Outcome</th>
+                  <th>P&L</th>
+                  <th>Return %</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {trades.map(t => {
+                  const returnPct = t.strike > 0 ? ((t.pnl / (t.strike * 100 * t.contracts)) * 100).toFixed(2) : '0.00';
+                  return (
+                    <tr key={t.id} style={{borderLeft: t.pnl >= 0 ? '3px solid var(--accent-green)' : '3px solid var(--accent-red)'}}>
+                      <td style={{fontFamily:'var(--font-mono)', fontSize:'12px', color:'var(--text-muted)'}}>{t.closeDate || t.openDate}</td>
+                      <td><span className="ticker">{t.symbol}</span></td>
+                      <td><span style={{fontSize:'11px', padding:'2px 8px', borderRadius:'10px', background: t.type === 'CSP' ? 'rgba(59,130,246,0.1)' : 'rgba(139,92,246,0.1)', color: t.type === 'CSP' ? 'var(--accent-blue)' : 'var(--accent-purple)'}}>{t.type === 'CSP' ? 'Put' : 'Call'}</span></td>
+                      <td style={{fontFamily:'var(--font-mono)'}}>${t.strike.toFixed(2)}</td>
+                      <td style={{fontFamily:'var(--font-mono)', color:'var(--accent-green)'}}>${t.premium.toFixed(2)}</td>
+                      <td style={{fontFamily:'var(--font-mono)', fontSize:'12px'}}>{t.contracts}</td>
+                      <td>
+                        <span style={{fontSize:'11px', padding:'2px 8px', borderRadius:'10px', fontWeight:600,
+                          background: t.outcome === 'expired' ? 'rgba(16,185,129,0.15)' : t.outcome === 'assigned' ? 'rgba(239,68,68,0.15)' : 'rgba(245,158,11,0.15)',
+                          color: t.outcome === 'expired' ? 'var(--accent-green)' : t.outcome === 'assigned' ? 'var(--accent-red)' : 'var(--accent-amber)'}}>
+                          {t.outcome === 'expired' ? '✓ Expired' : t.outcome === 'assigned' ? '⚠ Assigned' : t.outcome === 'rolled' ? '↻ Rolled' : '✕ Closed'}
+                        </span>
+                      </td>
+                      <td style={{fontFamily:'var(--font-mono)', fontWeight:700, color: t.pnl >= 0 ? 'var(--accent-green)' : 'var(--accent-red)'}}>
+                        {t.pnl >= 0 ? '+' : ''}${t.pnl.toLocaleString()}
+                      </td>
+                      <td style={{fontFamily:'var(--font-mono)', fontSize:'12px', color: +returnPct >= 0 ? 'var(--accent-green)' : 'var(--accent-red)'}}>
+                        {+returnPct >= 0 ? '+' : ''}{returnPct}%
+                      </td>
+                      <td>
+                        <button onClick={() => removeTrade(t.id)} style={{background:'none', border:'none', cursor:'pointer', color:'var(--accent-red)', fontSize:'14px', padding:'4px'}} title="Remove trade">✕</button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function SettingsPage({ settings, setSettings }) {
+  return (
+    <div className="settings-grid">
+      <div className="settings-card">
+        <h3>⚙️ Risk Parameters</h3>
+        <div className="settings-row">
+          <div className="label-group">
+            <div className="label-main">Minimum Weekly Yield</div>
+            <div className="label-desc">Only show candidates above this yield</div>
+          </div>
+          <div style={{display:'flex', alignItems:'center', gap:'12px'}}>
+            <input type="range" className="range-slider" min="0" max="5" step="0.25" value={settings.minYield}
+              onChange={e => setSettings(s => ({...s, minYield: +e.target.value}))} style={{width:120}} />
+            <span style={{fontFamily:'var(--font-mono)', fontSize:'14px', minWidth:45}}>{settings.minYield}%</span>
+          </div>
+        </div>
+        <div className="settings-row">
+          <div className="label-group">
+            <div className="label-main">Maximum Delta</div>
+            <div className="label-desc">Lower delta = less chance of assignment</div>
+          </div>
+          <div style={{display:'flex', alignItems:'center', gap:'12px'}}>
+            <input type="range" className="range-slider" min="0.05" max="0.50" step="0.05" value={settings.maxDelta}
+              onChange={e => setSettings(s => ({...s, maxDelta: +e.target.value}))} style={{width:120}} />
+            <span style={{fontFamily:'var(--font-mono)', fontSize:'14px', minWidth:45}}>{settings.maxDelta.toFixed(2)}</span>
+          </div>
+        </div>
+        <div className="settings-row">
+          <div className="label-group">
+            <div className="label-main">Minimum Wheel Score</div>
+            <div className="label-desc">Only show stocks scoring above this threshold</div>
+          </div>
+          <div style={{display:'flex', alignItems:'center', gap:'12px'}}>
+            <input type="range" className="range-slider" min="0" max="90" step="5" value={settings.minScore}
+              onChange={e => setSettings(s => ({...s, minScore: +e.target.value}))} style={{width:120}} />
+            <span style={{fontFamily:'var(--font-mono)', fontSize:'14px', minWidth:45}}>{settings.minScore}</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="settings-card">
+        <h3>📊 Technical Indicators</h3>
+        {[
+          { key: 'useRSI', label: 'RSI (Relative Strength Index)', desc: 'Identifies overbought/oversold conditions' },
+          { key: 'useMACD', label: 'MACD', desc: 'Trend direction and momentum' },
+          { key: 'useBB', label: 'Bollinger Bands', desc: 'Volatility and mean reversion signals' },
+          { key: 'useEMA', label: 'EMA Crossovers', desc: '9/21 EMA trend confirmation' },
+          { key: 'useSMA50', label: 'SMA 50 Trend', desc: 'Intermediate-term trend direction' },
+        ].map(ind => (
+          <div className="settings-row" key={ind.key}>
+            <div className="label-group">
+              <div className="label-main">{ind.label}</div>
+              <div className="label-desc">{ind.desc}</div>
+            </div>
+            <label className="toggle">
+              <input type="checkbox" checked={settings[ind.key] !== false}
+                onChange={e => setSettings(s => ({...s, [ind.key]: e.target.checked}))} />
+              <span className="toggle-slider"></span>
+            </label>
+          </div>
+        ))}
+      </div>
+
+      <div className="settings-card">
+        <h3>🔔 Alerts & Notifications</h3>
+        <div className="settings-row">
+          <div className="label-group">
+            <div className="label-main">New High-Score Alerts</div>
+            <div className="label-desc">Notify when a stock scores above your threshold</div>
+          </div>
+          <label className="toggle">
+            <input type="checkbox" checked={settings.alertHighScore !== false}
+              onChange={e => setSettings(s => ({...s, alertHighScore: e.target.checked}))} />
+            <span className="toggle-slider"></span>
+          </label>
+        </div>
+        <div className="settings-row">
+          <div className="label-group">
+            <div className="label-main">Earnings Warnings</div>
+            <div className="label-desc">Alert when a candidate has earnings within 7 days</div>
+          </div>
+          <label className="toggle">
+            <input type="checkbox" checked={settings.alertEarnings !== false}
+              onChange={e => setSettings(s => ({...s, alertEarnings: e.target.checked}))} />
+            <span className="toggle-slider"></span>
+          </label>
+        </div>
+        <div className="settings-row">
+          <div className="label-group">
+            <div className="label-main">Signal Changes</div>
+            <div className="label-desc">Notify when a stock's signal flips bullish/bearish</div>
+          </div>
+          <label className="toggle">
+            <input type="checkbox" checked={settings.alertSignal !== false}
+              onChange={e => setSettings(s => ({...s, alertSignal: e.target.checked}))} />
+            <span className="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div className="settings-card">
+        <h3>🎨 Display Preferences</h3>
+        <div className="settings-row">
+          <div className="label-group">
+            <div className="label-main">Auto-Refresh Data</div>
+            <div className="label-desc">Automatically refresh market data every minute</div>
+          </div>
+          <label className="toggle">
+            <input type="checkbox" checked={settings.autoRefresh !== false}
+              onChange={e => setSettings(s => ({...s, autoRefresh: e.target.checked}))} />
+            <span className="toggle-slider"></span>
+          </label>
+        </div>
+        <div className="settings-row">
+          <div className="label-group">
+            <div className="label-main">Show Sparkline Charts</div>
+            <div className="label-desc">Display mini price charts in tables</div>
+          </div>
+          <label className="toggle">
+            <input type="checkbox" checked={settings.showSparklines !== false}
+              onChange={e => setSettings(s => ({...s, showSparklines: e.target.checked}))} />
+            <span className="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ===== BACKTEST PAGE =====
+function BacktestPage({ user }) {
+  const [params, setParams] = useState({ months: 6, capital: 50000, maxPositions: 5, maxPerStock: 20, minScore: 75, maxDelta: 0.25 });
+  const [results, setResults] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const runBacktest = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const qs = `months=${params.months}&capital=${params.capital}&maxPositions=${params.maxPositions}&maxPerStock=${params.maxPerStock/100}&minScore=${params.minScore}&maxDelta=${params.maxDelta}`;
+      const res = await fetch(`${CONFIG.API_BASE_URL}/api/backtest?${qs}`);
+      if (!res.ok) throw new Error(`API returned ${res.status}`);
+      const data = await res.json();
+      if (data.success) setResults(data);
+      else throw new Error(data.error || 'Backtest failed');
+    } catch (err) {
+      setError(err.message);
+      // Demo results for UI preview
+      setResults(getDemoBacktestResults(params));
+    }
+    setLoading(false);
+  };
+
+  // Demo results generator for when API isn't connected yet
+  function getDemoBacktestResults(p) {
+    const weeks = p.months * 4.33;
+    const trades = [];
+    let equity = p.capital;
+    const curve = [{ date: new Date(Date.now() - p.months * 30 * 86400000).toISOString().slice(0,10), equity: p.capital, pnl: 0 }];
+    const symbols = ['AAPL','MSFT','NVDA','AMZN','GOOGL','META','AMD','JPM','V','COST','CRM','PYPL','UBER','SHOP','QCOM'];
+    let maxEquity = p.capital;
+    let maxDrawdown = 0;
+    for (let w = 0; w < Math.floor(weeks); w++) {
+      const numTrades = Math.min(Math.floor(Math.random() * 3) + 1, p.maxPositions);
+      for (let t = 0; t < numTrades; t++) {
+        const sym = symbols[Math.floor(Math.random() * symbols.length)];
+        const win = Math.random() < 0.78; // ~78% win rate for wheel
+        const pnl = win ? Math.floor(Math.random() * 400 + 100) : -Math.floor(Math.random() * 2000 + 500);
+        equity += pnl;
+        trades.push({ symbol: sym, openDate: new Date(Date.now() - (weeks - w) * 7 * 86400000).toISOString().slice(0,10), closeDate: new Date(Date.now() - (weeks - w - 1) * 7 * 86400000).toISOString().slice(0,10), outcome: win ? 'expired' : 'assigned', pnl, capitalAtOpen: equity - pnl });
+      }
+      maxEquity = Math.max(maxEquity, equity);
+      maxDrawdown = Math.max(maxDrawdown, (maxEquity - equity) / maxEquity * 100);
+      curve.push({ date: new Date(Date.now() - (weeks - w - 1) * 7 * 86400000).toISOString().slice(0,10), equity, pnl: equity - p.capital });
+    }
+    const wins = trades.filter(t => t.pnl > 0);
+    const losses = trades.filter(t => t.pnl <= 0);
+    return {
+      success: true, demo: true,
+      summary: { totalTrades: trades.length, wins: wins.length, losses: losses.length, winRate: Math.round(wins.length / trades.length * 100), totalPnl: equity - p.capital, totalReturn: ((equity - p.capital) / p.capital * 100).toFixed(1), maxDrawdown: maxDrawdown.toFixed(1), sharpeRatio: (1.2 + Math.random() * 0.8).toFixed(2), avgWinAmount: Math.round(wins.reduce((s,t) => s + t.pnl, 0) / (wins.length||1)), avgLossAmount: Math.round(losses.reduce((s,t) => s + t.pnl, 0) / (losses.length||1)), startingCapital: p.capital, endingCapital: equity },
+      equityCurve: curve,
+      trades,
+      parameters: p
+    };
+  }
+
+  // Simple equity curve chart using SVG
+  function EquityChart({ data }) {
+    if (!data || data.length < 2) return null;
+    const w = 700, h = 200, pad = 40;
+    const equities = data.map(d => d.equity);
+    const minE = Math.min(...equities) * 0.98;
+    const maxE = Math.max(...equities) * 1.02;
+    const rangeE = maxE - minE || 1;
+    const points = data.map((d, i) => {
+      const x = pad + (i / (data.length - 1)) * (w - pad * 2);
+      const y = h - pad - ((d.equity - minE) / rangeE) * (h - pad * 2);
+      return `${x},${y}`;
+    }).join(' ');
+    const startLine = h - pad - ((data[0].equity - minE) / rangeE) * (h - pad * 2);
+    const isPositive = equities[equities.length - 1] >= equities[0];
+    return (
+      <svg width="100%" height={h} viewBox={`0 0 ${w} ${h}`} style={{maxWidth:w}}>
+        <line x1={pad} y1={startLine} x2={w-pad} y2={startLine} stroke="rgba(100,116,139,0.3)" strokeDasharray="4"/>
+        <polyline points={points} fill="none" stroke={isPositive ? '#10b981' : '#ef4444'} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+        <text x={pad} y={h - 8} fill="#64748b" fontSize="10" fontFamily="var(--font-mono)">{data[0].date}</text>
+        <text x={w - pad} y={h - 8} fill="#64748b" fontSize="10" fontFamily="var(--font-mono)" textAnchor="end">{data[data.length-1].date}</text>
+        <text x={pad - 4} y={startLine + 3} fill="#64748b" fontSize="10" fontFamily="var(--font-mono)" textAnchor="end">${(data[0].equity/1000).toFixed(0)}K</text>
+        <text x={pad - 4} y={pad + 4} fill="#64748b" fontSize="10" fontFamily="var(--font-mono)" textAnchor="end">${(maxE/1000).toFixed(0)}K</text>
+      </svg>
+    );
+  }
+
+  return (
+    <div>
+      {/* Parameter Controls */}
+      <div className="data-table-container" style={{marginBottom:24}}>
+        <div className="data-table-header">
+          <h3>⚙️ Backtest Parameters</h3>
+          <button className="btn btn-sm btn-primary" onClick={runBacktest} disabled={loading} style={{display:'flex',alignItems:'center',gap:6}}>
+            {loading ? <span className="spinner" style={{width:14,height:14,borderWidth:2}}></span> : '▶'} {loading ? 'Running...' : 'Run Backtest'}
+          </button>
+        </div>
+        <div style={{padding:'20px', display:'flex', flexWrap:'wrap', gap:'20px'}}>
+          {[
+            { key: 'months', label: 'Lookback (months)', min: 1, max: 24, step: 1 },
+            { key: 'capital', label: 'Starting Capital ($)', min: 10000, max: 500000, step: 5000 },
+            { key: 'maxPositions', label: 'Max Positions', min: 1, max: 20, step: 1 },
+            { key: 'maxPerStock', label: 'Max per Stock (%)', min: 5, max: 50, step: 5 },
+            { key: 'minScore', label: 'Min Score', min: 50, max: 95, step: 5 },
+            { key: 'maxDelta', label: 'Max Delta', min: 0.10, max: 0.40, step: 0.05 },
+          ].map(f => (
+            <div key={f.key} style={{minWidth:140}}>
+              <div style={{fontSize:'11px', color:'var(--text-muted)', textTransform:'uppercase', letterSpacing:'1px', marginBottom:6}}>{f.label}</div>
+              <div style={{display:'flex', alignItems:'center', gap:8}}>
+                <input type="range" className="range-slider" min={f.min} max={f.max} step={f.step} value={params[f.key]}
+                  onChange={e => setParams(p => ({...p, [f.key]: +e.target.value}))} style={{width:100}} />
+                <span style={{fontFamily:'var(--font-mono)', fontSize:'14px', fontWeight:600, minWidth:50}}>
+                  {f.key === 'capital' ? `$${(params[f.key]/1000).toFixed(0)}K` : f.key === 'maxPerStock' ? `${params[f.key]}%` : f.key === 'maxDelta' ? params[f.key].toFixed(2) : params[f.key]}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {error && !results?.demo && <div style={{padding:'12px 20px', background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.3)', borderRadius:'var(--radius-md)', color:'var(--accent-red)', fontSize:'13px', marginBottom:16}}>API Error: {error}. Showing demo results below.</div>}
+      {results?.demo && <div style={{padding:'12px 20px', background:'rgba(245,158,11,0.1)', border:'1px solid rgba(245,158,11,0.3)', borderRadius:'var(--radius-md)', color:'var(--accent-amber)', fontSize:'13px', marginBottom:16}}>Showing simulated demo results. Connect your Polygon.io API key in Railway for real historical backtesting.</div>}
+
+      {results && (
+        <>
+          {/* Summary Stats */}
+          <div className="stats-grid" style={{marginBottom:24}}>
+            <div className="stat-card" style={{borderLeft: results.summary.totalPnl >= 0 ? '3px solid var(--accent-green)' : '3px solid var(--accent-red)'}}>
+              <div className="stat-label">Total Return</div>
+              <div className="stat-value" style={{color: results.summary.totalPnl >= 0 ? 'var(--accent-green)' : 'var(--accent-red)'}}>
+                {results.summary.totalReturn}%
+              </div>
+              <div className="stat-change" style={{color: results.summary.totalPnl >= 0 ? 'var(--accent-green)' : 'var(--accent-red)', background: results.summary.totalPnl >= 0 ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)'}}>
+                {results.summary.totalPnl >= 0 ? '+' : ''}${results.summary.totalPnl.toLocaleString()}
+              </div>
+            </div>
+            <div className="stat-card" style={{borderLeft:'3px solid var(--accent-blue)'}}>
+              <div className="stat-label">Win Rate</div>
+              <div className="stat-value" style={{color:'var(--accent-blue)'}}>{results.summary.winRate}%</div>
+              <div className="stat-change" style={{color:'var(--text-muted)', background:'none'}}>{results.summary.wins}W / {results.summary.losses}L ({results.summary.totalTrades} total)</div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-label">Sharpe Ratio</div>
+              <div className="stat-value" style={{color: results.summary.sharpeRatio >= 1.5 ? 'var(--accent-green)' : results.summary.sharpeRatio >= 1 ? 'var(--accent-amber)' : 'var(--accent-red)'}}>{results.summary.sharpeRatio}</div>
+              <div className="stat-change" style={{color:'var(--text-muted)', background:'none'}}>{results.summary.sharpeRatio >= 1.5 ? 'Excellent' : results.summary.sharpeRatio >= 1 ? 'Good' : 'Needs work'}</div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-label">Max Drawdown</div>
+              <div className="stat-value" style={{color:'var(--accent-red)'}}>{results.summary.maxDrawdown}%</div>
+              <div className="stat-change" style={{color:'var(--text-muted)', background:'none'}}>Avg win: +${results.summary.avgWinAmount} / Avg loss: ${results.summary.avgLossAmount}</div>
+            </div>
+          </div>
+
+          {/* Equity Curve */}
+          <div className="data-table-container" style={{marginBottom:24}}>
+            <div className="data-table-header">
+              <h3>📈 Equity Curve</h3>
+              <span style={{fontFamily:'var(--font-mono)', fontSize:'13px', color: results.summary.totalPnl >= 0 ? 'var(--accent-green)' : 'var(--accent-red)'}}>
+                ${(results.summary.startingCapital/1000).toFixed(0)}K → ${(results.summary.endingCapital/1000).toFixed(0)}K
+              </span>
+            </div>
+            <div style={{padding:'20px', display:'flex', justifyContent:'center'}}>
+              <EquityChart data={results.equityCurve} />
+            </div>
+          </div>
+
+          {/* Trade Log */}
+          <div className="data-table-container">
+            <div className="data-table-header">
+              <h3>📋 Trade Log ({results.trades.length} trades)</h3>
+            </div>
+            <div className="table-scroll" style={{maxHeight:400, overflowY:'auto'}}>
+              <table className="data-table">
+                <thead><tr>
+                  <th>Open</th><th>Close</th><th>Symbol</th><th>Outcome</th><th>P&L</th>
+                </tr></thead>
+                <tbody>
+                  {results.trades.slice().reverse().map((t, i) => (
+                    <tr key={i} style={{borderLeft: t.pnl >= 0 ? '3px solid var(--accent-green)' : '3px solid var(--accent-red)'}}>
+                      <td style={{fontFamily:'var(--font-mono)', fontSize:'12px', color:'var(--text-muted)'}}>{t.openDate}</td>
+                      <td style={{fontFamily:'var(--font-mono)', fontSize:'12px', color:'var(--text-muted)'}}>{t.closeDate}</td>
+                      <td><span className="ticker">{t.symbol}</span></td>
+                      <td><span style={{fontSize:'11px', padding:'2px 8px', borderRadius:'10px', fontWeight:600, background: t.outcome === 'expired' ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)', color: t.outcome === 'expired' ? 'var(--accent-green)' : 'var(--accent-red)'}}>{t.outcome === 'expired' ? '✓ Expired' : '⚠ Assigned'}</span></td>
+                      <td style={{fontFamily:'var(--font-mono)', fontWeight:700, color: t.pnl >= 0 ? 'var(--accent-green)' : 'var(--accent-red)'}}>{t.pnl >= 0 ? '+' : ''}${t.pnl.toLocaleString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
+      )}
+
+      {!results && !loading && (
+        <div className="loading-state" style={{gap:20, padding:80}}>
+          <div style={{fontSize:'48px'}}>🧪</div>
+          <h3 style={{color:'var(--text-primary)', margin:0}}>Backtest Your Strategy</h3>
+          <p style={{maxWidth:480, textAlign:'center', lineHeight:1.7, color:'var(--text-secondary)'}}>
+            Set your parameters above and click Run Backtest to see how WheelPro's recommendations would have performed historically. Uses Polygon.io data when connected, or simulated results for preview.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ===== STOCK DETAIL MODAL =====
+function StockDetailModal({ stock, onClose }) {
+  if (!stock) return null;
+  const pop = stock.probOfProfit || Math.round((1 - stock.delta) * 100);
+  const cashReq = stock.cashRequired || Math.round(stock.strikePrice * 100);
+  const maxLoss = stock.maxLoss || Math.round((stock.strikePrice - stock.premium) * 100);
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal" onClick={e => e.stopPropagation()} style={{maxWidth:640, maxHeight:'90vh', overflowY:'auto'}}>
+        <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20}}>
+          <div>
+            <div style={{display:'flex', alignItems:'center', gap:12}}>
+              <span className="ticker" style={{fontSize:24}}>{stock.symbol}</span>
+              <span className={`signal-badge signal-${stock.recommendation?.color === 'green' ? 'bullish' : stock.recommendation?.color === 'amber' ? 'neutral' : 'bearish'}`}>
+                {stock.recommendation?.label}
+              </span>
+            </div>
+            <div style={{fontSize:13, color:'var(--text-muted)', marginTop:4}}>{stock.name} · {stock.sector}</div>
+          </div>
+          <button onClick={onClose} style={{background:'none',border:'none',color:'var(--text-muted)',cursor:'pointer'}}>{Icons.close}</button>
+        </div>
+
+        <div style={{display:'flex', gap:16, marginBottom:20, flexWrap:'wrap'}}>
+          <div style={{flex:1, minWidth:120, background:'var(--bg-elevated)', borderRadius:'var(--radius-md)', padding:16, textAlign:'center'}}>
+            <div style={{fontSize:11, color:'var(--text-muted)', textTransform:'uppercase', letterSpacing:1}}>Price</div>
+            <div style={{fontFamily:'var(--font-mono)', fontSize:24, fontWeight:700, marginTop:4}}>${stock.price.toFixed(2)}</div>
+            <div style={{fontSize:12, color: stock.change >= 0 ? 'var(--accent-green)' : 'var(--accent-red)'}}>{stock.change >= 0 ? '+' : ''}{stock.changePct}%</div>
+          </div>
+          <div style={{flex:1, minWidth:120, background:'var(--bg-elevated)', borderRadius:'var(--radius-md)', padding:16, textAlign:'center'}}>
+            <div style={{fontSize:11, color:'var(--text-muted)', textTransform:'uppercase', letterSpacing:1}}>Wheel Score</div>
+            <div style={{fontFamily:'var(--font-mono)', fontSize:24, fontWeight:700, marginTop:4, color: stock.wheelScore >= 75 ? 'var(--accent-green)' : stock.wheelScore >= 50 ? 'var(--accent-amber)' : 'var(--accent-red)'}}>{stock.wheelScore}</div>
+            <div style={{fontSize:12, color:'var(--text-muted)'}}>out of 100</div>
+          </div>
+          <div style={{flex:1, minWidth:120, background:'var(--bg-elevated)', borderRadius:'var(--radius-md)', padding:16, textAlign:'center'}}>
+            <div style={{fontSize:11, color:'var(--text-muted)', textTransform:'uppercase', letterSpacing:1}}>P.O.P.</div>
+            <div style={{fontFamily:'var(--font-mono)', fontSize:24, fontWeight:700, marginTop:4, color: pop >= 80 ? 'var(--accent-green)' : 'var(--accent-amber)'}}>{pop}%</div>
+            <div style={{fontSize:12, color:'var(--text-muted)'}}>profit probability</div>
+          </div>
+        </div>
+
+        <div style={{display:'flex', gap:16, marginBottom:20}}>
+          <div style={{flex:1}}>
+            <Sparkline data={stock.closes?.slice(-30)} width={280} height={80} color={stock.technicalSignal > 0 ? '#10b981' : '#ef4444'} />
+          </div>
+        </div>
+
+        <div className="stock-detail-grid" style={{gridTemplateColumns:'1fr 1fr', gap:16}}>
+          <div className="detail-card" style={{padding:16}}>
+            <h4 style={{fontSize:12, margin:'0 0 12px'}}>Option Details</h4>
+            {[
+              ['Strike', `$${stock.strikePrice.toFixed(2)} (${((1-stock.strikePrice/stock.price)*100).toFixed(1)}% OTM)`],
+              ['Premium', `$${stock.premium.toFixed(2)} ($${(stock.premium*100).toFixed(0)}/contract)`],
+              ['Delta', stock.delta.toFixed(2)],
+              ['DTE', `${stock.daysToExpiry} days (${stock.expDateStr || ''})`],
+              ['IV', `${stock.iv}%`],
+              ['IV %ile', `${stock.ivPercentile || 50}%`],
+              ['Bid-Ask', `$${stock.bidAskSpread.toFixed(2)}`],
+            ].map(([l, v]) => <div key={l} className="detail-row" style={{padding:'6px 0'}}><span className="label">{l}</span><span className="value">{v}</span></div>)}
+          </div>
+          <div className="detail-card" style={{padding:16}}>
+            <h4 style={{fontSize:12, margin:'0 0 12px'}}>Risk & Return</h4>
+            {[
+              ['Wk Yield', `${(stock.weeklyYield*100).toFixed(2)}%`],
+              ['Mo Yield', `${(stock.weeklyYield*(stock.daysToExpiry||7)/30*100).toFixed(2)}%`],
+              ['Ann Yield', `${stock.annualizedYield}%`],
+              ['Cash Req', `$${cashReq.toLocaleString()}`],
+              ['Max Loss', `$${maxLoss.toLocaleString()}`],
+              ['Support', `$${(stock.supportLevel||0).toFixed(2)}`],
+              ['Resistance', `$${(stock.resistanceLevel||0).toFixed(2)}`],
+            ].map(([l, v]) => <div key={l} className="detail-row" style={{padding:'6px 0'}}><span className="label">{l}</span><span className="value">{v}</span></div>)}
+          </div>
+        </div>
+        {stock.recommendation?.reason && (
+          <div style={{marginTop:16, padding:'12px 16px', background:'var(--bg-elevated)', borderRadius:'var(--radius-md)', fontSize:13, color:'var(--text-secondary)'}}>
+            <strong style={{color:'var(--text-primary)'}}>Recommendation:</strong> {stock.recommendation.reason}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ===== CSV EXPORT HELPER =====
+function exportCSV(stocks, filename) {
+  const headers = ['Symbol','Name','Sector','Price','Change%','Score','Action','Confidence','Strike','OTM%','Premium','Wk Yield','Mo Yield','Ann Yield','Delta','POP','Cash Req','Max Loss','RSI','Signal','IV','IV%ile','P/C Ratio','Earnings','DTE'];
+  const rows = stocks.map(s => [
+    s.symbol, s.name, s.sector, s.price.toFixed(2), s.changePct,
+    s.wheelScore, s.recommendation?.type || '', s.recommendation?.confidence || '',
+    s.strikePrice.toFixed(2), ((1-s.strikePrice/s.price)*100).toFixed(1),
+    s.premium.toFixed(2), (s.weeklyYield*100).toFixed(2),
+    (s.weeklyYield*(s.daysToExpiry||7)/30*100).toFixed(2), s.annualizedYield,
+    s.delta.toFixed(2), Math.round((1-s.delta)*100),
+    Math.round(s.strikePrice*100), Math.round((s.strikePrice-s.premium)*100),
+    s.rsi?.toFixed(1) || '', s.technicalSignal?.toFixed(2) || '',
+    s.iv, s.ivPercentile || 50, (s.putCallRatio||1).toFixed(2),
+    s.earningsDateStr || s.earningsIn+'d', s.daysToExpiry
+  ]);
+  const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename || 'wheelpro-export.csv';
+  a.click(); URL.revokeObjectURL(url);
+}
+
+// ===== ADMIN PAGE (Owner Only) =====
+function AdminPage({ user }) {
+  const [subscribers, setSubscribers] = useState([
+    { id: 1, name: 'Demo User', email: 'demo@example.com', plan: 'Professional', status: 'active', joined: '2026-01-15', revenue: 99 },
+    { id: 2, name: 'Trial User', email: 'trial@example.com', plan: 'Starter', status: 'trial', joined: '2026-02-01', revenue: 0 },
+  ]);
+
+  const totalRevenue = subscribers.reduce((sum, s) => sum + s.revenue, 0);
+  const activeCount = subscribers.filter(s => s.status === 'active').length;
+
+  // Check if current user is the owner
+  const isOwner = user?.email === 'holland@example.com' || user?.isOwner;
+
+  if (!isOwner) {
+    return (
+      <div className="loading-state">
+        {Icons.lock}
+        <p>Admin access is restricted to the account owner.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div className="stats-grid" style={{marginBottom:24}}>
+        <div className="stat-card">
+          <div className="stat-label">Monthly Revenue</div>
+          <div className="stat-value" style={{color:'var(--accent-green)'}}>${totalRevenue}</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-label">Active Subscribers</div>
+          <div className="stat-value">{activeCount}</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-label">Total Users</div>
+          <div className="stat-value">{subscribers.length}</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-label">Avg Revenue/User</div>
+          <div className="stat-value">${subscribers.length > 0 ? Math.round(totalRevenue / subscribers.length) : 0}</div>
+        </div>
+      </div>
+
+      <div className="admin-card">
+        <h3>👥 Subscribers</h3>
+        <div className="subscriber-list">
+          {subscribers.map(sub => (
+            <div className="subscriber-item" key={sub.id}>
+              <div className="subscriber-info">
+                <div className="subscriber-avatar">{sub.name.charAt(0).toUpperCase()}</div>
+                <div>
+                  <div className="subscriber-name">{sub.name}</div>
+                  <div className="subscriber-email">{sub.email} · {sub.plan} · Joined {sub.joined}</div>
+                </div>
+              </div>
+              <div style={{display:'flex', gap:'8px', alignItems:'center'}}>
+                <span className={`status-badge status-${sub.status}`}>
+                  {sub.status === 'active' ? '● Active' : sub.status === 'trial' ? '◐ Trial' : '○ Expired'}
+                </span>
+                <span style={{fontFamily:'var(--font-mono)', fontSize:'13px', color:'var(--accent-green)'}}>
+                  ${sub.revenue}/mo
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="admin-card">
+        <h3>🔗 Integration Setup</h3>
+        <div style={{fontSize:'14px', color:'var(--text-secondary)', lineHeight:1.8}}>
+          <p style={{marginBottom:16}}>To enable real subscription payments, configure these services:</p>
+          <div className="detail-row">
+            <span className="label">Stripe Dashboard</span>
+            <span className="value" style={{color:'var(--accent-blue)'}}>stripe.com/dashboard</span>
+          </div>
+          <div className="detail-row">
+            <span className="label">API Backend (Railway)</span>
+            <span className="value" style={{color: CONFIG.API_BASE_URL.includes('YOUR-RAILWAY-URL') ? 'var(--accent-amber)' : 'var(--accent-green)'}}>{CONFIG.API_BASE_URL.includes('YOUR-RAILWAY-URL') ? '⚠ Not configured' : '✓ ' + CONFIG.API_BASE_URL}</span>
+          </div>
+          <div className="detail-row">
+            <span className="label">Webhook Endpoint</span>
+            <span className="value" style={{color:'var(--text-muted)'}}>/api/webhooks/stripe</span>
+          </div>
+          <div className="detail-row">
+            <span className="label">Auth Provider</span>
+            <span className="value" style={{color:'var(--text-muted)'}}>Firebase / Supabase / Custom</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ===== MAIN APP =====
+// ===== TOOLTIP COMPONENT =====
+function Tip({ children, text }) {
+  return React.createElement('span', { className: 'tip-wrap' },
+    children,
+    React.createElement('span', { className: 'tip-box' },
+      typeof text === 'string' ? text : text
+    )
+  );
+}
+
+// Smart tooltip generators — explain the "why" behind every number
+const TipText = {
+  score(stock) {
+    const s = stock.wheelScore;
+    const wy = stock.weeklyYield || 0;
+    const d = stock.delta || 0.3;
+    const ts = stock.technicalSignal || 0;
+    const ov = stock.optionVolume || 0;
+    const ivr = stock.ivRank || 50;
+    let yieldPts = wy >= 0.03 ? 30 : wy >= 0.025 ? 25 : wy >= 0.02 ? 20 : wy >= 0.015 ? 15 : wy >= 0.01 ? 8 : 3;
+    let deltaPts = d <= 0.15 ? 20 : d <= 0.20 ? 17 : d <= 0.25 ? 14 : d <= 0.30 ? 10 : 3;
+    let techPts = Math.max(0, Math.min(20, (ts + 1) * 10));
+    let liqPts = ov >= 10000 ? 15 : ov >= 5000 ? 12 : ov >= 1000 ? 8 : ov >= 500 ? 5 : 2;
+    let ivPts = ivr >= 60 ? 15 : ivr >= 45 ? 12 : ivr >= 30 ? 8 : 4;
+    return `WHEEL SCORE: ${s}/100\n` +
+      `Yield: ${yieldPts}/30 (${(wy*100).toFixed(2)}% weekly)\n` +
+      `Delta safety: ${deltaPts}/20 (${d.toFixed(2)} delta)\n` +
+      `Technicals: ${Math.round(techPts)}/20\n` +
+      `Liquidity: ${liqPts}/15 (${ov.toLocaleString()} vol)\n` +
+      `IV rank: ${ivPts}/15 (${ivr}%)\n` +
+      (s >= 75 ? '✅ Strong candidate' : s >= 50 ? '⚠️ Moderate — check details' : '❌ Below threshold');
+  },
+  action(stock) {
+    const r = stock.recommendation;
+    if (!r) return 'No recommendation data';
+    let text = r.type === 'SELL_PUT' ? `SELL PUT — ${r.confidence} confidence\n` :
+               r.type === 'SELL_CALL' ? 'SELL CALL — Bearish setup\n' : 'WAIT — Not recommended now\n';
+    text += r.reason || '';
+    if (r.type === 'SELL_PUT' && r.confidence === 'HIGH') text += '\n✅ Meets all criteria: score, yield, delta';
+    if (stock.earningsIn <= 14 && stock.earningsConfirmed) text += '\n🚫 Blocked: earnings within 14 days';
+    return text;
+  },
+  delta(stock) {
+    const d = stock.delta;
+    const pct = Math.round(d * 100);
+    return `DELTA: ${d.toFixed(2)} (${pct}% assignment chance)\n` +
+      `You have a ${100-pct}% chance of keeping the premium.\n` +
+      (d <= 0.15 ? '✅ Very safe — low assignment risk' :
+       d <= 0.20 ? '✅ Safe — conservative pick' :
+       d <= 0.25 ? '⚠️ Moderate — standard risk level' :
+       d <= 0.30 ? '⚠️ Higher risk — more premium, more chance of assignment' :
+       '❌ Aggressive — high assignment probability');
+  },
+  rsi(stock) {
+    const r = stock.rsi;
+    return `RSI: ${r.toFixed(1)} (momentum indicator)\n` +
+      (r < 30 ? '🟢 Oversold — stock may bounce up. Good time to sell puts.' :
+       r < 40 ? '🟢 Leaning oversold — slightly favorable for puts.' :
+       r < 60 ? '🟡 Neutral — no strong momentum signal.' :
+       r < 70 ? '🟡 Leaning overbought — caution for new puts.' :
+       '🔴 Overbought — stock may pull back. Risky for puts.');
+  },
+  iv(stock) {
+    const ivp = stock.ivPercentile || 50;
+    return `IV PERCENTILE: ${ivp}%\n` +
+      `Options are ${ivp >= 70 ? 'expensive' : ivp >= 50 ? 'moderately priced' : ivp >= 30 ? 'fairly priced' : 'cheap'} vs recent history.\n` +
+      (ivp >= 50 ? '🟢 Above average — you collect richer premiums. Good time to sell.' :
+       '🟡 Below average — premiums are thinner. Consider waiting for higher IV.');
+  },
+  pcRatio(stock) {
+    const r = stock.putCallRatio || 1;
+    return `PUT/CALL RATIO: ${r.toFixed(2)}\n` +
+      `Put OI ÷ Call OI across the full option chain.\n` +
+      (r > 1.5 ? '🔴 Very bearish sentiment — heavy put buying (hedging/fear).' :
+       r > 1.2 ? '🟡 Mildly bearish — more puts than calls being held.' :
+       r > 0.8 ? '⚪ Neutral — balanced put/call activity.' :
+       r > 0.5 ? '🟢 Mildly bullish — more calls than puts.' :
+       '🟢 Very bullish — heavy call buying (optimism).');
+  },
+  yield(stock) {
+    return `WEEKLY YIELD: ${(stock.weeklyYield*100).toFixed(2)}%\n` +
+      `= $${stock.premium.toFixed(2)} premium ÷ $${stock.strikePrice.toFixed(2)} strike\n` +
+      `You collect $${(stock.premium * 100).toFixed(0)} per contract.\n` +
+      (stock.weeklyYield >= 0.02 ? '✅ Meets 2%+ target' :
+       stock.weeklyYield >= 0.015 ? '⚠️ Below 2% target but acceptable' :
+       '❌ Below minimum yield threshold');
+  },
+  annYield(stock) {
+    return `ANNUALIZED: ${stock.annualizedYield}%\n` +
+      `= ${(stock.weeklyYield*100).toFixed(2)}% × (365 ÷ ${stock.daysToExpiry} DTE)\n` +
+      `⚠️ Assumes continuous reinvestment at this rate.\n` +
+      `Actual returns will be lower due to gaps between trades.`;
+  },
+  pop(stock) {
+    const pop = stock.probOfProfit || Math.round((1 - stock.delta) * 100);
+    return `P.O.P.: ${pop}% probability of profit\n` +
+      `= (1 - ${stock.delta.toFixed(2)} delta) × 100\n` +
+      `${pop}% chance the option expires worthless and you keep 100% of the premium.\n` +
+      (pop >= 85 ? '✅ Very high probability trade' :
+       pop >= 75 ? '✅ Good probability' :
+       pop >= 65 ? '⚠️ Moderate — more premium but more risk' :
+       '❌ Low probability — aggressive trade');
+  },
+  signal(stock) {
+    const s = stock.technicalSignal;
+    const dir = s > 0.2 ? 'Bullish' : s < -0.2 ? 'Bearish' : 'Neutral';
+    let text = `SIGNAL: ${dir} (${s.toFixed(2)})\nComposite of 5 indicators:\n`;
+    if (stock.rsi) text += `• RSI ${stock.rsi.toFixed(0)}: ${stock.rsi < 30 ? 'Oversold ↑' : stock.rsi > 70 ? 'Overbought ↓' : 'Neutral'}\n`;
+    if (stock.macd) text += `• MACD: ${stock.macd.histogram > 0 ? 'Bullish ↑' : 'Bearish ↓'}\n`;
+    if (stock.ema9 && stock.ema21) text += `• EMA 9/21: ${stock.ema9 > stock.ema21 ? 'Golden cross ↑' : 'Death cross ↓'}\n`;
+    text += dir === 'Bullish' ? '🟢 Uptrend favors selling puts' : dir === 'Bearish' ? '🔴 Downtrend — caution with puts' : '⚪ No strong trend';
+    return text;
+  },
+  earnings(stock) {
+    if (stock.earningsIn <= 14 && stock.earningsConfirmed) {
+      return `⚠️ EARNINGS IN ${stock.earningsIn} DAYS (${stock.earningsDateStr})\n` +
+        `Confirmed date from Yahoo Finance.\n` +
+        `🚫 DO NOT sell puts through earnings!\n` +
+        `Stocks can drop 20-30% on bad results.`;
+    }
+    if (stock.earningsConfirmed && stock.earningsDateStr && stock.earningsDateStr !== '—') {
+      return `EARNINGS: ${stock.earningsDateStr} (${stock.earningsIn} days)\n` +
+        `Confirmed date from Yahoo Finance.\n` +
+        `✅ Far enough out — safe to trade.`;
+    }
+    return `EARNINGS: No confirmed date\n` +
+      `Yahoo has no earnings date for this stock.\n` +
+      `Do your own research before trading.`;
+  },
+  exDiv(stock) {
+    if (stock.exDivBeforeExpiry) {
+      return `⚠️ EX-DIVIDEND: ${stock.exDivDateStr}\n` +
+        `Falls BEFORE option expires on ${stock.expDateStr}.\n` +
+        `Risk: Early assignment — someone may exercise\n` +
+        `your put to capture the dividend.\n` +
+        `Consider a later expiration date.`;
+    }
+    if (stock.hasDividend && stock.exDivDateStr) {
+      return `EX-DIVIDEND: ${stock.exDivDateStr}\n` +
+        `Falls AFTER option expiry — no early assignment risk.\n` +
+        `✅ Safe to trade.`;
+    }
+    if (stock.hasDividend) return `This stock pays a dividend.\nNo upcoming ex-div date affects this trade.`;
+    return `No dividend — no early assignment risk from dividends.`;
+  },
+  strike(stock) {
+    const otm = ((1 - stock.strikePrice/stock.price)*100).toFixed(1);
+    const belowSupport = stock.strikePrice < (stock.supportLevel||0);
+    return `STRIKE: $${stock.strikePrice.toFixed(2)} (${otm}% below price)\n` +
+      `You promise to buy 100 shares at this price.\n` +
+      (belowSupport ? `✅ Below support ($${(stock.supportLevel||0).toFixed(2)}) — extra cushion` :
+       `⚠️ Above support ($${(stock.supportLevel||0).toFixed(2)})`) + `\n` +
+      `Cash needed: $${(stock.strikePrice * 100).toLocaleString()}`;
+  },
+  maxLoss(stock) {
+    const ml = stock.maxLoss || Math.round((stock.strikePrice - stock.premium) * 100);
+    return `MAX LOSS: $${ml.toLocaleString()}\n` +
+      `= ($${stock.strikePrice.toFixed(2)} strike - $${stock.premium.toFixed(2)} premium) × 100\n` +
+      `Worst case if stock goes to $0.\n` +
+      `Extremely rare — but always know your risk.`;
+  }
+};
+
+function App() {
+  // Auth state
+  const [user, setUser] = useState(Storage.get('user', null));
+  const [showAuth, setShowAuth] = useState(null); // 'login' | 'signup' | null
+
+  // App state
+  const [page, setPage] = useState('dashboard');
+  const [stocks, setStocks] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [lastRefresh, setLastRefresh] = useState(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  // v2.5: New features
+  const [watchlist, setWatchlist] = useState(() => Storage.get('watchlist', []));
+  const [selectedStock, setSelectedStock] = useState(null); // For detail modal
+  useEffect(() => { Storage.set('watchlist', watchlist); }, [watchlist]);
+  const toggleWatchlist = (symbol) => setWatchlist(prev => prev.includes(symbol) ? prev.filter(s => s !== symbol) : [...prev, symbol]);
+  const [settings, setSettings] = useState(Storage.get('settings', {
+    minYield: 1.5,
+    maxDelta: 0.30,
+    minScore: 40,
+    useRSI: true,
+    useMACD: true,
+    useBB: true,
+    useEMA: true,
+    useSMA50: true,
+    alertHighScore: true,
+    alertEarnings: true,
+    alertSignal: false,
+    autoRefresh: true,
+    showSparklines: true,
+  }));
+
+  // Save settings
+  useEffect(() => { Storage.set('settings', settings); }, [settings]);
+
+  // Load/refresh data from Railway backend API
+  const loadData = useCallback(async () => {
+    setLoading(true);
+    
+    // Check if API URL is configured
+    const apiConfigured = CONFIG.API_BASE_URL && !CONFIG.API_BASE_URL.includes('YOUR-RAILWAY-URL');
+    
+    if (apiConfigured) {
+      try {
+        const response = await fetch(`${CONFIG.API_BASE_URL}/api/stocks`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+        });
+        
+        if (!response.ok) throw new Error(`API returned ${response.status}`);
+        
+        const result = await response.json();
+        
+        if (result.success && result.data && result.data.length > 0) {
+          // Post-process API data: ensure all v2.4 fields exist
+          const enrichedData = result.data.map(stock => {
+            // Tag as live data (backend confirmed)
+            stock.dataSource = 'yahoo-finance';
+            // Calculate OTM percent if not provided
+            if (!stock.otmPercent && stock.price && stock.strikePrice) {
+              stock.otmPercent = Math.max(0, (stock.price - stock.strikePrice) / stock.price);
+            }
+            // Calculate expiration date string if not provided
+            if (!stock.expDateStr && stock.daysToExpiry) {
+              const expDate = new Date(Date.now() + stock.daysToExpiry * 86400000);
+              stock.expDateStr = `${(expDate.getMonth()+1).toString().padStart(2,'0')}/${expDate.getDate().toString().padStart(2,'0')}/${expDate.getFullYear().toString().slice(-2)}`;
+            }
+            // Cash required
+            if (!stock.cashRequired && stock.strikePrice) {
+              stock.cashRequired = Math.round(stock.strikePrice * 100);
+            }
+            // Probability of profit
+            if (!stock.probOfProfit && stock.delta) {
+              stock.probOfProfit = Math.round((1 - stock.delta) * 100);
+            }
+            // Max loss per contract
+            if (!stock.maxLoss && stock.strikePrice && stock.premium) {
+              stock.maxLoss = Math.round((stock.strikePrice - stock.premium) * 100);
+            }
+            // Support & Resistance from historical data
+            if (!stock.supportLevel && stock.lows) {
+              stock.supportLevel = TechnicalAnalysis.SupportLevel(stock.lows, stock.closes);
+            }
+            if (!stock.resistanceLevel && stock.highs) {
+              stock.resistanceLevel = TechnicalAnalysis.ResistanceLevel(stock.highs, stock.closes);
+            }
+            // IV Percentile
+            if (!stock.ivPercentile && stock.closes && stock.iv) {
+              stock.ivPercentile = TechnicalAnalysis.IVPercentile(stock.closes, stock.iv);
+            }
+            // v2.4.0: Earnings — backend now sends earningsConfirmed: true when real
+            // If backend didn't send the field at all, default to NOT confirmed
+            if (stock.earningsConfirmed === undefined || stock.earningsConfirmed === null) {
+              stock.earningsConfirmed = false;
+            }
+            if (!stock.earningsDateStr && stock.earningsIn && stock.earningsIn < 900) {
+              const eDate = new Date(Date.now() + stock.earningsIn * 86400000);
+              stock.earningsDateStr = `${(eDate.getMonth()+1).toString().padStart(2,'0')}/${eDate.getDate().toString().padStart(2,'0')}`;
+            }
+            if (!stock.earningsIn || stock.earningsIn >= 900) {
+              stock.earningsIn = stock.earningsIn || 999;
+              if (!stock.earningsConfirmed) stock.earningsDateStr = stock.earningsDateStr || '—';
+            }
+            // v2.4.0: Put/Call ratio — backend now sends real ratio
+            if (!stock.putCallRatio && stock.putCallRatio !== 0) stock.putCallRatio = 1.0;
+            // v2.4.0: Ex-dividend — backend now sends real data
+            if (stock.exDivBeforeExpiry === undefined) stock.exDivBeforeExpiry = false;
+            if (stock.hasDividend === undefined) stock.hasDividend = false;
+            // Re-calculate wheel score and recommendation with current logic
+            stock.wheelScore = WheelScoring.calculateScore(stock);
+            stock.recommendation = WheelScoring.getRecommendation(stock);
+            return stock;
+          });
+          setStocks(enrichedData);
+          setLastRefresh(new Date());
+          setLoading(false);
+          console.log(`[WheelPro] Loaded ${enrichedData.length} stocks from API (cached: ${result.cached})`);
+          return;
+        }
+        throw new Error('API returned empty data');
+      } catch (err) {
+        console.warn('[WheelPro] API fetch failed, using mock data:', err.message);
+      }
+    } else {
+      console.info('[WheelPro] API not configured — using demo data. Set CONFIG.API_BASE_URL to your Railway URL.');
+    }
+    
+    // Fallback to mock data if API is not configured or fails
+    setTimeout(() => {
+      const data = generateStockData();
+      setStocks(data);
+      setLastRefresh(new Date());
+      setLoading(false);
+    }, 600);
+  }, []);
+
+  useEffect(() => {
+    if (user) {
+      loadData();
+      if (settings.autoRefresh) {
+        const interval = setInterval(loadData, CONFIG.REFRESH_INTERVAL);
+        return () => clearInterval(interval);
+      }
+    }
+  }, [user, loadData, settings.autoRefresh]);
+
+  // Auth handlers
+  const handleLogin = (credentials) => {
+    const isOwner = credentials.email.toLowerCase().includes('holland');
+    const userData = {
+      email: credentials.email,
+      name: credentials.name || credentials.email.split('@')[0],
+      plan: isOwner ? 'elite' : (credentials.plan || 'free'), // Default new users to free tier
+      isOwner: isOwner,
+      joinDate: new Date().toISOString(),
+    };
+    Storage.set('user', userData);
+    setUser(userData);
+    setShowAuth(null);
+  };
+
+  const handleLogout = () => {
+    Storage.remove('user');
+    setUser(null);
+    setPage('dashboard');
+    setStocks([]);
+  };
+
+  // Anti-copy protection + keyboard shortcuts
+  useEffect(() => {
+    const handleContextMenu = (e) => e.preventDefault();
+    const handleKeyDown = (e) => {
+      // Allow in inputs
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+      // Anti-copy
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'c' || e.key === 'u' || e.key === 's')) {
+        e.preventDefault();
+        return;
+      }
+      // v2.5: Keyboard shortcuts
+      if (e.key === 'r' || e.key === 'R') { loadData(); }
+      if (e.key === '1') setPage('dashboard');
+      if (e.key === '2') setPage('screener');
+      if (e.key === '3') setPage('portfolio');
+      if (e.key === '4') setPage('journal');
+      if (e.key === '5') setPage('backtest');
+      if (e.key === 'Escape') setSelectedStock(null);
+    };
+    document.addEventListener('contextmenu', handleContextMenu);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('contextmenu', handleContextMenu);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [loadData]);
+
+  // Not logged in - show landing page
+  if (!user) {
+    return (
+      <AuthContext.Provider value={{ user, handleLogin, handleLogout }}>
+        <LandingPage
+          onLogin={() => setShowAuth('login')}
+          onSignup={() => setShowAuth('signup')}
+        />
+        {showAuth && (
+          <AuthModal
+            mode={showAuth}
+            onClose={() => setShowAuth(null)}
+            onSubmit={handleLogin}
+            onToggle={() => setShowAuth(s => s === 'login' ? 'signup' : 'login')}
+          />
+        )}
+        <div className="watermark">WheelPro™ v{CONFIG.VERSION} · © {CONFIG.OWNER}</div>
+      </AuthContext.Provider>
+    );
+  }
+
+  // Logged in - show dashboard
+  const pages = {
+    dashboard: { title: 'Dashboard', icon: Icons.dashboard, component: <DashboardPage stocks={stocks} watchlist={watchlist} toggleWatchlist={toggleWatchlist} onSelectStock={setSelectedStock} /> },
+    screener: { title: 'Screener', icon: Icons.screener, component: <ScreenerPage stocks={stocks} user={user} onSelectStock={setSelectedStock} onExport={(s) => exportCSV(s, `wheelpro-screener-${new Date().toISOString().slice(0,10)}.csv`)} /> },
+    portfolio: { title: 'Portfolio', icon: Icons.portfolio, component: <PortfolioPage stocks={stocks} /> },
+    journal: { title: 'Trade Journal', icon: Icons.journal, component: <TradeJournalPage user={user} /> },
+    backtest: { title: 'Backtest', icon: Icons.chart, component: <BacktestPage user={user} /> },
+    settings: { title: 'Settings', icon: Icons.settings, component: <SettingsPage settings={settings} setSettings={setSettings} /> },
+    admin: { title: 'Admin', icon: Icons.admin, component: <AdminPage user={user} /> },
+  };
+
+  return (
+    <AuthContext.Provider value={{ user, handleLogin, handleLogout }}>
+      <div className="dashboard-layout">
+        {/* Sidebar */}
+        <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
+          <div className="sidebar-header">
+            <div className="sidebar-logo">WheelPro™</div>
+            <div className="sidebar-logo-sub">Options Dashboard</div>
+          </div>
+          <nav className="sidebar-nav">
+            <div className="sidebar-section-label">Analysis</div>
+            {['dashboard', 'screener', 'portfolio', 'journal', 'backtest'].map(key => (
+              <a key={key} className={`sidebar-link ${page === key ? 'active' : ''}`}
+                onClick={() => { setPage(key); setSidebarOpen(false); }}>
+                <span className="icon">{pages[key].icon}</span>
+                {pages[key].title}
+              </a>
+            ))}
+            <div className="sidebar-section-label">Account</div>
+            <a className={`sidebar-link ${page === 'settings' ? 'active' : ''}`}
+              onClick={() => { setPage('settings'); setSidebarOpen(false); }}>
+              <span className="icon">{Icons.settings}</span>
+              Settings
+            </a>
+            {user.isOwner && (
+              <a className={`sidebar-link ${page === 'admin' ? 'active' : ''}`}
+                onClick={() => { setPage('admin'); setSidebarOpen(false); }}>
+                <span className="icon">{Icons.admin}</span>
+                Admin Panel
+              </a>
+            )}
+          </nav>
+          <div className="sidebar-footer">
+            <div className="sidebar-user">
+              <div className="sidebar-avatar">{user.name?.charAt(0)?.toUpperCase() || '?'}</div>
+              <div className="sidebar-user-info">
+                <div className="sidebar-user-name">{user.name}</div>
+                <div className="sidebar-user-plan">{user.isOwner ? '👑 Owner' : user.plan === 'elite' ? '⭐ Elite' : user.plan === 'pro' ? '● Pro' : user.plan === 'starter' ? '● Starter' : '○ Free'}</div>
+              </div>
+            </div>
+            <a className="sidebar-link" onClick={handleLogout} style={{marginTop:4, color:'var(--accent-red)'}}>
+              <span className="icon">{Icons.logout}</span>
+              Sign Out
+            </a>
+          </div>
+        </aside>
+
+        {/* Main */}
+        <main className="main-content">
+          <header className="topbar">
+            <div style={{display:'flex', alignItems:'center', gap:'16px'}}>
+              <button onClick={() => setSidebarOpen(!sidebarOpen)}
+                style={{background:'none',border:'none',color:'var(--text-secondary)',cursor:'pointer', display:'none'}}
+                className="mobile-menu">
+                {Icons.menu}
+              </button>
+              <div className="topbar-title">{pages[page]?.title}</div>
+            </div>
+            <div className="topbar-actions">
+              {lastRefresh && (
+                <span style={{fontSize:'12px', color:'var(--text-muted)'}}>
+                  Updated {lastRefresh.toLocaleTimeString()}
+                  {stocks.length > 0 && stocks[0].dataSource === 'yahoo-finance' 
+                    ? ' · 🟢 Live Data' 
+                    : ' · 🟡 Demo Data'}
+                </span>
+              )}
+              {(() => {
+                const now = new Date();
+                const et = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+                const day = et.getDay();
+                const h = et.getHours();
+                const m = et.getMinutes();
+                const mins = h * 60 + m;
+                const isWeekday = day >= 1 && day <= 5;
+                const isOpen = isWeekday && mins >= 570 && mins < 960; // 9:30 AM - 4:00 PM ET
+                const isPreMarket = isWeekday && mins >= 240 && mins < 570; // 4:00 AM - 9:30 AM ET
+                const isAfterHours = isWeekday && mins >= 960 && mins < 1200; // 4:00 PM - 8:00 PM ET
+                return (
+                  <div className="topbar-badge" style={!isOpen ? {background:'rgba(245,158,11,0.1)', borderColor:'rgba(245,158,11,0.2)'} : {}}>
+                    <span className="pulse" style={!isOpen ? {background:'var(--accent-amber)', boxShadow:'0 0 8px var(--accent-amber)'} : {}}></span>
+                    {isOpen ? 'Market Open' : isPreMarket ? 'Pre-Market' : isAfterHours ? 'After Hours' : 'Market Closed'}
+                  </div>
+                );
+              })()}
+              <button className="btn btn-sm btn-secondary" onClick={loadData} disabled={loading}
+                style={{display:'flex', alignItems:'center', gap:'6px'}}>
+                {loading ? <span className="spinner" style={{width:14,height:14,borderWidth:2}}></span> : Icons.refresh}
+                Refresh
+              </button>
+            </div>
+          </header>
+
+          <div className="page-content">
+            {loading && stocks.length === 0 ? (
+              <div className="loading-state">
+                <div className="spinner"></div>
+                <p>Loading market data...</p>
+                <div style={{display:'grid', gridTemplateColumns:'repeat(4, 1fr)', gap:16, width:'100%', maxWidth:900, marginTop:20}}>
+                  {[1,2,3,4].map(i => (
+                    <div key={i} style={{background:'var(--gradient-card)', border:'1px solid var(--border)', borderRadius:'var(--radius-md)', padding:20, animation:`shimmer 1.5s ease-in-out infinite`, backgroundImage:'linear-gradient(90deg, transparent 0%, rgba(59,130,246,0.05) 50%, transparent 100%)', backgroundSize:'200% 100%'}}>
+                      <div style={{height:10, background:'var(--bg-elevated)', borderRadius:4, width:'60%', marginBottom:12}}></div>
+                      <div style={{height:24, background:'var(--bg-elevated)', borderRadius:4, width:'40%', marginBottom:8}}></div>
+                      <div style={{height:8, background:'var(--bg-elevated)', borderRadius:4, width:'80%'}}></div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              pages[page]?.component
+            )}
+          </div>
+        </main>
+      </div>
+
+      {/* v2.5: Stock Detail Modal */}
+      {selectedStock && <StockDetailModal stock={selectedStock} onClose={() => setSelectedStock(null)} />}
+
+      <footer className="footer">
+        <div className="footer-copyright">
+          Developed and Created by {CONFIG.OWNER} — All Rights Reserved · WheelPro™ v{CONFIG.VERSION}
+        </div>
+        <div style={{display:'flex', alignItems:'center', gap:16}}>
+          <span style={{fontSize:10, color:'var(--text-muted)'}}>Shortcuts: R=Refresh · 1-5=Pages · Esc=Close</span>
+          <span>Options trading involves risk. Past performance does not guarantee future results.</span>
+        </div>
+      </footer>
+
+      <div className="watermark">WheelPro™ · © {CONFIG.OWNER}</div>
+
+      <style>{`
+        @media (max-width: 1024px) {
+          .mobile-menu { display: block !important; }
+        }
+      `}</style>
+    </AuthContext.Provider>
+  );
+}
+
+// ===== RENDER =====
+try {
+  const root = ReactDOM.createRoot(document.getElementById('root'));
+  root.render(React.createElement(App));
+} catch(e) {
+  console.error('Render error:', e);
+  document.getElementById('root').innerHTML = '<div style="padding:40px;color:#ef4444;font-family:sans-serif;"><h2>Loading Error</h2><p>' + e.message + '</p><p>Please check your internet connection and reload.</p></div>';
+}
+</script>
+
+<!-- Protection: Ownership Watermark -->
+<noscript>
+  <div style="padding:40px;text-align:center;font-family:sans-serif;color:#94a3b8;background:#0a0e17;min-height:100vh;">
+    <h1>WheelPro™</h1>
+    <p>JavaScript is required to run this application.</p>
+    <p>Developed and Created by Holland Ricker — All Rights Reserved</p>
+  </div>
+</noscript>
+
+<!-- 
+  ================================================================
+  WheelPro™ Options Wheel Strategy Dashboard
+  Version 2.0.0
+  
+  Developed and Created by Holland Ricker
+  All Rights Reserved
+  
+  UNAUTHORIZED REPRODUCTION, DISTRIBUTION, OR MODIFICATION 
+  OF THIS SOFTWARE IS STRICTLY PROHIBITED.
+  
+  For licensing inquiries, contact the owner.
+  ================================================================
+-->
+</body>
+</html>
