@@ -1497,11 +1497,21 @@ const FirebaseHelper = {
 // ===== STRIPE CHECKOUT HELPER =====
 const StripeHelper = {
   async createCheckout(plan, email, uid) {
+    const priceMap = {
+      starter: CONFIG.STRIPE_PRICE_STARTER,
+      pro: CONFIG.STRIPE_PRICE_PRO,
+      elite: CONFIG.STRIPE_PRICE_ELITE,
+    };
+    const priceId = priceMap[plan];
+    if (!priceId) {
+      alert('Unknown plan: ' + plan);
+      return;
+    }
     try {
       const res = await fetch(`${CONFIG.API_BASE_URL}/api/checkout`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plan, email, uid, returnUrl: window.location.origin }),
+        body: JSON.stringify({ priceId, email, returnUrl: window.location.origin }),
       });
       const data = await res.json();
       if (data.success && data.url) {
