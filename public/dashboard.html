@@ -3,42 +3,76 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WheelPro™ — Options Wheel Strategy Dashboard</title>
-<meta name="description" content="Professional options wheel strategy dashboard with real-time technical analysis. Developed by Holland Ricker.">
+<title>WheelPro™ — Options Wheel Strategy Dashboard | Sell Puts & Covered Calls Smarter</title>
+<meta name="description" content="WheelPro™ is the #1 options wheel strategy dashboard. Real-time technical analysis, multi-factor scoring, and actionable put-selling recommendations across 2,000+ stocks. Master the wheel strategy with RSI, MACD, Bollinger Bands, and proprietary scoring.">
+<meta name="keywords" content="wheel strategy, options wheel strategy, sell puts, cash secured puts, covered calls, poor mans covered call, options trading, options scanner, put selling, wheel trading, options income, premium selling, theta decay, delta neutral, options wheel calculator, weekly options income, passive income options">
+<meta name="author" content="Holland Ricker">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://wheelpro.io">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://wheelpro.io">
+<meta property="og:title" content="WheelPro™ — Master the Options Wheel Strategy">
+<meta property="og:description" content="Professional-grade options scanner with real-time technical analysis. RSI, MACD, Bollinger Bands, and proprietary scoring identify the highest-probability wheel trades across 2,000+ stocks.">
+<meta property="og:site_name" content="WheelPro™">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="WheelPro™ — Options Wheel Strategy Dashboard">
+<meta name="twitter:description" content="Professional-grade options scanner for the wheel strategy. Real-time analysis across 2,000+ stocks.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"WheelPro™","applicationCategory":"FinanceApplication","operatingSystem":"Web","description":"Professional options wheel strategy dashboard with real-time technical analysis, multi-factor scoring, and actionable trade recommendations.","url":"https://wheelpro.io","author":{"@type":"Person","name":"Holland Ricker"},"offers":[{"@type":"Offer","price":"0","priceCurrency":"USD","name":"Free"},{"@type":"Offer","price":"29","priceCurrency":"USD","name":"Starter"},{"@type":"Offer","price":"79","priceCurrency":"USD","name":"Pro"},{"@type":"Offer","price":"149","priceCurrency":"USD","name":"Elite"}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the wheel strategy in options trading?","acceptedAnswer":{"@type":"Answer","text":"The wheel strategy is an options income strategy where you sell cash-secured puts on stocks you want to own. If assigned, you then sell covered calls until the stock is called away. This cycle generates consistent premium income."}},{"@type":"Question","name":"How does WheelPro help with the wheel strategy?","acceptedAnswer":{"@type":"Answer","text":"WheelPro scans 2,000+ stocks using 5 technical indicators (RSI, MACD, Bollinger Bands, EMA, SMA), calculates a proprietary Wheel Score from 0-100, and recommends the best puts to sell with specific strike prices, deltas, and expected yields."}},{"@type":"Question","name":"What is a poor man's covered call?","acceptedAnswer":{"@type":"Answer","text":"A poor man's covered call (PMCC) uses a deep in-the-money LEAPS call instead of 100 shares of stock as collateral for selling covered calls. It requires less capital than a traditional covered call while generating similar premium income."}}]}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
 <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+<script>
+// ===== FIREBASE CONFIGURATION =====
+const firebaseConfig = {
+  apiKey: "AIzaSyB-DdtEc0wyRCbfeqAI2UuRfloy6SITI7g",
+  authDomain: "wheelpro-f86c1.firebaseapp.com",
+  projectId: "wheelpro-f86c1",
+  storageBucket: "wheelpro-f86c1.firebasestorage.app",
+  messagingSenderId: "1075870431103",
+  appId: "1:1075870431103:web:f21ddc8bbcd46181da4c4a"
+};
+firebase.initializeApp(firebaseConfig);
+const firebaseAuth = firebase.auth();
+const firebaseDb = firebase.firestore();
+</script>
 <style>
 /* ============================================================
-   WheelPro™ Dashboard — Developed by Holland Ricker
+   WheelPro™ Dashboard — WheelPro LLC
    All Rights Reserved. Unauthorized reproduction prohibited.
    ============================================================ */
 
 :root {
-  --bg-primary: #0a0e17;
-  --bg-secondary: #111827;
-  --bg-card: #151d2e;
-  --bg-card-hover: #1a2438;
-  --bg-elevated: #1e293b;
-  --border: #1e293b;
-  --border-focus: #3b82f6;
-  --text-primary: #f1f5f9;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  --accent-blue: #3b82f6;
-  --accent-blue-glow: rgba(59, 130, 246, 0.15);
-  --accent-green: #10b981;
-  --accent-green-glow: rgba(16, 185, 129, 0.15);
-  --accent-red: #ef4444;
-  --accent-red-glow: rgba(239, 68, 68, 0.15);
-  --accent-amber: #f59e0b;
-  --accent-amber-glow: rgba(245, 158, 11, 0.15);
-  --accent-purple: #8b5cf6;
-  --gradient-hero: linear-gradient(135deg, #0a0e17 0%, #1a1040 50%, #0a0e17 100%);
-  --gradient-card: linear-gradient(145deg, #151d2e 0%, #111827 100%);
-  --gradient-accent: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  --bg-primary: #0b1120;
+  --bg-secondary: #0f1729;
+  --bg-card: #131c2f;
+  --bg-card-hover: #182236;
+  --bg-elevated: #1a2540;
+  --border: #1e2d45;
+  --border-focus: #c9a84c;
+  --text-primary: #e8ecf1;
+  --text-secondary: #8899ad;
+  --text-muted: #5a6b7f;
+  --accent-blue: #4a90d9;
+  --accent-blue-glow: rgba(74, 144, 217, 0.12);
+  --accent-green: #22c55e;
+  --accent-green-glow: rgba(34, 197, 94, 0.12);
+  --accent-red: #dc2626;
+  --accent-red-glow: rgba(220, 38, 38, 0.12);
+  --accent-amber: #d4a843;
+  --accent-amber-glow: rgba(212, 168, 67, 0.12);
+  --accent-purple: #7c6bc4;
+  --accent-gold: #c9a84c;
+  --accent-gold-glow: rgba(201, 168, 76, 0.12);
+  --gradient-hero: linear-gradient(135deg, #0b1120 0%, #0f1a30 40%, #0b1120 100%);
+  --gradient-card: linear-gradient(145deg, #131c2f 0%, #0f1729 100%);
+  --gradient-accent: linear-gradient(135deg, #c9a84c, #d4a843);
   --font-body: 'DM Sans', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
   --font-display: 'Playfair Display', serif;
@@ -46,8 +80,8 @@
   --radius-md: 10px;
   --radius-lg: 16px;
   --radius-xl: 24px;
-  --shadow-card: 0 4px 24px rgba(0,0,0,0.3);
-  --shadow-glow: 0 0 40px rgba(59,130,246,0.08);
+  --shadow-card: 0 4px 24px rgba(0,0,0,0.4);
+  --shadow-glow: 0 0 40px rgba(201,168,76,0.06);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -133,7 +167,7 @@ body.protected img { pointer-events: none; }
   right: -30%;
   width: 80%;
   height: 80%;
-  background: radial-gradient(circle, rgba(139,92,246,0.08) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(201,168,76,0.05) 0%, transparent 70%);
   pointer-events: none;
 }
 .landing-hero::after {
@@ -143,7 +177,7 @@ body.protected img { pointer-events: none; }
   left: -20%;
   width: 60%;
   height: 60%;
-  background: radial-gradient(circle, rgba(59,130,246,0.06) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(74,144,217,0.04) 0%, transparent 70%);
   pointer-events: none;
 }
 
@@ -266,12 +300,13 @@ body.protected img { pointer-events: none; }
 }
 .btn-primary {
   background: var(--gradient-accent);
-  color: white;
-  box-shadow: 0 4px 20px rgba(59,130,246,0.3);
+  color: #0b1120;
+  font-weight: 700;
+  box-shadow: 0 4px 20px rgba(201,168,76,0.3);
 }
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(59,130,246,0.4);
+  box-shadow: 0 8px 30px rgba(201,168,76,0.4);
 }
 .btn-secondary {
   background: var(--bg-elevated);
@@ -388,8 +423,8 @@ body.protected img { pointer-events: none; }
   transition: all 0.3s;
 }
 .pricing-card.featured {
-  border-color: var(--accent-blue);
-  box-shadow: 0 0 40px rgba(59,130,246,0.15);
+  border-color: var(--accent-gold);
+  box-shadow: 0 0 40px rgba(201,168,76,0.15);
 }
 .pricing-card.featured::before {
   content: 'MOST POPULAR';
@@ -398,7 +433,7 @@ body.protected img { pointer-events: none; }
   left: 50%;
   transform: translateX(-50%);
   background: var(--gradient-accent);
-  color: white;
+  color: #0b1120;
   font-size: 11px;
   font-weight: 700;
   padding: 4px 16px;
@@ -1143,16 +1178,83 @@ body.protected img { pointer-events: none; }
   .footer { margin-left: 0; }
   .stock-detail-grid { grid-template-columns: 1fr; }
   .landing-stats { flex-direction: column; gap: 24px; }
+  .landing-nav-links { gap: 16px; }
 }
 @media (max-width: 768px) {
-  .landing-nav { padding: 16px 20px; }
-  .landing-content { padding: 0 20px; }
-  .page-content { padding: 20px; }
-  .stats-grid { grid-template-columns: 1fr 1fr; }
+  /* Navigation — stack and simplify */
+  .landing-nav {
+    padding: 12px 16px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .landing-logo { font-size: 22px; }
+  .landing-logo span { display: none; }
+  .landing-nav-links {
+    gap: 12px;
+    font-size: 13px;
+  }
+  .landing-nav-links a { font-size: 13px; }
+  .landing-nav-links .btn { padding: 8px 14px; font-size: 12px; }
+
+  /* Hero content */
+  .landing-content { padding: 0 16px; }
+  .landing-h1 { font-size: 32px !important; margin-bottom: 16px; }
+  .landing-subtitle { font-size: 15px; margin-bottom: 32px; }
+  .landing-cta-group { flex-direction: column; width: 100%; max-width: 300px; }
+  .landing-cta-group .btn { width: 100%; justify-content: center; }
+  .landing-badge { font-size: 12px; margin-bottom: 20px; }
+
+  /* Stats row */
+  .landing-stats { margin-top: 48px; gap: 20px; }
+  .landing-stat-value { font-size: 24px; }
+  .landing-stat-label { font-size: 11px; }
+
+  /* Features */
+  .landing-features { padding: 60px 16px; }
+  .features-grid { grid-template-columns: 1fr; gap: 16px; }
+  .feature-card { padding: 24px; }
+
+  /* Pricing */
+  .pricing-section { padding: 60px 16px; }
+  .pricing-section h2 { font-size: 28px; }
+  .pricing-grid { grid-template-columns: 1fr !important; max-width: 400px !important; gap: 16px; }
+  .pricing-card { padding: 28px 24px; }
+  .pricing-amount { font-size: 36px; }
+
+  /* Footer legal links — stack on mobile */
+  .pricing-section + div { padding: 24px 16px !important; }
+  .pricing-section + div > div { flex-direction: column; gap: 12px !important; }
+
+  /* Dashboard */
+  .page-content { padding: 16px; }
+  .stats-grid { grid-template-columns: 1fr; gap: 12px; }
   .settings-grid { grid-template-columns: 1fr; }
-  .pricing-grid { grid-template-columns: 1fr; }
-  .data-table { font-size: 12px; }
-  .data-table th, .data-table td { padding: 10px 8px; }
+  .data-table { font-size: 11px; }
+  .data-table th, .data-table td { padding: 8px 6px; }
+  .topbar { padding: 12px 16px; }
+  .topbar-title { font-size: 16px; }
+
+  /* Modal */
+  .modal { padding: 24px 20px; margin: 16px; max-width: calc(100vw - 32px); }
+
+  /* Tour */
+  .tour-card { padding: 20px 24px; width: 94%; }
+
+  /* Calc */
+  .calc-input-group { gap: 10px; }
+  .calc-input-group > div { min-width: 100px; }
+  .calc-result { gap: 8px; }
+  .calc-result-card { min-width: 70px; padding: 12px 8px; }
+  .calc-result-card div:last-child { font-size: 18px !important; }
+}
+
+@media (max-width: 480px) {
+  .landing-nav-links a:not(.btn) { display: none; }
+  .landing-h1 { font-size: 26px !important; }
+  .stats-grid { grid-template-columns: 1fr; }
+  .screener-filters { flex-direction: column; gap: 8px; }
+  .filter-group { width: 100%; }
+  .filter-select, .filter-input { width: 100%; min-width: unset; }
 }
 
 /* ===== WATERMARK ===== */
@@ -1171,6 +1273,93 @@ body.protected img { pointer-events: none; }
 .table-scroll {
   overflow-x: auto;
 }
+
+/* ===== ONBOARDING TOUR ===== */
+.tour-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  z-index: 2000;
+  animation: fadeIn 0.3s ease;
+}
+.tour-card {
+  position: fixed;
+  z-index: 2001;
+  background: var(--bg-card);
+  border: 1px solid var(--accent-gold, #c9a84c);
+  border-radius: var(--radius-lg);
+  padding: 28px 32px;
+  max-width: 420px;
+  width: 90%;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.5), 0 0 30px rgba(201,168,76,0.1);
+  animation: fadeInUp 0.4s ease;
+}
+.tour-card-center {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.tour-card-top {
+  top: 120px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.tour-step-indicator {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  margin-top: 20px;
+}
+.tour-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border);
+  transition: all 0.2s;
+}
+.tour-dot.active {
+  background: var(--accent-gold, #c9a84c);
+  width: 24px;
+  border-radius: 4px;
+}
+.tour-highlight {
+  position: relative;
+  z-index: 2001;
+  box-shadow: 0 0 0 4px rgba(201,168,76,0.4), 0 0 20px rgba(201,168,76,0.2);
+  border-radius: var(--radius-md);
+}
+
+/* ===== POSITION SIZE CALCULATOR ===== */
+.calc-card {
+  background: var(--gradient-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+.calc-input-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.calc-input-group > div {
+  flex: 1;
+  min-width: 140px;
+}
+.calc-result {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.calc-result-card {
+  flex: 1;
+  min-width: 120px;
+  background: var(--bg-elevated);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  text-align: center;
+}
 </style>
 </head>
 <body class="protected">
@@ -1180,7 +1369,7 @@ body.protected img { pointer-events: none; }
 <script type="text/babel">
 /* ================================================================
    WheelPro™ Options Wheel Strategy Dashboard
-   Developed and Created by Holland Ricker — All Rights Reserved
+   WheelPro LLC — All Rights Reserved
    Unauthorized reproduction, distribution, or modification prohibited.
    ================================================================ */
 
@@ -1189,7 +1378,7 @@ const { useState, useEffect, useMemo, useCallback, useRef, createContext, useCon
 // ===== CONFIGURATION =====
 const CONFIG = {
   APP_NAME: 'WheelPro™',
-  OWNER: 'Holland Ricker',
+  OWNER: 'WheelPro LLC',
   VERSION: '2.5.0',
   // Stripe Configuration - Replace with your live keys
   STRIPE_PUBLISHABLE_KEY: 'pk_live_YOUR_STRIPE_KEY_HERE',
@@ -1205,7 +1394,7 @@ const CONFIG = {
     elite: { maxStocks: 2000, screener: true, maxPortfolio: 999, journal: true, alerts: true },
   },
   // Backend API URL — REPLACE WITH YOUR RAILWAY DEPLOYMENT URL
-  API_BASE_URL: 'https://web-production-e726.up.railway.app',
+  API_BASE_URL: 'https://web-production-61ce5.up.railway.app',
   // Data Settings
   REFRESH_INTERVAL: 60000, // 1 minute
   MAX_STOCKS: 2000,
@@ -1217,6 +1406,140 @@ const CONFIG = {
   // Strike Selection
   MIN_OTM_PCT: 0.03,  // Minimum 3% out-of-the-money
   MAX_OTM_PCT: 0.15,  // Maximum 15% out-of-the-money
+};
+
+// ===== FIREBASE AUTH HELPERS =====
+const FirebaseHelper = {
+  // Sign up with email/password
+  async signUp(email, password, name) {
+    const cred = await firebaseAuth.createUserWithEmailAndPassword(email, password);
+    const uid = cred.user.uid;
+    const isOwner = email.toLowerCase().includes('holland');
+    const profile = {
+      name: name || email.split('@')[0],
+      email: email.toLowerCase(),
+      plan: isOwner ? 'elite' : 'free',
+      isOwner,
+      joinDate: new Date().toISOString(),
+      trialEnd: new Date(Date.now() + 7 * 86400000).toISOString(),
+    };
+    await firebaseDb.collection('users').doc(uid).set(profile);
+    return { uid, ...profile };
+  },
+
+  // Sign in with email/password
+  async signIn(email, password) {
+    const cred = await firebaseAuth.signInWithEmailAndPassword(email, password);
+    return await this.getProfile(cred.user.uid);
+  },
+
+  // Sign in with Google
+  async signInWithGoogle() {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    const cred = await firebaseAuth.signInWithPopup(provider);
+    const uid = cred.user.uid;
+    // Check if profile exists
+    const doc = await firebaseDb.collection('users').doc(uid).get();
+    if (doc.exists) return { uid, ...doc.data() };
+    // Create new profile for first-time Google sign-in
+    const isOwner = cred.user.email.toLowerCase().includes('holland');
+    const profile = {
+      name: cred.user.displayName || cred.user.email.split('@')[0],
+      email: cred.user.email.toLowerCase(),
+      plan: isOwner ? 'elite' : 'free',
+      isOwner,
+      joinDate: new Date().toISOString(),
+      trialEnd: new Date(Date.now() + 7 * 86400000).toISOString(),
+    };
+    await firebaseDb.collection('users').doc(uid).set(profile);
+    return { uid, ...profile };
+  },
+
+  // Get user profile from Firestore
+  async getProfile(uid) {
+    const doc = await firebaseDb.collection('users').doc(uid).get();
+    if (!doc.exists) return null;
+    return { uid, ...doc.data() };
+  },
+
+  // Sign out
+  async signOut() {
+    await firebaseAuth.signOut();
+  },
+
+  // Save data to Firestore sub-collection
+  async saveData(uid, collection, data) {
+    await firebaseDb.collection('users').doc(uid).collection(collection).doc('data').set({ items: data, updatedAt: new Date().toISOString() });
+  },
+
+  // Load data from Firestore sub-collection
+  async loadData(uid, collection) {
+    const doc = await firebaseDb.collection('users').doc(uid).collection(collection).doc('data').get();
+    return doc.exists ? doc.data().items : null;
+  },
+
+  // Translate Firebase error codes to user-friendly messages
+  getErrorMessage(code) {
+    const messages = {
+      'auth/email-already-in-use': 'An account with this email already exists. Try signing in.',
+      'auth/invalid-email': 'Please enter a valid email address.',
+      'auth/weak-password': 'Password must be at least 6 characters.',
+      'auth/user-not-found': 'No account found with this email. Try signing up.',
+      'auth/wrong-password': 'Incorrect password. Please try again.',
+      'auth/too-many-requests': 'Too many attempts. Please wait a moment and try again.',
+      'auth/popup-closed-by-user': 'Sign-in popup was closed. Please try again.',
+      'auth/network-request-failed': 'Network error. Check your connection and try again.',
+    };
+    return messages[code] || 'Something went wrong. Please try again.';
+  }
+};
+
+// ===== STRIPE CHECKOUT HELPER =====
+const StripeHelper = {
+  async createCheckout(plan, email, uid) {
+    try {
+      const res = await fetch(`${CONFIG.API_BASE_URL}/api/checkout`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan, email, uid, returnUrl: window.location.origin }),
+      });
+      const data = await res.json();
+      if (data.success && data.url) {
+        window.location.href = data.url; // Redirect to Stripe Checkout
+      } else {
+        alert('Checkout error: ' + (data.error || 'Please try again.'));
+      }
+    } catch (err) {
+      console.error('[Stripe] Checkout failed:', err);
+      alert('Unable to connect to payment system. Please try again.');
+    }
+  },
+  async checkSubscription(email) {
+    try {
+      const res = await fetch(`${CONFIG.API_BASE_URL}/api/subscription/status?email=${encodeURIComponent(email)}`);
+      return await res.json();
+    } catch (err) {
+      console.warn('[Stripe] Status check failed:', err);
+      return { active: false, plan: 'free' };
+    }
+  },
+  async openBillingPortal(email) {
+    try {
+      const res = await fetch(`${CONFIG.API_BASE_URL}/api/billing/portal`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, returnUrl: window.location.origin + '/dashboard.html' }),
+      });
+      const data = await res.json();
+      if (data.success && data.url) {
+        window.location.href = data.url;
+      } else {
+        alert('Unable to open billing portal: ' + (data.error || 'Please try again.'));
+      }
+    } catch (err) {
+      alert('Unable to connect to billing system. Please try again.');
+    }
+  }
 };
 
 // ===== TECHNICAL INDICATOR CALCULATIONS =====
@@ -1253,6 +1576,18 @@ const TechnicalAnalysis = {
     if (avgLoss === 0) return 100;
     const rs = avgGain / avgLoss;
     return 100 - (100 / (1 + rs));
+  },
+
+  // Weekly RSI — derives weekly candles from daily closes (sample every 5 trading days)
+  weeklyRSI(closes, period = 14) {
+    if (!closes || closes.length < period * 5) return null;
+    // Sample every 5th close to create weekly data points
+    const weeklyCloses = [];
+    for (let i = 4; i < closes.length; i += 5) {
+      weeklyCloses.push(closes[i]);
+    }
+    if (weeklyCloses.length < period + 1) return null;
+    return this.RSI(weeklyCloses, period);
   },
 
   // MACD
@@ -1412,6 +1747,23 @@ const TechnicalAnalysis = {
       else { score -= 0.5; signals++; }
     }
 
+    // Volume Confirmation Signal (v2.5 — from prior analysis)
+    // Price declining + volume rising = accumulation (bullish for put selling)
+    // Price rising + volume falling = distribution (bearish)
+    if (volumes && volumes.length >= 10 && closes.length >= 10) {
+      const recentPrice = closes[closes.length - 1];
+      const priorPrice = closes[closes.length - 6]; // 5 days ago
+      const recentVol = volumes.slice(-5).reduce((s,v) => s+v, 0) / 5;
+      const priorVol = volumes.slice(-10, -5).reduce((s,v) => s+v, 0) / 5;
+      const priceDown = recentPrice < priorPrice;
+      const volUp = recentVol > priorVol * 1.1;
+      const priceUp = recentPrice > priorPrice;
+      const volDown = recentVol < priorVol * 0.9;
+      if (priceDown && volUp) { score += 1; signals++; } // Accumulation = bullish
+      else if (priceUp && volDown) { score -= 0.8; signals++; } // Distribution = bearish
+      else { signals++; } // Neutral volume
+    }
+
     return signals > 0 ? score / signals : 0;
   }
 };
@@ -1467,11 +1819,13 @@ const WheelScoring = {
     return Math.round((score / maxScore) * 100);
   },
 
-  // Get strategy recommendation with confidence level
+  // Get strategy recommendation — 3-Gate Entry System (v2.5)
+  // All 3 gates must pass for HIGH confidence. Transparent, explainable, 6th-grader readable.
   getRecommendation(stock) {
     const score = stock.wheelScore || 0;
     const signal = stock.technicalSignal || 0;
     const rsi = stock.rsi || 50;
+    const weeklyRsi = stock.weeklyRsi || 50;
     const delta = stock.delta || 0.5;
     const weeklyYield = stock.weeklyYield || 0;
     const earningsIn = stock.earningsIn || 999;
@@ -1479,51 +1833,83 @@ const WheelScoring = {
     const bidAskSpread = stock.bidAskSpread || 1;
     const premium = stock.premium || 0;
     const otmPct = stock.otmPercent || 0;
+    const macd = stock.macd;
 
-    // EARNINGS WARNING: Only block if earnings date is confirmed AND falls before expiry
+    // PRE-CHECKS: Hard blockers before gates
     const earningsBeforeExpiry = earningsIn <= daysToExpiry;
-    const earningsConfirmed = stock.earningsConfirmed === true; // Only block when EXPLICITLY confirmed
+    const earningsConfirmed = stock.earningsConfirmed === true;
     if (earningsBeforeExpiry && earningsConfirmed) {
-      return { type: 'WAIT', label: '⚠️ Earnings Risk', color: 'red', confidence: 'NONE', reason: `Confirmed earnings in ${earningsIn}d — do not sell` };
+      return { type: 'WAIT', label: 'Earnings Risk', color: 'red', confidence: 'NONE', reason: `Confirmed earnings in ${earningsIn}d — do not sell`, gates: '0/3' };
     }
-
-    // EX-DIVIDEND WARNING: Early assignment risk if ex-div is before expiry
-    const exDivRisk = stock.exDivBeforeExpiry;
-    if (exDivRisk) {
-      return { type: 'WAIT', label: '⚠️ Ex-Div Risk', color: 'red', confidence: 'NONE', reason: `Ex-dividend before expiry — early assignment risk` };
+    if (stock.exDivBeforeExpiry) {
+      return { type: 'WAIT', label: 'Ex-Div Risk', color: 'red', confidence: 'NONE', reason: `Ex-dividend before expiry — early assignment risk`, gates: '0/3' };
     }
-
-    // STRIKE VALIDATION: Reject deep OTM (>15%) or too close to ATM (<3%)
     if (otmPct > 0.15 || otmPct < 0.02) {
-      return { type: 'WAIT', label: 'No Good Strike', color: 'red', confidence: 'NONE', reason: `Strike ${(otmPct*100).toFixed(1)}% OTM — outside 3-15% range` };
+      return { type: 'WAIT', label: 'No Good Strike', color: 'red', confidence: 'NONE', reason: `Strike ${(otmPct*100).toFixed(1)}% OTM — outside 3-15% range`, gates: '0/3' };
     }
 
-    // SPREAD CHECK: Wide bid-ask eats into profit
+    // ===== 3-GATE ENTRY SYSTEM =====
+    const gates = [];
+    const gateDetails = [];
+
+    // GATE 1: RSI Check — Daily RSI ≤ 70 AND Weekly RSI < 65
+    const gate1 = rsi <= 70 && weeklyRsi < 65;
+    gates.push(gate1);
+    gateDetails.push(gate1
+      ? `Gate 1 ✓ RSI ${rsi.toFixed(0)} · Weekly RSI ${weeklyRsi.toFixed(0)}`
+      : `Gate 1 ✗ ${rsi > 70 ? `RSI ${rsi.toFixed(0)} > 70 (overbought)` : `Weekly RSI ${weeklyRsi.toFixed(0)} ≥ 65`}`);
+
+    // GATE 2: Momentum Check — RSI + MACD not both bearish simultaneously
+    const rsiBearish = rsi > 65;
+    const macdBearish = macd && macd.histogram < 0 && macd.macd < macd.signal;
+    const gate2 = !(rsiBearish && macdBearish);
+    gates.push(gate2);
+    gateDetails.push(gate2
+      ? `Gate 2 ✓ Momentum OK${macd ? ` · MACD ${macd.histogram > 0 ? 'bullish' : 'neutral'}` : ''}`
+      : `Gate 2 ✗ RSI + MACD both bearish — high reversal risk`);
+
+    // GATE 3: Earnings Safety — Confirmed earnings ≥ 14 days away (hard floor)
+    const gate3 = !earningsConfirmed || earningsIn >= 14;
+    gates.push(gate3);
+    gateDetails.push(gate3
+      ? `Gate 3 ✓ Earnings ${earningsConfirmed ? earningsIn + 'd out' : 'unconfirmed'} — safe`
+      : `Gate 3 ✗ Earnings in ${earningsIn}d — too close`);
+
+    const gatesPassed = gates.filter(g => g).length;
+    const allGatesPassed = gatesPassed === 3;
     const spreadPct = premium > 0 ? bidAskSpread / premium : 1;
 
-    // STRONG SELL PUT: Score ≥75, yield ≥2%, delta ≤0.30, bullish technicals
-    if (score >= 75 && weeklyYield >= 0.02 && delta <= 0.30 && signal > 0 && spreadPct < 0.3) {
-      return { type: 'SELL_PUT', label: '🟢 Sell Put', color: 'green', confidence: 'HIGH', reason: 'Strong candidate — all criteria met' };
+    // HIGH CONFIDENCE: All 3 gates + score ≥75 + yield ≥2% + delta ≤0.30
+    if (allGatesPassed && score >= 75 && weeklyYield >= 0.02 && delta <= 0.30 && signal > 0 && spreadPct < 0.3) {
+      return { type: 'SELL_PUT', label: 'Sell Put', color: 'green', confidence: 'HIGH',
+        reason: `All 3 gates passed · RSI ${rsi.toFixed(0)} · Weekly RSI ${weeklyRsi.toFixed(0)} · Strong setup`,
+        gates: '3/3', gateDetails };
     }
 
-    // MEDIUM SELL PUT: Score ≥65, yield ≥1.5%, delta ≤0.30
-    if (score >= 65 && weeklyYield >= 0.015 && delta <= 0.30 && signal > -0.2) {
-      return { type: 'SELL_PUT', label: '🟡 Sell Put', color: 'amber', confidence: 'MEDIUM', reason: spreadPct >= 0.3 ? 'Watch bid-ask spread' : 'Good setup — monitor entry' };
+    // MEDIUM CONFIDENCE: All 3 gates + score ≥65 + yield ≥1.5% + delta ≤0.30
+    if (allGatesPassed && score >= 65 && weeklyYield >= 0.015 && delta <= 0.30 && signal > -0.2) {
+      return { type: 'SELL_PUT', label: 'Sell Put', color: 'amber', confidence: 'MEDIUM',
+        reason: `${gatesPassed}/3 gates passed · ${spreadPct >= 0.3 ? 'Watch bid-ask spread' : 'Good setup — monitor entry'}`,
+        gates: `${gatesPassed}/3`, gateDetails };
     }
 
     // SELL COVERED CALL (if bearish and holding shares)
     if (signal < -0.3 && rsi > 60) {
-      return { type: 'SELL_CALL', label: '📤 Sell Call', color: 'amber', confidence: 'MEDIUM', reason: 'Bearish — sell covered calls if holding' };
+      return { type: 'SELL_CALL', label: 'Sell Call', color: 'amber', confidence: 'MEDIUM',
+        reason: 'Bearish — sell covered calls if holding', gates: `${gatesPassed}/3`, gateDetails };
     }
 
-    // WAIT
+    // WAIT — explain which gates failed
+    const failedGates = gateDetails.filter(g => g.includes('✗'));
     let reason = [];
+    if (gatesPassed < 3) reason.push(`${gatesPassed}/3 gates passed`);
     if (score < 65) reason.push(`Score ${score} < 65`);
     if (weeklyYield < 0.015) reason.push(`Yield ${(weeklyYield*100).toFixed(2)}% < 1.5%`);
     if (delta > 0.30) reason.push(`Delta ${delta.toFixed(2)} > 0.30`);
-    if (signal <= -0.2) reason.push('Bearish signal');
-    
-    return { type: 'WAIT', label: '⏳ Wait', color: 'red', confidence: 'NONE', reason: reason.join(' · ') || 'Does not meet criteria' };
+    if (failedGates.length > 0) reason.push(failedGates[0]);
+
+    return { type: 'WAIT', label: 'Wait', color: 'red', confidence: 'NONE',
+      reason: reason.join(' · ') || 'Does not meet criteria', gates: `${gatesPassed}/3`, gateDetails };
   },
 
   // Calculate probability of profit (1 - delta for puts)
@@ -1669,6 +2055,7 @@ const generateStockData = () => {
     const stockData = {
       ...s, price, change, changePct, closes, highs, lows, volumes,
       rsi: +rsi.toFixed(1),
+      weeklyRsi: +(TechnicalAnalysis.weeklyRSI(closes) || 50).toFixed(1),
       macd, bb, ema9, ema21, sma50,
       technicalSignal: +technicalSignal.toFixed(3),
       supportLevel, resistanceLevel,
@@ -1751,7 +2138,7 @@ function Sparkline({ data, width = 80, height = 32, color = '#3b82f6' }) {
 }
 
 // ===== LANDING PAGE =====
-function LandingPage({ onLogin, onSignup }) {
+function LandingPage({ onLogin, onSignup, onSubscribe }) {
   return (
     <div className="landing-hero">
       <nav className="landing-nav">
@@ -1773,9 +2160,9 @@ function LandingPage({ onLogin, onSignup }) {
           Master the <span className="gradient-text">Wheel Strategy</span> with Precision
         </h1>
         <p className="landing-subtitle">
-          Professional-grade options scanner with real-time technical analysis. 
-          RSI, MACD, Bollinger Bands, and proprietary scoring identify the highest-probability 
-          wheel trades across 2,000+ stocks.
+          The most powerful options wheel strategy dashboard for selling cash-secured puts
+          and covered calls. Real-time technical analysis with RSI, MACD, Bollinger Bands,
+          and a proprietary Wheel Score helps you find the highest-probability trades across 2,000+ stocks.
         </p>
         <div className="landing-cta-group">
           <button className="btn btn-primary" onClick={onSignup}>
@@ -1808,32 +2195,32 @@ function LandingPage({ onLogin, onSignup }) {
       <div className="landing-features" id="features">
         <div className="features-grid">
           <div className="feature-card">
-            <div className="feature-icon">📊</div>
+            <div className="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
             <h3>Multi-Factor Scoring</h3>
-            <p>Proprietary algorithm combines premium yield, delta safety, technical signals, liquidity, and IV rank into a single actionable score for every candidate.</p>
+            <p>Proprietary algorithm combines premium yield, delta safety, technical signals, liquidity, and IV rank into a single actionable Wheel Score. Perfect for weekly options income and theta decay strategies.</p>
           </div>
           <div className="feature-card">
-            <div className="feature-icon" style={{background:'var(--accent-green-glow)'}}>📈</div>
+            <div className="feature-icon" style={{background:'var(--accent-green-glow)'}}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22,7 13.5,15.5 8.5,10.5 2,17"/><polyline points="16,7 22,7 22,13"/></svg></div>
             <h3>5 Technical Indicators</h3>
-            <p>RSI, MACD, Bollinger Bands, EMA crossovers, and trend analysis work together to identify optimal entry points and minimize assignment risk.</p>
+            <p>RSI, MACD, Bollinger Bands, EMA crossovers, and trend analysis work together to identify optimal entry points for selling puts and covered calls. Supports the poor man's covered call (PMCC) strategy.</p>
           </div>
           <div className="feature-card">
-            <div className="feature-icon" style={{background:'var(--accent-purple) linear-gradient(135deg, rgba(139,92,246,0.15), rgba(59,130,246,0.15))'}}>⚡</div>
+            <div className="feature-icon" style={{background:'var(--accent-purple) linear-gradient(135deg, rgba(139,92,246,0.15), rgba(59,130,246,0.15))'}}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg></div>
             <h3>Real-Time Scanner</h3>
-            <p>Continuously monitors the market for wheel opportunities. Filter by sector, yield, delta, technical signal, and more to find your perfect trade.</p>
+            <p>Continuously monitors the market for options wheel strategy opportunities. Filter by sector, yield, delta, and technical signal to find cash-secured put and covered call trades that generate passive income.</p>
           </div>
           <div className="feature-card">
-            <div className="feature-icon" style={{background:'var(--accent-amber-glow)'}}>🛡️</div>
+            <div className="feature-icon" style={{background:'var(--accent-amber-glow)'}}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
             <h3>Risk Protection</h3>
-            <p>Built-in earnings date warnings, liquidity checks, and composite bearish/bullish signals help you avoid trades that are likely to result in unwanted assignment.</p>
+            <p>Built-in earnings date warnings, ex-dividend alerts, delta-neutral position sizing, and composite bearish/bullish signals help you avoid trades that could result in unwanted assignment or loss.</p>
           </div>
           <div className="feature-card">
-            <div className="feature-icon" style={{background:'var(--accent-red-glow)'}}>🎯</div>
+            <div className="feature-icon" style={{background:'var(--accent-red-glow)'}}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></div>
             <h3>Smart Recommendations</h3>
             <p>Every stock gets a clear recommendation with HIGH, MEDIUM, or WAIT confidence. Tells you exactly which puts to sell, at what strike, and when.</p>
           </div>
           <div className="feature-card">
-            <div className="feature-icon" style={{background:'rgba(236,72,153,0.15)'}}>📱</div>
+            <div className="feature-icon" style={{background:'rgba(236,72,153,0.15)'}}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18"/></svg></div>
             <h3>Works Everywhere</h3>
             <p>Responsive dashboard works on desktop, tablet, and mobile. Access your wheel analysis on the go from any device with a browser.</p>
           </div>
@@ -1866,7 +2253,7 @@ function LandingPage({ onLogin, onSignup }) {
               <li><span className="check">✓</span> Full screener with filters</li>
               <li><span className="check">✓</span> 10 portfolio positions</li>
             </ul>
-            <button className="btn btn-secondary pricing-btn" onClick={onSignup}>Start 7-Day Trial</button>
+            <button className="btn btn-secondary pricing-btn" onClick={() => onSubscribe ? onSubscribe('starter') : onSignup()}>Start 7-Day Trial</button>
           </div>
           <div className="pricing-card featured">
             <div className="pricing-tier">Pro</div>
@@ -1879,7 +2266,7 @@ function LandingPage({ onLogin, onSignup }) {
               <li><span className="check">✓</span> Trade journal & P&L tracking</li>
               <li><span className="check">✓</span> Email alerts & notifications</li>
             </ul>
-            <button className="btn btn-primary pricing-btn" onClick={onSignup}>Start 7-Day Trial</button>
+            <button className="btn btn-primary pricing-btn" onClick={() => onSubscribe ? onSubscribe('pro') : onSignup()}>Start 7-Day Trial</button>
           </div>
           <div className="pricing-card">
             <div className="pricing-tier">Elite</div>
@@ -1892,14 +2279,24 @@ function LandingPage({ onLogin, onSignup }) {
               <li><span className="check">✓</span> Custom watchlists</li>
               <li><span className="check">✓</span> Monthly 1-on-1 strategy call</li>
             </ul>
-            <button className="btn btn-secondary pricing-btn" onClick={onSignup}>Start 7-Day Trial</button>
+            <button className="btn btn-secondary pricing-btn" onClick={() => onSubscribe ? onSubscribe('elite') : onSignup()}>Start 7-Day Trial</button>
           </div>
         </div>
       </div>
 
       <div style={{textAlign:'center', padding:'40px', color:'var(--text-muted)', fontSize:'12px', borderTop:'1px solid var(--border)'}}>
-        <p>Developed and Created by Holland Ricker — All Rights Reserved</p>
-        <p style={{marginTop:'8px'}}>WheelPro™ is a registered trademark. Options trading involves risk of loss.</p>
+        <p style={{marginBottom:'12px'}}>© {new Date().getFullYear()} WheelPro LLC — All Rights Reserved</p>
+        <div style={{display:'flex', justifyContent:'center', gap:'24px', marginBottom:'12px'}}>
+          <a href="/terms" style={{color:'var(--text-muted)', textDecoration:'none'}}>Terms of Service</a>
+          <a href="/privacy" style={{color:'var(--text-muted)', textDecoration:'none'}}>Privacy Policy</a>
+          <a href="/disclaimer" style={{color:'var(--text-muted)', textDecoration:'none'}}>Risk Disclaimer</a>
+          <a href="mailto:support@wheelpro.io" style={{color:'var(--text-muted)', textDecoration:'none'}}>Contact</a>
+        </div>
+        <p style={{fontSize:'11px', maxWidth:'600px', margin:'0 auto', lineHeight:1.6, color:'var(--text-muted)'}}>
+          WheelPro™ is an educational tool for informational purposes only. It is not financial, investment, or trading advice.
+          Options trading involves substantial risk of loss. Past performance does not guarantee future results.
+          Consult a licensed financial advisor before making any trading decisions.
+        </p>
       </div>
     </div>
   );
@@ -1918,13 +2315,44 @@ function AuthModal({ mode, onClose, onSubmit, onToggle }) {
     setError('');
     if (!email || !password) { setError('Please fill in all fields.'); return; }
     if (mode === 'signup' && !name) { setError('Please enter your name.'); return; }
-    
+    if (mode === 'signup' && password.length < 6) { setError('Password must be at least 6 characters.'); return; }
+
     setLoading(true);
-    // Simulate API call - replace with real Stripe/auth integration
-    setTimeout(() => {
-      setLoading(false);
-      onSubmit({ email, password, name, plan: 'pro' });
-    }, 800);
+    try {
+      let userData;
+      if (mode === 'signup') {
+        userData = await FirebaseHelper.signUp(email, password, name);
+      } else {
+        userData = await FirebaseHelper.signIn(email, password);
+      }
+      onSubmit(userData);
+    } catch (err) {
+      setError(FirebaseHelper.getErrorMessage(err.code));
+    }
+    setLoading(false);
+  };
+
+  const handleGoogleSignIn = async () => {
+    setError('');
+    setLoading(true);
+    try {
+      const userData = await FirebaseHelper.signInWithGoogle();
+      onSubmit(userData);
+    } catch (err) {
+      setError(FirebaseHelper.getErrorMessage(err.code));
+    }
+    setLoading(false);
+  };
+
+  const handleForgotPassword = async () => {
+    if (!email) { setError('Enter your email above, then click Forgot Password.'); return; }
+    try {
+      await firebaseAuth.sendPasswordResetEmail(email);
+      setError('');
+      alert('Password reset email sent! Check your inbox.');
+    } catch (err) {
+      setError(FirebaseHelper.getErrorMessage(err.code));
+    }
   };
 
   return (
@@ -1934,13 +2362,25 @@ function AuthModal({ mode, onClose, onSubmit, onToggle }) {
           <h2>{mode === 'login' ? 'Welcome Back' : 'Start Your Free Trial'}</h2>
           <button onClick={onClose} style={{background:'none',border:'none',color:'var(--text-muted)',cursor:'pointer',padding:'4px'}}>{Icons.close}</button>
         </div>
-        <p>{mode === 'login' ? 'Sign in to access your dashboard' : '7 days free, then $99/month. Cancel anytime.'}</p>
-        
+        <p>{mode === 'login' ? 'Sign in to access your dashboard' : '7 days free. Cancel anytime.'}</p>
+
+        {/* Google Sign-In Button */}
+        <button onClick={handleGoogleSignIn} disabled={loading} style={{width:'100%', padding:'12px', background:'var(--bg-elevated)', border:'1px solid var(--border)', borderRadius:'var(--radius-md)', color:'var(--text-primary)', fontSize:'14px', fontWeight:600, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:'10px', marginBottom:'16px', fontFamily:'var(--font-body)'}}>
+          <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          Continue with Google
+        </button>
+
+        <div style={{display:'flex', alignItems:'center', gap:'12px', marginBottom:'16px'}}>
+          <div style={{flex:1, height:'1px', background:'var(--border)'}}></div>
+          <span style={{fontSize:'12px', color:'var(--text-muted)'}}>or</span>
+          <div style={{flex:1, height:'1px', background:'var(--border)'}}></div>
+        </div>
+
         <form onSubmit={handleSubmit}>
           {mode === 'signup' && (
             <div className="form-group">
               <label className="form-label">Full Name</label>
-              <input className="form-input" type="text" placeholder="Holland Ricker" value={name} onChange={e => setName(e.target.value)} />
+              <input className="form-input" type="text" placeholder="Your Name" value={name} onChange={e => setName(e.target.value)} />
             </div>
           )}
           <div className="form-group">
@@ -1956,7 +2396,13 @@ function AuthModal({ mode, onClose, onSubmit, onToggle }) {
             {loading ? <span className="spinner" style={{width:16,height:16,borderWidth:2}}></span> : (mode === 'login' ? 'Sign In' : 'Create Account')}
           </button>
         </form>
-        
+
+        {mode === 'login' && (
+          <div style={{textAlign:'center', marginTop:'12px'}}>
+            <a onClick={handleForgotPassword} style={{fontSize:'13px', color:'var(--accent-blue)', cursor:'pointer', textDecoration:'none'}}>Forgot password?</a>
+          </div>
+        )}
+
         <div className="form-footer">
           {mode === 'login' ? (
             <>Don't have an account? <a onClick={onToggle}>Sign up</a></>
@@ -2030,7 +2476,7 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock 
         <div className="stat-card">
           <div className="stat-label">Market Sentiment</div>
           <div className="stat-value" style={{color: bullishCount > bearishCount ? 'var(--accent-green)' : 'var(--accent-red)'}}>
-            {bullishCount > bearishCount ? '🟢' : '🔴'}
+            {bullishCount > bearishCount ? '●' : '●'}
           </div>
           <div className="stat-change" style={{color:'var(--text-muted)',background:'none'}}>
             {bullishCount}↑ / {bearishCount}↓
@@ -2043,7 +2489,6 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock 
         <div className="data-table-container" style={{marginBottom:'24px', border:'1px solid rgba(16,185,129,0.25)', background:'linear-gradient(145deg, rgba(16,185,129,0.05) 0%, var(--bg-card) 100%)'}}>
           <div className="data-table-header" style={{borderBottom:'1px solid rgba(16,185,129,0.15)'}}>
             <div style={{display:'flex',alignItems:'center',gap:'10px'}}>
-              <span style={{fontSize:'20px'}}>🎯</span>
               <div>
                 <h3 style={{color:'var(--accent-green)', margin:0}}>Recommended Puts to Sell</h3>
                 <span style={{fontSize:'11px', color:'var(--text-muted)'}}>These options pass all screening criteria — sorted by confidence then score</span>
@@ -2067,6 +2512,7 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock 
                   <th>Premium</th>
                   <th>Wk Yield</th>
                   <th>Mo. Yield</th>
+                  <th>Theta/Day</th>
                   <th>Delta</th>
                   <th>P.O.P.</th>
                   <th>Cash Req.</th>
@@ -2119,6 +2565,13 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock 
                         <Tip text={`MONTHLY YIELD: ${(stock.weeklyYield * (stock.daysToExpiry || 7) / 30 * 100).toFixed(2)}%\n= Weekly yield × (${stock.daysToExpiry || 7} DTE ÷ 30)\nThis is your actual expected return\nfor this specific contract period.`}>
                         <span style={{fontFamily:'var(--font-mono)', fontWeight:700, color:'var(--accent-purple)'}}>
                           {(stock.weeklyYield * (stock.daysToExpiry || 7) / 30 * 100).toFixed(2)}%
+                        </span>
+                        </Tip>
+                      </td>
+                      <td>
+                        <Tip text={`THETA DECAY: $${(stock.thetaPerDay || (stock.premium * 100 / (stock.daysToExpiry || 7))).toFixed(2)}/day\nThis is how much the option loses in value each day — money that flows to you as the seller.\n\nProjected income from theta:\nPer week: $${(stock.thetaPerWeek || (stock.premium * 100 / (stock.daysToExpiry || 7) * 5)).toFixed(2)}\nPer month: $${((stock.thetaPerDay || (stock.premium * 100 / (stock.daysToExpiry || 7))) * 21).toFixed(2)}\nPer year: $${((stock.thetaPerDay || (stock.premium * 100 / (stock.daysToExpiry || 7))) * 252).toFixed(0)} (if repeated)\n\n${stock.gammaRisk === 'HIGH' ? 'HIGH gamma risk — delta can change rapidly on short DTE' : stock.gammaRisk === 'ELEVATED' ? 'Elevated gamma — monitor position closely' : 'Normal gamma risk'}`}>
+                        <span style={{fontFamily:'var(--font-mono)', fontWeight:700, color:'var(--accent-green)'}}>
+                          ${(stock.thetaPerDay || (stock.premium * 100 / (stock.daysToExpiry || 7))).toFixed(2)}
                         </span>
                         </Tip>
                       </td>
@@ -2191,12 +2644,15 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock 
         </div>
       )}
 
+      {/* ===== POSITION SIZE CALCULATOR ===== */}
+      <PositionSizeCalculator />
+
       {/* ===== FULL CANDIDATE TABLE ===== */}
       <div className="data-table-container">
         <div className="data-table-header">
-          <h3>📊 All Wheel Strategy Candidates</h3>
+          <h3>All Wheel Strategy Candidates</h3>
           <div style={{display:'flex', gap:12, alignItems:'center'}}>
-            <button className="btn btn-sm btn-secondary" onClick={() => exportCSV(topStocks, `wheelpro-candidates-${new Date().toISOString().slice(0,10)}.csv`)} style={{fontSize:11}}>📥 Export CSV</button>
+            <button className="btn btn-sm btn-secondary" onClick={() => exportCSV(topStocks, `wheelpro-candidates-${new Date().toISOString().slice(0,10)}.csv`)} style={{fontSize:11}}>Export CSV</button>
             <span style={{fontSize:'12px', color:'var(--text-muted)'}}>Sorted by Wheel Score · {topStocks.length} stocks</span>
           </div>
         </div>
@@ -2395,7 +2851,7 @@ function ScreenerPage({ stocks, user, onSelectStock, onExport }) {
   if (!tierLimits.screener && !user?.isOwner) {
     return (
       <div className="loading-state" style={{gap:20}}>
-        <div style={{fontSize:'48px'}}>🔍</div>
+        <div style={{width:48,height:48,borderRadius:'50%',background:'var(--bg-elevated)',margin:'0 auto',display:'flex',alignItems:'center',justifyContent:'center'}}><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
         <h3 style={{color:'var(--text-primary)', margin:0}}>Advanced Screener</h3>
         <p style={{maxWidth:400, textAlign:'center', lineHeight:1.7}}>Filter and sort all stocks by yield, delta, score, sector, and technical signal. Search for specific tickers. Available on Starter, Pro, and Elite plans.</p>
         <button className="btn btn-primary" style={{marginTop:8}}>Upgrade to Starter — $29/mo</button>
@@ -2672,7 +3128,7 @@ function PortfolioPage({ stocks }) {
       {sectors.length > 0 && (
         <div className="data-table-container" style={{marginBottom:24}}>
           <div className="data-table-header">
-            <h3>🏗️ Sector Concentration</h3>
+            <h3>Sector Concentration</h3>
             <span style={{fontSize:'12px', color:'var(--text-muted)'}}>Diversification across {sectors.length} sector{sectors.length !== 1 ? 's' : ''}</span>
           </div>
           <div style={{padding:'16px 20px', display:'flex', flexWrap:'wrap', gap:'12px'}}>
@@ -2701,7 +3157,7 @@ function PortfolioPage({ stocks }) {
       {/* Positions Table */}
       <div className="data-table-container">
         <div className="data-table-header">
-          <h3>📋 Open Positions</h3>
+          <h3>Open Positions</h3>
           <button className="btn btn-sm btn-primary" onClick={() => setShowAdd(true)}>+ Add Position</button>
         </div>
 
@@ -2748,7 +3204,7 @@ function PortfolioPage({ stocks }) {
 
         {enriched.length === 0 ? (
           <div style={{padding:'40px 20px', textAlign:'center', color:'var(--text-muted)'}}>
-            <div style={{fontSize:'32px', marginBottom:12}}>📭</div>
+            <div style={{fontSize:'16px', marginBottom:12, color:'var(--text-muted)'}}>No data yet</div>
             <p>No positions tracked yet. Click <strong>+ Add Position</strong> to start tracking your wheel trades.</p>
             <p style={{fontSize:'12px', marginTop:8}}>Your positions are saved locally and auto-update with live prices.</p>
           </div>
@@ -2853,7 +3309,7 @@ function TradeJournalPage({ user }) {
   if (!tierLimits.journal && !user?.isOwner) {
     return (
       <div className="loading-state" style={{gap:20}}>
-        <div style={{fontSize:'48px'}}>📓</div>
+        <div style={{width:48,height:48,borderRadius:'50%',background:'var(--accent-gold-glow, rgba(201,168,76,0.12))',margin:'0 auto',display:'flex',alignItems:'center',justifyContent:'center'}}><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-gold, #c9a84c)" strokeWidth="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
         <h3 style={{color:'var(--text-primary)', margin:0}}>Trade Journal</h3>
         <p style={{maxWidth:400, textAlign:'center', lineHeight:1.7}}>Track your completed trades, measure win rate, and see your actual P&L over time. Available on Pro and Elite plans.</p>
         <button className="btn btn-primary" style={{marginTop:8}}>Upgrade to Pro — $79/mo</button>
@@ -2891,7 +3347,7 @@ function TradeJournalPage({ user }) {
 
       <div className="data-table-container">
         <div className="data-table-header">
-          <h3>📓 Trade History</h3>
+          <h3>Trade History</h3>
           <button className="btn btn-sm btn-primary" onClick={() => setShowAdd(true)}>+ Log Trade</button>
         </div>
 
@@ -2957,7 +3413,7 @@ function TradeJournalPage({ user }) {
 
         {trades.length === 0 ? (
           <div style={{padding:'40px 20px', textAlign:'center', color:'var(--text-muted)'}}>
-            <div style={{fontSize:'32px', marginBottom:12}}>📓</div>
+            <div style={{width:48,height:48,borderRadius:'50%',background:'var(--accent-gold-glow, rgba(201,168,76,0.12))',margin:'0 auto 12px',display:'flex',alignItems:'center',justifyContent:'center'}}><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-gold, #c9a84c)" strokeWidth="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
             <p>No trades logged yet. Click <strong>+ Log Trade</strong> to start building your track record.</p>
             <p style={{fontSize:'12px', marginTop:8}}>Tracking your trades helps measure your actual performance vs WheelPro recommendations.</p>
           </div>
@@ -3058,7 +3514,7 @@ function SettingsPage({ settings, setSettings }) {
       </div>
 
       <div className="settings-card">
-        <h3>📊 Technical Indicators</h3>
+        <h3>Technical Indicators</h3>
         {[
           { key: 'useRSI', label: 'RSI (Relative Strength Index)', desc: 'Identifies overbought/oversold conditions' },
           { key: 'useMACD', label: 'MACD', desc: 'Trend direction and momentum' },
@@ -3081,7 +3537,7 @@ function SettingsPage({ settings, setSettings }) {
       </div>
 
       <div className="settings-card">
-        <h3>🔔 Alerts & Notifications</h3>
+        <h3>Alerts & Notifications</h3>
         <div className="settings-row">
           <div className="label-group">
             <div className="label-main">New High-Score Alerts</div>
@@ -3118,7 +3574,7 @@ function SettingsPage({ settings, setSettings }) {
       </div>
 
       <div className="settings-card">
-        <h3>🎨 Display Preferences</h3>
+        <h3>Display Preferences</h3>
         <div className="settings-row">
           <div className="label-group">
             <div className="label-main">Auto-Refresh Data</div>
@@ -3300,7 +3756,7 @@ function BacktestPage({ user }) {
           {/* Equity Curve */}
           <div className="data-table-container" style={{marginBottom:24}}>
             <div className="data-table-header">
-              <h3>📈 Equity Curve</h3>
+              <h3>Equity Curve</h3>
               <span style={{fontFamily:'var(--font-mono)', fontSize:'13px', color: results.summary.totalPnl >= 0 ? 'var(--accent-green)' : 'var(--accent-red)'}}>
                 ${(results.summary.startingCapital/1000).toFixed(0)}K → ${(results.summary.endingCapital/1000).toFixed(0)}K
               </span>
@@ -3313,7 +3769,7 @@ function BacktestPage({ user }) {
           {/* Trade Log */}
           <div className="data-table-container">
             <div className="data-table-header">
-              <h3>📋 Trade Log ({results.trades.length} trades)</h3>
+              <h3>Trade Log ({results.trades.length} trades)</h3>
             </div>
             <div className="table-scroll" style={{maxHeight:400, overflowY:'auto'}}>
               <table className="data-table">
@@ -3339,7 +3795,7 @@ function BacktestPage({ user }) {
 
       {!results && !loading && (
         <div className="loading-state" style={{gap:20, padding:80}}>
-          <div style={{fontSize:'48px'}}>🧪</div>
+          <div style={{width:48,height:48,borderRadius:'50%',background:'var(--bg-elevated)',margin:'0 auto',display:'flex',alignItems:'center',justifyContent:'center'}}><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9c0-1.105.895-2 2-2h8c1.105 0 2 .895 2 2v8c0 1.105-.895 2-2 2H8c-1.105 0-2-.895-2-2V9z"/><path d="M9 5v2M15 5v2M6 15h12"/></svg></div>
           <h3 style={{color:'var(--text-primary)', margin:0}}>Backtest Your Strategy</h3>
           <p style={{maxWidth:480, textAlign:'center', lineHeight:1.7, color:'var(--text-secondary)'}}>
             Set your parameters above and click Run Backtest to see how WheelPro's recommendations would have performed historically. Uses Polygon.io data when connected, or simulated results for preview.
@@ -3422,6 +3878,52 @@ function StockDetailModal({ stock, onClose }) {
             ].map(([l, v]) => <div key={l} className="detail-row" style={{padding:'6px 0'}}><span className="label">{l}</span><span className="value">{v}</span></div>)}
           </div>
         </div>
+        {/* Greeks Summary Card */}
+        <div style={{marginTop:16}}>
+          <div className="detail-card" style={{padding:16}}>
+            <h4 style={{fontSize:12, margin:'0 0 12px'}}>The Greeks — What's Working For You</h4>
+            <div style={{display:'grid', gridTemplateColumns:'1fr 1fr 1fr 1fr', gap:12}}>
+              <div style={{background:'var(--bg-primary)', borderRadius:'var(--radius-sm)', padding:12, textAlign:'center'}}>
+                <div style={{fontSize:10, color:'var(--text-muted)', textTransform:'uppercase', letterSpacing:1, marginBottom:4}}>Theta ($/day)</div>
+                <div style={{fontFamily:'var(--font-mono)', fontSize:18, fontWeight:700, color:'var(--accent-green)'}}>
+                  ${(stock.thetaPerDay || (stock.premium * 100 / (stock.daysToExpiry || 7))).toFixed(2)}
+                </div>
+                <div style={{fontSize:10, color:'var(--text-muted)', marginTop:4}}>earned daily from time decay</div>
+              </div>
+              <div style={{background:'var(--bg-primary)', borderRadius:'var(--radius-sm)', padding:12, textAlign:'center'}}>
+                <div style={{fontSize:10, color:'var(--text-muted)', textTransform:'uppercase', letterSpacing:1, marginBottom:4}}>Delta</div>
+                <div style={{fontFamily:'var(--font-mono)', fontSize:18, fontWeight:700, color: stock.delta <= 0.20 ? 'var(--accent-green)' : stock.delta <= 0.28 ? 'var(--accent-amber)' : 'var(--accent-red)'}}>
+                  {stock.delta.toFixed(2)}
+                </div>
+                <div style={{fontSize:10, color:'var(--text-muted)', marginTop:4}}>{Math.round((1-stock.delta)*100)}% chance of profit</div>
+              </div>
+              <div style={{background:'var(--bg-primary)', borderRadius:'var(--radius-sm)', padding:12, textAlign:'center'}}>
+                <div style={{fontSize:10, color:'var(--text-muted)', textTransform:'uppercase', letterSpacing:1, marginBottom:4}}>Gamma Risk</div>
+                <div style={{fontFamily:'var(--font-mono)', fontSize:18, fontWeight:700, color: stock.gammaRisk === 'HIGH' ? 'var(--accent-red)' : stock.gammaRisk === 'ELEVATED' ? 'var(--accent-amber)' : 'var(--accent-green)'}}>
+                  {stock.gammaRisk || ((stock.daysToExpiry || 7) <= 3 ? 'HIGH' : (stock.daysToExpiry || 7) <= 7 ? 'ELEVATED' : (stock.daysToExpiry || 7) <= 14 ? 'MODERATE' : 'LOW')}
+                </div>
+                <div style={{fontSize:10, color:'var(--text-muted)', marginTop:4}}>{(stock.daysToExpiry || 7) <= 3 ? 'delta can spike fast' : 'delta is stable'}</div>
+              </div>
+              <div style={{background:'var(--bg-primary)', borderRadius:'var(--radius-sm)', padding:12, textAlign:'center'}}>
+                <div style={{fontSize:10, color:'var(--text-muted)', textTransform:'uppercase', letterSpacing:1, marginBottom:4}}>Vega</div>
+                <div style={{fontFamily:'var(--font-mono)', fontSize:18, fontWeight:700, color:'var(--text-secondary)'}}>
+                  {stock.vega ? `$${stock.vega.toFixed(2)}` : `$${(stock.price * 0.004 * Math.sqrt((stock.daysToExpiry||7)/365)).toFixed(2)}`}
+                </div>
+                <div style={{fontSize:10, color:'var(--text-muted)', marginTop:4}}>per 1% IV change</div>
+              </div>
+            </div>
+            <div style={{marginTop:12, padding:'10px 12px', background:'var(--bg-primary)', borderRadius:'var(--radius-sm)'}}>
+              <div style={{fontSize:11, color:'var(--text-muted)', lineHeight:1.6}}>
+                <strong style={{color:'var(--accent-green)'}}>Projected theta income:</strong>
+                {' '}${(stock.thetaPerDay || (stock.premium * 100 / (stock.daysToExpiry || 7))).toFixed(2)}/day
+                {' · '}${((stock.thetaPerDay || (stock.premium * 100 / (stock.daysToExpiry || 7))) * 5).toFixed(2)}/week
+                {' · '}${((stock.thetaPerDay || (stock.premium * 100 / (stock.daysToExpiry || 7))) * 21).toFixed(0)}/month
+                {' · '}${((stock.thetaPerDay || (stock.premium * 100 / (stock.daysToExpiry || 7))) * 252).toFixed(0)}/year (if repeated)
+              </div>
+            </div>
+          </div>
+        </div>
+
         {stock.recommendation?.reason && (
           <div style={{marginTop:16, padding:'12px 16px', background:'var(--bg-elevated)', borderRadius:'var(--radius-md)', fontSize:13, color:'var(--text-secondary)'}}>
             <strong style={{color:'var(--text-primary)'}}>Recommendation:</strong> {stock.recommendation.reason}
@@ -3499,7 +4001,7 @@ function AdminPage({ user }) {
       </div>
 
       <div className="admin-card">
-        <h3>👥 Subscribers</h3>
+        <h3>Subscribers</h3>
         <div className="subscriber-list">
           {subscribers.map(sub => (
             <div className="subscriber-item" key={sub.id}>
@@ -3524,7 +4026,7 @@ function AdminPage({ user }) {
       </div>
 
       <div className="admin-card">
-        <h3>🔗 Integration Setup</h3>
+        <h3>Integration Setup</h3>
         <div style={{fontSize:'14px', color:'var(--text-secondary)', lineHeight:1.8}}>
           <p style={{marginBottom:16}}>To enable real subscription payments, configure these services:</p>
           <div className="detail-row">
@@ -3566,21 +4068,20 @@ const TipText = {
     const s = stock.wheelScore;
     const wy = stock.weeklyYield || 0;
     const d = stock.delta || 0.3;
-    const ts = stock.technicalSignal || 0;
     const ov = stock.optionVolume || 0;
     const ivr = stock.ivRank || 50;
-    let yieldPts = wy >= 0.03 ? 30 : wy >= 0.025 ? 25 : wy >= 0.02 ? 20 : wy >= 0.015 ? 15 : wy >= 0.01 ? 8 : 3;
-    let deltaPts = d <= 0.15 ? 20 : d <= 0.20 ? 17 : d <= 0.25 ? 14 : d <= 0.30 ? 10 : 3;
-    let techPts = Math.max(0, Math.min(20, (ts + 1) * 10));
-    let liqPts = ov >= 10000 ? 15 : ov >= 5000 ? 12 : ov >= 1000 ? 8 : ov >= 500 ? 5 : 2;
-    let ivPts = ivr >= 60 ? 15 : ivr >= 45 ? 12 : ivr >= 30 ? 8 : 4;
+    // Show factor quality ratings without revealing exact weights or thresholds
+    const yieldRating = wy >= 0.02 ? 'Strong' : wy >= 0.015 ? 'Good' : wy >= 0.01 ? 'Fair' : 'Low';
+    const deltaRating = d <= 0.20 ? 'Safe' : d <= 0.25 ? 'Moderate' : d <= 0.30 ? 'Elevated' : 'High';
+    const liqRating = ov >= 5000 ? 'High' : ov >= 1000 ? 'Good' : 'Low';
+    const ivRating = ivr >= 50 ? 'Favorable' : ivr >= 30 ? 'Moderate' : 'Low';
     return `WHEEL SCORE: ${s}/100\n` +
-      `Yield: ${yieldPts}/30 (${(wy*100).toFixed(2)}% weekly)\n` +
-      `Delta safety: ${deltaPts}/20 (${d.toFixed(2)} delta)\n` +
-      `Technicals: ${Math.round(techPts)}/20\n` +
-      `Liquidity: ${liqPts}/15 (${ov.toLocaleString()} vol)\n` +
-      `IV rank: ${ivPts}/15 (${ivr}%)\n` +
-      (s >= 75 ? '✅ Strong candidate' : s >= 50 ? '⚠️ Moderate — check details' : '❌ Below threshold');
+      `Premium yield: ${yieldRating} (${(wy*100).toFixed(2)}% weekly)\n` +
+      `Delta safety: ${deltaRating} (${d.toFixed(2)})\n` +
+      `Technical signals: ${stock.technicalSignal > 0.2 ? 'Bullish' : stock.technicalSignal < -0.2 ? 'Bearish' : 'Neutral'}\n` +
+      `Liquidity: ${liqRating} (${ov.toLocaleString()} vol)\n` +
+      `IV conditions: ${ivRating} (${ivr}%)\n` +
+      (s >= 75 ? 'Strong candidate' : s >= 50 ? 'Moderate — check details' : 'Below threshold');
   },
   action(stock) {
     const r = stock.recommendation;
@@ -3597,50 +4098,50 @@ const TipText = {
     const pct = Math.round(d * 100);
     return `DELTA: ${d.toFixed(2)} (${pct}% assignment chance)\n` +
       `You have a ${100-pct}% chance of keeping the premium.\n` +
-      (d <= 0.15 ? '✅ Very safe — low assignment risk' :
-       d <= 0.20 ? '✅ Safe — conservative pick' :
-       d <= 0.25 ? '⚠️ Moderate — standard risk level' :
-       d <= 0.30 ? '⚠️ Higher risk — more premium, more chance of assignment' :
-       '❌ Aggressive — high assignment probability');
+      (d <= 0.15 ? 'Very safe — low assignment risk' :
+       d <= 0.20 ? 'Safe — conservative pick' :
+       d <= 0.25 ? 'Moderate — standard risk level' :
+       d <= 0.30 ? 'Higher risk — more premium, more chance of assignment' :
+       'Aggressive — high assignment probability');
   },
   rsi(stock) {
     const r = stock.rsi;
     return `RSI: ${r.toFixed(1)} (momentum indicator)\n` +
-      (r < 30 ? '🟢 Oversold — stock may bounce up. Good time to sell puts.' :
-       r < 40 ? '🟢 Leaning oversold — slightly favorable for puts.' :
-       r < 60 ? '🟡 Neutral — no strong momentum signal.' :
-       r < 70 ? '🟡 Leaning overbought — caution for new puts.' :
-       '🔴 Overbought — stock may pull back. Risky for puts.');
+      (r < 30 ? 'Oversold — stock may bounce up. Good time to sell puts.' :
+       r < 40 ? 'Leaning oversold — slightly favorable for puts.' :
+       r < 60 ? 'Neutral — no strong momentum signal.' :
+       r < 70 ? 'Leaning overbought — caution for new puts.' :
+       'Overbought — stock may pull back. Risky for puts.');
   },
   iv(stock) {
     const ivp = stock.ivPercentile || 50;
     return `IV PERCENTILE: ${ivp}%\n` +
       `Options are ${ivp >= 70 ? 'expensive' : ivp >= 50 ? 'moderately priced' : ivp >= 30 ? 'fairly priced' : 'cheap'} vs recent history.\n` +
-      (ivp >= 50 ? '🟢 Above average — you collect richer premiums. Good time to sell.' :
-       '🟡 Below average — premiums are thinner. Consider waiting for higher IV.');
+      (ivp >= 50 ? 'Above average — you collect richer premiums. Good time to sell.' :
+       'Below average — premiums are thinner. Consider waiting for higher IV.');
   },
   pcRatio(stock) {
     const r = stock.putCallRatio || 1;
     return `PUT/CALL RATIO: ${r.toFixed(2)}\n` +
       `Put OI ÷ Call OI across the full option chain.\n` +
-      (r > 1.5 ? '🔴 Very bearish sentiment — heavy put buying (hedging/fear).' :
-       r > 1.2 ? '🟡 Mildly bearish — more puts than calls being held.' :
-       r > 0.8 ? '⚪ Neutral — balanced put/call activity.' :
-       r > 0.5 ? '🟢 Mildly bullish — more calls than puts.' :
-       '🟢 Very bullish — heavy call buying (optimism).');
+      (r > 1.5 ? 'Very bearish sentiment — heavy put buying (hedging/fear).' :
+       r > 1.2 ? 'Mildly bearish — more puts than calls being held.' :
+       r > 0.8 ? 'Neutral — balanced put/call activity.' :
+       r > 0.5 ? 'Mildly bullish — more calls than puts.' :
+       'Very bullish — heavy call buying (optimism).');
   },
   yield(stock) {
     return `WEEKLY YIELD: ${(stock.weeklyYield*100).toFixed(2)}%\n` +
       `= $${stock.premium.toFixed(2)} premium ÷ $${stock.strikePrice.toFixed(2)} strike\n` +
       `You collect $${(stock.premium * 100).toFixed(0)} per contract.\n` +
-      (stock.weeklyYield >= 0.02 ? '✅ Meets 2%+ target' :
-       stock.weeklyYield >= 0.015 ? '⚠️ Below 2% target but acceptable' :
-       '❌ Below minimum yield threshold');
+      (stock.weeklyYield >= 0.02 ? 'Meets 2%+ target' :
+       stock.weeklyYield >= 0.015 ? 'Below 2% target but acceptable' :
+       'Below minimum yield threshold');
   },
   annYield(stock) {
     return `ANNUALIZED: ${stock.annualizedYield}%\n` +
       `= ${(stock.weeklyYield*100).toFixed(2)}% × (365 ÷ ${stock.daysToExpiry} DTE)\n` +
-      `⚠️ Assumes continuous reinvestment at this rate.\n` +
+      `Assumes continuous reinvestment at this rate.\n` +
       `Actual returns will be lower due to gaps between trades.`;
   },
   pop(stock) {
@@ -3648,10 +4149,10 @@ const TipText = {
     return `P.O.P.: ${pop}% probability of profit\n` +
       `= (1 - ${stock.delta.toFixed(2)} delta) × 100\n` +
       `${pop}% chance the option expires worthless and you keep 100% of the premium.\n` +
-      (pop >= 85 ? '✅ Very high probability trade' :
-       pop >= 75 ? '✅ Good probability' :
-       pop >= 65 ? '⚠️ Moderate — more premium but more risk' :
-       '❌ Low probability — aggressive trade');
+      (pop >= 85 ? 'Very high probability trade' :
+       pop >= 75 ? 'Good probability' :
+       pop >= 65 ? 'Moderate — more premium but more risk' :
+       'Low probability — aggressive trade');
   },
   signal(stock) {
     const s = stock.technicalSignal;
@@ -3660,12 +4161,12 @@ const TipText = {
     if (stock.rsi) text += `• RSI ${stock.rsi.toFixed(0)}: ${stock.rsi < 30 ? 'Oversold ↑' : stock.rsi > 70 ? 'Overbought ↓' : 'Neutral'}\n`;
     if (stock.macd) text += `• MACD: ${stock.macd.histogram > 0 ? 'Bullish ↑' : 'Bearish ↓'}\n`;
     if (stock.ema9 && stock.ema21) text += `• EMA 9/21: ${stock.ema9 > stock.ema21 ? 'Golden cross ↑' : 'Death cross ↓'}\n`;
-    text += dir === 'Bullish' ? '🟢 Uptrend favors selling puts' : dir === 'Bearish' ? '🔴 Downtrend — caution with puts' : '⚪ No strong trend';
+    text += dir === 'Bullish' ? 'Uptrend favors selling puts' : dir === 'Bearish' ? 'Downtrend — caution with puts' : 'No strong trend';
     return text;
   },
   earnings(stock) {
     if (stock.earningsIn <= 14 && stock.earningsConfirmed) {
-      return `⚠️ EARNINGS IN ${stock.earningsIn} DAYS (${stock.earningsDateStr})\n` +
+      return `EARNINGS IN ${stock.earningsIn} DAYS (${stock.earningsDateStr})\n` +
         `Confirmed date from Yahoo Finance.\n` +
         `🚫 DO NOT sell puts through earnings!\n` +
         `Stocks can drop 20-30% on bad results.`;
@@ -3681,7 +4182,7 @@ const TipText = {
   },
   exDiv(stock) {
     if (stock.exDivBeforeExpiry) {
-      return `⚠️ EX-DIVIDEND: ${stock.exDivDateStr}\n` +
+      return `EX-DIVIDEND: ${stock.exDivDateStr}\n` +
         `Falls BEFORE option expires on ${stock.expDateStr}.\n` +
         `Risk: Early assignment — someone may exercise\n` +
         `your put to capture the dividend.\n` +
@@ -3700,8 +4201,8 @@ const TipText = {
     const belowSupport = stock.strikePrice < (stock.supportLevel||0);
     return `STRIKE: $${stock.strikePrice.toFixed(2)} (${otm}% below price)\n` +
       `You promise to buy 100 shares at this price.\n` +
-      (belowSupport ? `✅ Below support ($${(stock.supportLevel||0).toFixed(2)}) — extra cushion` :
-       `⚠️ Above support ($${(stock.supportLevel||0).toFixed(2)})`) + `\n` +
+      (belowSupport ? `Below support ($${(stock.supportLevel||0).toFixed(2)}) — extra cushion` :
+       `Above support ($${(stock.supportLevel||0).toFixed(2)})`) + `\n` +
       `Cash needed: $${(stock.strikePrice * 100).toLocaleString()}`;
   },
   maxLoss(stock) {
@@ -3713,10 +4214,141 @@ const TipText = {
   }
 };
 
+// ===== ONBOARDING TOUR =====
+function OnboardingTour({ onComplete }) {
+  const [step, setStep] = useState(0);
+
+  const steps = [
+    {
+      title: 'Welcome to WheelPro™',
+      icon: '○',
+      body: 'WheelPro scans the market and finds the best cash-secured puts to sell using the wheel strategy. Every recommendation passes through a 3-gate safety system before reaching you.',
+      position: 'center',
+    },
+    {
+      title: 'Recommended Puts',
+      icon: '○',
+      body: 'This panel shows your top trades right now. Green means HIGH confidence — all 3 safety gates passed (RSI, Momentum, and Earnings). Yellow means MEDIUM confidence. Only trade what\'s green when starting out.',
+      position: 'top',
+    },
+    {
+      title: 'Understanding the Wheel Score',
+      icon: '○',
+      body: 'Every stock gets a proprietary Wheel Score from 0 to 100 based on multiple factors including premium potential, risk safety, technical momentum, market liquidity, and volatility conditions. Hover over any score to see a summary.',
+      position: 'top',
+    },
+    {
+      title: 'Navigate with the Sidebar',
+      icon: '○',
+      body: 'Dashboard shows top picks. Screener lets you filter and sort all stocks. Portfolio tracks your open positions. Journal logs your completed trades and tracks your P&L over time. Backtest validates the strategy with historical data.',
+      position: 'top',
+    },
+    {
+      title: 'Before Every Trade',
+      icon: '○',
+      body: 'Always check three things: (1) the earnings date — never sell puts through earnings, (2) the delta — stay at 0.25 or below, and (3) your capital — never put more than 20% into one stock. The dashboard flags all of these for you.',
+      position: 'center',
+    },
+    {
+      title: 'You\'re Ready!',
+      icon: '○',
+      body: 'Start with the top HIGH confidence recommendation. Hover over any number to understand what it means. WheelPro does the analysis — you make the final call. Remember: this is an educational tool, not financial advice. Good luck!',
+      position: 'center',
+    },
+  ];
+
+  const current = steps[step];
+  const isLast = step === steps.length - 1;
+
+  return (
+    <>
+      <div className="tour-overlay" onClick={() => {}} />
+      <div className={`tour-card ${current.position === 'center' ? 'tour-card-center' : 'tour-card-top'}`}>
+        <div style={{width:48,height:48,borderRadius:'50%',background:'var(--accent-gold-glow, rgba(201,168,76,0.12))',border:'2px solid var(--accent-gold, #c9a84c)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 16px',fontSize:20,color:'var(--accent-gold, #c9a84c)',fontWeight:700}}>{step + 1}</div>
+        <h3 style={{fontSize:18, fontWeight:700, textAlign:'center', marginBottom:12, color:'var(--text-primary)', fontFamily:'var(--font-display)'}}>{current.title}</h3>
+        <p style={{fontSize:14, color:'var(--text-secondary)', lineHeight:1.7, textAlign:'center'}}>{current.body}</p>
+        <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginTop:24}}>
+          <button onClick={onComplete} style={{background:'none', border:'none', color:'var(--text-muted)', cursor:'pointer', fontSize:13, fontFamily:'var(--font-body)', padding:'6px 12px'}}>
+            Skip Tour
+          </button>
+          <button className="btn btn-primary btn-sm" onClick={() => isLast ? onComplete() : setStep(s => s + 1)} style={{minWidth:100}}>
+            {isLast ? 'Get Started' : 'Next →'}
+          </button>
+        </div>
+        <div className="tour-step-indicator">
+          {steps.map((_, i) => (
+            <div key={i} className={`tour-dot ${i === step ? 'active' : ''}`} />
+          ))}
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ===== POSITION SIZE CALCULATOR =====
+function PositionSizeCalculator() {
+  const [capital, setCapital] = useState(50000);
+  const [maxPerStock, setMaxPerStock] = useState(20);
+  const [stockPrice, setStockPrice] = useState(150);
+  const [strikePrice, setStrikePrice] = useState(142);
+
+  const maxPerPosition = capital * (maxPerStock / 100);
+  const cashPerContract = strikePrice * 100;
+  const maxContracts = cashPerContract > 0 ? Math.floor(maxPerPosition / cashPerContract) : 0;
+  const totalCashNeeded = maxContracts * cashPerContract;
+  const capitalUsed = capital > 0 ? ((totalCashNeeded / capital) * 100).toFixed(1) : 0;
+  const remainingCapital = capital - totalCashNeeded;
+
+  return (
+    <div className="calc-card">
+      <h3 style={{fontSize:16, fontWeight:600, marginBottom:16, display:'flex', alignItems:'center', gap:10}}>
+        Position Size Calculator
+      </h3>
+      <div className="calc-input-group">
+        <div>
+          <div style={{fontSize:11, color:'var(--text-muted)', textTransform:'uppercase', letterSpacing:1, marginBottom:6}}>Total Capital ($)</div>
+          <input type="number" className="form-input" value={capital} onChange={e => setCapital(+e.target.value)} style={{fontFamily:'var(--font-mono)'}} />
+        </div>
+        <div>
+          <div style={{fontSize:11, color:'var(--text-muted)', textTransform:'uppercase', letterSpacing:1, marginBottom:6}}>Max Per Stock (%)</div>
+          <input type="number" className="form-input" value={maxPerStock} onChange={e => setMaxPerStock(+e.target.value)} min="5" max="50" style={{fontFamily:'var(--font-mono)'}} />
+        </div>
+        <div>
+          <div style={{fontSize:11, color:'var(--text-muted)', textTransform:'uppercase', letterSpacing:1, marginBottom:6}}>Stock Price ($)</div>
+          <input type="number" className="form-input" value={stockPrice} onChange={e => setStockPrice(+e.target.value)} style={{fontFamily:'var(--font-mono)'}} />
+        </div>
+        <div>
+          <div style={{fontSize:11, color:'var(--text-muted)', textTransform:'uppercase', letterSpacing:1, marginBottom:6}}>Strike Price ($)</div>
+          <input type="number" className="form-input" value={strikePrice} onChange={e => setStrikePrice(+e.target.value)} style={{fontFamily:'var(--font-mono)'}} />
+        </div>
+      </div>
+      <div className="calc-result">
+        <div className="calc-result-card">
+          <div style={{fontSize:11, color:'var(--text-muted)', marginBottom:4}}>Max Contracts</div>
+          <div style={{fontFamily:'var(--font-mono)', fontSize:24, fontWeight:700, color:'var(--accent-gold, #c9a84c)'}}>{maxContracts}</div>
+        </div>
+        <div className="calc-result-card">
+          <div style={{fontSize:11, color:'var(--text-muted)', marginBottom:4}}>Cash Required</div>
+          <div style={{fontFamily:'var(--font-mono)', fontSize:24, fontWeight:700, color:'var(--accent-blue)'}}>${totalCashNeeded.toLocaleString()}</div>
+        </div>
+        <div className="calc-result-card">
+          <div style={{fontSize:11, color:'var(--text-muted)', marginBottom:4}}>Capital Used</div>
+          <div style={{fontFamily:'var(--font-mono)', fontSize:24, fontWeight:700, color: +capitalUsed > maxPerStock ? 'var(--accent-red)' : 'var(--accent-green)'}}>{capitalUsed}%</div>
+        </div>
+        <div className="calc-result-card">
+          <div style={{fontSize:11, color:'var(--text-muted)', marginBottom:4}}>Remaining</div>
+          <div style={{fontFamily:'var(--font-mono)', fontSize:24, fontWeight:700, color:'var(--text-secondary)'}}>${remainingCapital.toLocaleString()}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function App() {
   // Auth state
   const [user, setUser] = useState(Storage.get('user', null));
   const [showAuth, setShowAuth] = useState(null); // 'login' | 'signup' | null
+  const [pendingPlan, setPendingPlan] = useState(null); // Plan selected before signup
 
   // App state
   const [page, setPage] = useState('dashboard');
@@ -3727,6 +4359,7 @@ function App() {
   // v2.5: New features
   const [watchlist, setWatchlist] = useState(() => Storage.get('watchlist', []));
   const [selectedStock, setSelectedStock] = useState(null); // For detail modal
+  const [showTour, setShowTour] = useState(false); // Onboarding tour
   useEffect(() => { Storage.set('watchlist', watchlist); }, [watchlist]);
   const toggleWatchlist = (symbol) => setWatchlist(prev => prev.includes(symbol) ? prev.filter(s => s !== symbol) : [...prev, symbol]);
   const [settings, setSettings] = useState(Storage.get('settings', {
@@ -3821,9 +4454,10 @@ function App() {
             // v2.4.0: Ex-dividend — backend now sends real data
             if (stock.exDivBeforeExpiry === undefined) stock.exDivBeforeExpiry = false;
             if (stock.hasDividend === undefined) stock.hasDividend = false;
-            // Re-calculate wheel score and recommendation with current logic
-            stock.wheelScore = WheelScoring.calculateScore(stock);
-            stock.recommendation = WheelScoring.getRecommendation(stock);
+            // Use server-side scoring if available (IP protection — algorithm runs on backend)
+            // Only fall back to client-side if server didn't send scores
+            if (!stock.wheelScore) stock.wheelScore = WheelScoring.calculateScore(stock);
+            if (!stock.recommendation) stock.recommendation = WheelScoring.getRecommendation(stock);
             return stock;
           });
           setStocks(enrichedData);
@@ -3859,38 +4493,113 @@ function App() {
     }
   }, [user, loadData, settings.autoRefresh]);
 
+  // Firebase auth state listener — auto-login returning users
+  useEffect(() => {
+    const unsubscribe = firebaseAuth.onAuthStateChanged(async (fbUser) => {
+      if (fbUser) {
+        try {
+          const profile = await FirebaseHelper.getProfile(fbUser.uid);
+          if (profile) {
+            setUser(profile);
+            Storage.set('user', profile);
+            // Load cloud data
+            const cloudPortfolio = await FirebaseHelper.loadData(fbUser.uid, 'portfolio');
+            if (cloudPortfolio) Storage.set('positions', cloudPortfolio);
+            const cloudJournal = await FirebaseHelper.loadData(fbUser.uid, 'journal');
+            if (cloudJournal) Storage.set('journal', cloudJournal);
+            const cloudWatchlist = await FirebaseHelper.loadData(fbUser.uid, 'watchlist');
+            if (cloudWatchlist) { Storage.set('watchlist', cloudWatchlist); setWatchlist(cloudWatchlist); }
+            const cloudSettings = await FirebaseHelper.loadData(fbUser.uid, 'settings');
+            if (cloudSettings) { Storage.set('settings', cloudSettings); setSettings(s => ({...s, ...cloudSettings})); }
+          }
+        } catch (err) { console.warn('[WheelPro] Failed to load profile:', err); }
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
   // Auth handlers
-  const handleLogin = (credentials) => {
-    const isOwner = credentials.email.toLowerCase().includes('holland');
-    const userData = {
-      email: credentials.email,
-      name: credentials.name || credentials.email.split('@')[0],
-      plan: isOwner ? 'elite' : (credentials.plan || 'free'), // Default new users to free tier
-      isOwner: isOwner,
-      joinDate: new Date().toISOString(),
-    };
+  const handleLogin = async (userData) => {
     Storage.set('user', userData);
     setUser(userData);
     setShowAuth(null);
+    // If user clicked a pricing plan before signing up, redirect to Stripe checkout
+    if (pendingPlan) {
+      const plan = pendingPlan;
+      setPendingPlan(null);
+      setTimeout(() => StripeHelper.createCheckout(plan, userData.email, userData.uid), 500);
+      return; // Skip onboarding tour — they'll see it after checkout
+    }
+    // Show onboarding tour for first-time users
+    if (!Storage.get('tourCompleted', false)) {
+      setTimeout(() => setShowTour(true), 1500);
+    }
+    // Check Stripe subscription status and update plan
+    if (userData.email && !userData.isOwner) {
+      try {
+        const sub = await StripeHelper.checkSubscription(userData.email);
+        if (sub.active && sub.plan !== userData.plan) {
+          userData.plan = sub.plan;
+          setUser({...userData});
+          Storage.set('user', userData);
+          // Update Firestore if uid exists
+          if (userData.uid) {
+            firebaseDb.collection('users').doc(userData.uid).update({ plan: sub.plan }).catch(() => {});
+          }
+        }
+      } catch (err) { console.warn('[Stripe] Sub check failed:', err); }
+    }
+    // Check URL params for checkout success
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('checkout') === 'success') {
+      const plan = params.get('plan');
+      if (plan) {
+        userData.plan = plan;
+        setUser({...userData});
+        Storage.set('user', userData);
+        if (userData.uid) {
+          firebaseDb.collection('users').doc(userData.uid).update({ plan }).catch(() => {});
+        }
+      }
+      window.history.replaceState({}, '', window.location.pathname); // Clean URL
+    }
   };
 
-  const handleLogout = () => {
+  const completeTour = () => {
+    setShowTour(false);
+    Storage.set('tourCompleted', true);
+  };
+
+  const handleLogout = async () => {
+    // Save data to cloud before signing out
+    if (user?.uid) {
+      try {
+        await FirebaseHelper.saveData(user.uid, 'portfolio', Storage.get('positions', []));
+        await FirebaseHelper.saveData(user.uid, 'journal', Storage.get('journal', []));
+        await FirebaseHelper.saveData(user.uid, 'watchlist', watchlist);
+        await FirebaseHelper.saveData(user.uid, 'settings', settings);
+      } catch (err) { console.warn('[WheelPro] Failed to save data on logout:', err); }
+    }
+    await FirebaseHelper.signOut();
     Storage.remove('user');
     setUser(null);
     setPage('dashboard');
     setStocks([]);
   };
 
-  // Anti-copy protection + keyboard shortcuts
+  // Anti-copy protection + dev tools deterrence + keyboard shortcuts
   useEffect(() => {
     const handleContextMenu = (e) => e.preventDefault();
     const handleKeyDown = (e) => {
       // Allow in inputs
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
-      // Anti-copy
+      // Block: Ctrl+C, Ctrl+U (view source), Ctrl+S (save), F12 (dev tools), Ctrl+Shift+I/J (dev tools)
       if ((e.ctrlKey || e.metaKey) && (e.key === 'c' || e.key === 'u' || e.key === 's')) {
-        e.preventDefault();
-        return;
+        e.preventDefault(); return;
+      }
+      if (e.key === 'F12') { e.preventDefault(); return; }
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) {
+        e.preventDefault(); return;
       }
       // v2.5: Keyboard shortcuts
       if (e.key === 'r' || e.key === 'R') { loadData(); }
@@ -3901,11 +4610,22 @@ function App() {
       if (e.key === '5') setPage('backtest');
       if (e.key === 'Escape') setSelectedStock(null);
     };
+    // Detect dev tools open (debugger detection)
+    const devToolsCheck = setInterval(() => {
+      const threshold = 160;
+      if (window.outerWidth - window.innerWidth > threshold || window.outerHeight - window.innerHeight > threshold) {
+        console.clear();
+        console.log('%cWheelPro™ — Proprietary Software', 'font-size:24px;color:#c9a84c;font-weight:bold;');
+        console.log('%cUnauthorized inspection, copying, or reverse engineering of this software is prohibited.', 'font-size:14px;color:#dc2626;');
+        console.log('%c© WheelPro LLC. All rights reserved. Scoring algorithms run server-side.', 'font-size:12px;color:#5a6b7f;');
+      }
+    }, 2000);
     document.addEventListener('contextmenu', handleContextMenu);
     document.addEventListener('keydown', handleKeyDown);
     return () => {
       document.removeEventListener('contextmenu', handleContextMenu);
       document.removeEventListener('keydown', handleKeyDown);
+      clearInterval(devToolsCheck);
     };
   }, [loadData]);
 
@@ -3916,6 +4636,11 @@ function App() {
         <LandingPage
           onLogin={() => setShowAuth('login')}
           onSignup={() => setShowAuth('signup')}
+          onSubscribe={(plan) => {
+            // If not logged in, store the plan and show signup — checkout happens after account creation
+            if (!user) { setPendingPlan(plan); setShowAuth('signup'); return; }
+            StripeHelper.createCheckout(plan, user.email, user.uid);
+          }}
         />
         {showAuth && (
           <AuthModal
@@ -4003,9 +4728,9 @@ function App() {
               {lastRefresh && (
                 <span style={{fontSize:'12px', color:'var(--text-muted)'}}>
                   Updated {lastRefresh.toLocaleTimeString()}
-                  {stocks.length > 0 && stocks[0].dataSource === 'yahoo-finance' 
-                    ? ' · 🟢 Live Data' 
-                    : ' · 🟡 Demo Data'}
+                  {stocks.length > 0 && stocks[0].dataSource === 'yahoo-finance'
+                    ? ' · ● Live Data'
+                    : ' · ● Demo Data'}
                 </span>
               )}
               {(() => {
@@ -4059,17 +4784,20 @@ function App() {
       {/* v2.5: Stock Detail Modal */}
       {selectedStock && <StockDetailModal stock={selectedStock} onClose={() => setSelectedStock(null)} />}
 
+      {/* v2.5: Onboarding Tour */}
+      {showTour && <OnboardingTour onComplete={completeTour} />}
+
       <footer className="footer">
         <div className="footer-copyright">
-          Developed and Created by {CONFIG.OWNER} — All Rights Reserved · WheelPro™ v{CONFIG.VERSION}
+          © {new Date().getFullYear()} {CONFIG.OWNER} — All Rights Reserved · WheelPro™ v{CONFIG.VERSION}
         </div>
         <div style={{display:'flex', alignItems:'center', gap:16}}>
-          <span style={{fontSize:10, color:'var(--text-muted)'}}>Shortcuts: R=Refresh · 1-5=Pages · Esc=Close</span>
-          <span>Options trading involves risk. Past performance does not guarantee future results.</span>
+          <span style={{fontSize:10, color:'var(--text-muted)'}}>R=Refresh · 1-5=Pages · Esc=Close</span>
+          <span>For educational purposes only. Not financial advice. Options involve risk of loss.</span>
         </div>
       </footer>
 
-      <div className="watermark">WheelPro™ · © {CONFIG.OWNER}</div>
+      <div className="watermark">WheelPro™ v{CONFIG.VERSION}</div>
 
       <style>{`
         @media (max-width: 1024px) {
@@ -4095,7 +4823,7 @@ try {
   <div style="padding:40px;text-align:center;font-family:sans-serif;color:#94a3b8;background:#0a0e17;min-height:100vh;">
     <h1>WheelPro™</h1>
     <p>JavaScript is required to run this application.</p>
-    <p>Developed and Created by Holland Ricker — All Rights Reserved</p>
+    <p>WheelPro LLC — All Rights Reserved</p>
   </div>
 </noscript>
 
@@ -4104,7 +4832,7 @@ try {
   WheelPro™ Options Wheel Strategy Dashboard
   Version 2.0.0
   
-  Developed and Created by Holland Ricker
+  WheelPro LLC
   All Rights Reserved
   
   UNAUTHORIZED REPRODUCTION, DISTRIBUTION, OR MODIFICATION 
