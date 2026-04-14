@@ -5500,19 +5500,23 @@ function App() {
         try {
           const profile = await FirebaseHelper.getProfile(fbUser.uid);
           if (profile) {
-            setUser(profile);
-            Storage.set('user', profile);
-            // Fetch live Stripe subscription tier
-            fetchSubscriptionTier(fbUser.email, profile.isOwner);
-            // Load cloud data
+            // Clear any stale data from a previous user before loading this user's cloud data
+            Storage.set('positions', []);
+            Storage.set('journal', []);
+            // Load cloud data first so PortfolioPage/Journal remount with correct data
             const cloudPortfolio = await FirebaseHelper.loadData(fbUser.uid, 'portfolio');
-            if (cloudPortfolio) Storage.set('positions', cloudPortfolio);
+            Storage.set('positions', cloudPortfolio || []);
             const cloudJournal = await FirebaseHelper.loadData(fbUser.uid, 'journal');
-            if (cloudJournal) Storage.set('journal', cloudJournal);
+            Storage.set('journal', cloudJournal || []);
             const cloudWatchlist = await FirebaseHelper.loadData(fbUser.uid, 'watchlist');
             if (cloudWatchlist) { Storage.set('watchlist', cloudWatchlist); setWatchlist(cloudWatchlist); }
             const cloudSettings = await FirebaseHelper.loadData(fbUser.uid, 'settings');
             if (cloudSettings) { Storage.set('settings', cloudSettings); setSettings(s => ({...s, ...cloudSettings})); }
+            // Now set user state — PortfolioPage/Journal will remount reading correct localStorage
+            setUser(profile);
+            Storage.set('user', profile);
+            // Fetch live Stripe subscription tier
+            fetchSubscriptionTier(fbUser.email, profile.isOwner);
             // Detect successful Stripe checkout redirect
             const params = new URLSearchParams(window.location.search);
             if (params.get('session_id')) {
@@ -5586,6 +5590,8 @@ function App() {
     }
     await FirebaseHelper.signOut();
     Storage.remove('user');
+    Storage.remove('positions');
+    Storage.remove('journal');
     setUser(null);
     setPage('dashboard');
     setStocks([]);
@@ -5678,8 +5684,8 @@ function App() {
   const pages = {
     dashboard: { title: 'Dashboard', icon: Icons.dashboard, component: <DashboardPage stocks={stocks} watchlist={watchlist} toggleWatchlist={toggleWatchlist} onSelectStock={setSelectedStock} onSetPage={setPage} /> },
     screener: { title: 'Screener', icon: Icons.screener, component: <ScreenerPage stocks={stocks} user={user} subscriptionTier={subscriptionTier} onSelectStock={setSelectedStock} onExport={(s) => exportCSV(s, `wheelpro-screener-${new Date().toISOString().slice(0,10)}.csv`)} /> },
-    portfolio: { title: 'Portfolio', icon: Icons.portfolio, component: <PortfolioPage stocks={stocks} /> },
-    journal: { title: 'Trade Journal', icon: Icons.journal, component: <TradeJournalPage user={user} subscriptionTier={subscriptionTier} /> },
+    portfolio: { title: 'Portfolio', icon: Icons.portfolio, component: <PortfolioPage key={user?.uid || 'guest'} stocks={stocks} /> },
+    journal: { title: 'Trade Journal', icon: Icons.journal, component: <TradeJournalPage key={user?.uid || 'guest'} user={user} subscriptionTier={subscriptionTier} /> },
     backtest: { title: 'Backtest', icon: Icons.chart, component: <BacktestPage user={user} subscriptionTier={subscriptionTier} /> },
     settings: { title: 'Settings', icon: Icons.settings, component: <SettingsPage settings={settings} setSettings={setSettings} /> },
     admin: { title: 'Admin', icon: Icons.admin, component: <AdminPage user={user} /> },
