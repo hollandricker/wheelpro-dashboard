@@ -792,9 +792,13 @@ body.protected img { pointer-events: none; }
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 1px;
-  border-bottom: 1px solid var(--border);
-  background: rgba(0,0,0,0.2);
+  border-bottom: 2px solid rgba(201,168,76,0.25);
+  background: #0d1526;
   white-space: nowrap;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-shadow: 0 2px 0 rgba(201,168,76,0.08);
 }
 .data-table td {
   padding: 14px 16px;
@@ -810,6 +814,68 @@ body.protected img { pointer-events: none; }
 }
 .data-table tbody tr:last-child td {
   border-bottom: none;
+}
+
+/* Frozen first column — applies to all data tables (Symbol in Screener) */
+.data-table th:first-child,
+.data-table td:first-child {
+  position: sticky;
+  left: 0;
+  background: #0d1526;
+  z-index: 5;
+  border-right: 1px solid rgba(201,168,76,0.12);
+}
+.data-table th:first-child {
+  z-index: 20; /* corner: sticky in both directions */
+}
+.data-table tbody tr:hover td:first-child {
+  background: var(--bg-card-hover);
+}
+
+/* Dashboard candidates table — also freeze col 2 (Symbol) alongside # */
+.data-table-dashboard th:first-child,
+.data-table-dashboard td:first-child {
+  min-width: 46px;
+  width: 46px;
+}
+.data-table-dashboard th:nth-child(2),
+.data-table-dashboard td:nth-child(2) {
+  position: sticky;
+  left: 46px;
+  background: #0d1526;
+  z-index: 5;
+  border-right: 2px solid rgba(201,168,76,0.2);
+}
+.data-table-dashboard th:nth-child(2) {
+  z-index: 20;
+}
+.data-table-dashboard tbody tr:hover td:nth-child(2) {
+  background: var(--bg-card-hover);
+}
+
+/* DTE filter select — Wall Street Premium style */
+.dte-filter-select {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  padding: 5px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+  appearance: auto;
+  min-width: 150px;
+}
+.dte-filter-select:hover,
+.dte-filter-select:focus {
+  border-color: var(--accent-gold);
+  color: var(--text-primary);
+  outline: none;
+}
+.dte-filter-select option {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
 }
 
 /* Score Badge */
@@ -1272,6 +1338,8 @@ body.protected img { pointer-events: none; }
 /* Table overflow */
 .table-scroll {
   overflow-x: auto;
+  overflow-y: auto;
+  max-height: 580px;
 }
 
 /* ===== ONBOARDING TOUR ===== */
@@ -2657,7 +2725,7 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock 
           </div>
         </div>
         <div className="table-scroll">
-          <table className="data-table">
+          <table className="data-table data-table-dashboard">
             <thead>
               <tr>
                 <th>#</th>
@@ -4360,6 +4428,7 @@ function App() {
   const [watchlist, setWatchlist] = useState(() => Storage.get('watchlist', []));
   const [selectedStock, setSelectedStock] = useState(null); // For detail modal
   const [showTour, setShowTour] = useState(false); // Onboarding tour
+  const [dteFilter, setDteFilter] = useState('monthly'); // DTE preference: weekly | biweekly | monthly | all
   useEffect(() => { Storage.set('watchlist', watchlist); }, [watchlist]);
   const toggleWatchlist = (symbol) => setWatchlist(prev => prev.includes(symbol) ? prev.filter(s => s !== symbol) : [...prev, symbol]);
   const [settings, setSettings] = useState(Storage.get('settings', {
@@ -4390,7 +4459,7 @@ function App() {
     
     if (apiConfigured) {
       try {
-        const response = await fetch(`${CONFIG.API_BASE_URL}/api/stocks`, {
+        const response = await fetch(`${CONFIG.API_BASE_URL}/api/stocks?dte=${dteFilter}`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },
         });
@@ -4481,7 +4550,7 @@ function App() {
       setLastRefresh(new Date());
       setLoading(false);
     }, 600);
-  }, []);
+  }, [dteFilter]);
 
   useEffect(() => {
     if (user) {
@@ -4751,6 +4820,20 @@ function App() {
                   </div>
                 );
               })()}
+              <div style={{display:'flex', alignItems:'center', gap:'6px', borderRight:'1px solid var(--border)', paddingRight:12}}>
+                <span style={{fontSize:'10px', color:'var(--text-muted)', textTransform:'uppercase', letterSpacing:'0.8px', whiteSpace:'nowrap'}}>DTE</span>
+                <select
+                  className="dte-filter-select"
+                  value={dteFilter}
+                  onChange={e => setDteFilter(e.target.value)}
+                  title="Filter by Days to Expiration"
+                >
+                  <option value="weekly">This Week (0–7)</option>
+                  <option value="biweekly">2 Weeks (8–14)</option>
+                  <option value="monthly">Monthly (25–45)</option>
+                  <option value="all">All Expirations</option>
+                </select>
+              </div>
               <button className="btn btn-sm btn-secondary" onClick={loadData} disabled={loading}
                 style={{display:'flex', alignItems:'center', gap:'6px'}}>
                 {loading ? <span className="spinner" style={{width:14,height:14,borderWidth:2}}></span> : Icons.refresh}
