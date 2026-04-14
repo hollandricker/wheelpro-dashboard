@@ -1514,7 +1514,7 @@ const StripeHelper = {
         body: JSON.stringify({ priceId, email, returnUrl: window.location.origin }),
       });
       const data = await res.json();
-      if (data.success && data.url) {
+      if (data.url) {
         window.location.href = data.url; // Redirect to Stripe Checkout
       } else {
         alert('Checkout error: ' + (data.error || 'Please try again.'));
