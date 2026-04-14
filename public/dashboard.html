@@ -1408,6 +1408,13 @@ const CONFIG = {
   MAX_OTM_PCT: 0.15,  // Maximum 15% out-of-the-money
 };
 
+// Stripe price ID → tier name mapping
+const STRIPE_PRICE_TIERS = {
+  'price_1TLQLJAPjhOPhXtY3ZKL0s7c': 'starter',
+  'price_1TLQMCAPjhOPhXtYzCpfJlU7': 'pro',
+  'price_1TLQMsAPjhOPhXtYv0Jf8QyB': 'elite',
+};
+
 // ===== FIREBASE AUTH HELPERS =====
 const FirebaseHelper = {
   // Sign up with email/password
@@ -2714,7 +2721,7 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock 
                   <td>
                     <div style={{display:'flex', alignItems:'center', gap:'10px'}}>
                       <div>
-                        <div className="ticker">{stock.symbol}</div>
+                        <div className="ticker" style={{cursor:'pointer'}} onClick={() => onSelectStock && onSelectStock(stock)}>{stock.symbol}</div>
                         <div style={{fontSize:'11px', color:'var(--text-muted)'}}>{stock.sector}</div>
                       </div>
                     </div>
@@ -2861,19 +2868,7 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock 
 }
 
 // ===== SCREENER PAGE =====
-function ScreenerPage({ stocks, user, onSelectStock, onExport }) {
-  // Free tier: no screener access
-  const tierLimits = CONFIG.TIER_LIMITS[user?.plan || 'free'];
-  if (!tierLimits.screener && !user?.isOwner) {
-    return (
-      <div className="loading-state" style={{gap:20}}>
-        <div style={{width:48,height:48,borderRadius:'50%',background:'var(--bg-elevated)',margin:'0 auto',display:'flex',alignItems:'center',justifyContent:'center'}}><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
-        <h3 style={{color:'var(--text-primary)', margin:0}}>Advanced Screener</h3>
-        <p style={{maxWidth:400, textAlign:'center', lineHeight:1.7}}>Filter and sort all stocks by yield, delta, score, sector, and technical signal. Search for specific tickers. Available on Starter, Pro, and Elite plans.</p>
-        <button className="btn btn-primary" style={{marginTop:8}}>Upgrade to Starter — $29/mo</button>
-      </div>
-    );
-  }
+function ScreenerPage({ stocks, user, subscriptionTier, onSelectStock, onExport }) {
   const [filters, setFilters] = useState({
     sector: 'All',
     minYield: 0,
@@ -2915,6 +2910,19 @@ function ScreenerPage({ stocks, user, onSelectStock, onExport }) {
       sortDir: f.sortBy === field && f.sortDir === 'desc' ? 'asc' : 'desc'
     }));
   };
+
+  // Free tier: no screener access (gate placed after hooks to satisfy Rules of Hooks)
+  const tierLimits = CONFIG.TIER_LIMITS[subscriptionTier || 'free'];
+  if (!tierLimits.screener && !user?.isOwner) {
+    return (
+      <div className="loading-state" style={{gap:20}}>
+        <div style={{width:48,height:48,borderRadius:'50%',background:'var(--bg-elevated)',margin:'0 auto',display:'flex',alignItems:'center',justifyContent:'center'}}><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+        <h3 style={{color:'var(--text-primary)', margin:0}}>Advanced Screener</h3>
+        <p style={{maxWidth:400, textAlign:'center', lineHeight:1.7}}>Filter and sort all stocks by yield, delta, score, sector, and technical signal. Search for specific tickers. Available on Starter, Pro, and Elite plans.</p>
+        <button className="btn btn-primary" style={{marginTop:8}}>Upgrade to Starter — $29/mo</button>
+      </div>
+    );
+  }
 
   const SortIcon = ({ field }) => {
     if (filters.sortBy !== field) return null;
@@ -3284,7 +3292,7 @@ function PortfolioPage({ stocks }) {
 }
 
 // ===== TRADE JOURNAL PAGE =====
-function TradeJournalPage({ user }) {
+function TradeJournalPage({ user, subscriptionTier }) {
   const [trades, setTrades] = useState(() => Storage.get('journal', []));
   const [showAdd, setShowAdd] = useState(false);
   const [newTrade, setNewTrade] = useState({ symbol: '', type: 'CSP', strike: '', premium: '', contracts: 1, openDate: '', closeDate: '', outcome: 'expired', pnl: '' });
@@ -3321,7 +3329,7 @@ function TradeJournalPage({ user }) {
   const worstTrade = trades.length > 0 ? trades.reduce((worst, t) => t.pnl < worst.pnl ? t : worst, trades[0]) : null;
 
   // Check tier access
-  const tierLimits = CONFIG.TIER_LIMITS[user?.plan || 'free'];
+  const tierLimits = CONFIG.TIER_LIMITS[subscriptionTier || 'free'];
   if (!tierLimits.journal && !user?.isOwner) {
     return (
       <div className="loading-state" style={{gap:20}}>
@@ -3619,11 +3627,23 @@ function SettingsPage({ settings, setSettings }) {
 }
 
 // ===== BACKTEST PAGE =====
-function BacktestPage({ user }) {
+function BacktestPage({ user, subscriptionTier }) {
   const [params, setParams] = useState({ months: 6, capital: 50000, maxPositions: 5, maxPerStock: 20, minScore: 75, maxDelta: 0.25 });
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const tierLimits = CONFIG.TIER_LIMITS[subscriptionTier || 'free'];
+  if (!tierLimits.journal && !user?.isOwner) {
+    return (
+      <div className="loading-state" style={{gap:20}}>
+        <div style={{width:48,height:48,borderRadius:'50%',background:'var(--bg-elevated)',margin:'0 auto',display:'flex',alignItems:'center',justifyContent:'center'}}><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+        <h3 style={{color:'var(--text-primary)', margin:0}}>Strategy Backtester</h3>
+        <p style={{maxWidth:400, textAlign:'center', lineHeight:1.7}}>Simulate the Wheel strategy over historical data to see returns, win rate, and drawdown. Available on Pro and Elite plans.</p>
+        <button className="btn btn-primary" style={{marginTop:8}}>Upgrade to Pro — $79/mo</button>
+      </div>
+    );
+  }
 
   const runBacktest = async () => {
     setLoading(true);
@@ -3737,7 +3757,7 @@ function BacktestPage({ user }) {
       </div>
 
       {error && !results?.demo && <div style={{padding:'12px 20px', background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.3)', borderRadius:'var(--radius-md)', color:'var(--accent-red)', fontSize:'13px', marginBottom:16}}>API Error: {error}. Showing demo results below.</div>}
-      {results?.demo && <div style={{padding:'12px 20px', background:'rgba(245,158,11,0.1)', border:'1px solid rgba(245,158,11,0.3)', borderRadius:'var(--radius-md)', color:'var(--accent-amber)', fontSize:'13px', marginBottom:16}}>Showing simulated demo results. Connect your Polygon.io API key in Railway for real historical backtesting.</div>}
+      {results?.demo && <div style={{padding:'12px 20px', background:'rgba(245,158,11,0.1)', border:'1px solid rgba(245,158,11,0.3)', borderRadius:'var(--radius-md)', color:'var(--accent-amber)', fontSize:'13px', marginBottom:16}}>Showing simulated backtest results based on current market data.</div>}
 
       {results && (
         <>
@@ -4368,6 +4388,8 @@ function App() {
   const [authNotice, setAuthNotice] = useState(null); // shown in AuthModal when redirected from Stripe
   const [showAuth, setShowAuth] = useState(null); // 'login' | 'signup' | null
   const [pendingPlan, setPendingPlan] = useState(null); // Plan selected before signup
+  const [subscriptionTier, setSubscriptionTier] = useState('free');
+  const [subscriptionStatus, setSubscriptionStatus] = useState('free'); // 'active' | 'trialing' | 'free'
 
   // App state
   const [page, setPage] = useState('dashboard');
@@ -4502,6 +4524,28 @@ function App() {
     }, 600);
   }, []);
 
+  // Fetch Stripe subscription tier and update state
+  const fetchSubscriptionTier = useCallback(async (email, isOwner) => {
+    if (isOwner) { setSubscriptionTier('elite'); setSubscriptionStatus('active'); return; }
+    if (!email) { setSubscriptionTier('free'); setSubscriptionStatus('free'); return; }
+    try {
+      const res = await fetch(`${CONFIG.API_BASE_URL}/api/subscription/status?email=${encodeURIComponent(email)}`);
+      const data = await res.json();
+      const status = data.status || 'free';
+      if (status === 'active' || status === 'trialing') {
+        setSubscriptionTier(STRIPE_PRICE_TIERS[data.plan] || 'free');
+        setSubscriptionStatus(status);
+      } else {
+        setSubscriptionTier('free');
+        setSubscriptionStatus('free');
+      }
+    } catch (err) {
+      console.warn('[WheelPro] Subscription fetch failed:', err);
+      setSubscriptionTier('free');
+      setSubscriptionStatus('free');
+    }
+  }, []);
+
   useEffect(() => {
     if (user) {
       loadData();
@@ -4524,6 +4568,8 @@ function App() {
           if (profile) {
             setUser(profile);
             Storage.set('user', profile);
+            // Fetch live Stripe subscription tier
+            fetchSubscriptionTier(fbUser.email, profile.isOwner);
             // Load cloud data
             const cloudPortfolio = await FirebaseHelper.loadData(fbUser.uid, 'portfolio');
             if (cloudPortfolio) Storage.set('positions', cloudPortfolio);
@@ -4571,21 +4617,8 @@ function App() {
     if (!Storage.get('tourCompleted', false)) {
       setTimeout(() => setShowTour(true), 1500);
     }
-    // Check Stripe subscription status and update plan
-    if (userData.email && !userData.isOwner) {
-      try {
-        const sub = await StripeHelper.checkSubscription(userData.email);
-        if (sub.active && sub.plan !== userData.plan) {
-          userData.plan = sub.plan;
-          setUser({...userData});
-          Storage.set('user', userData);
-          // Update Firestore if uid exists
-          if (userData.uid) {
-            firebaseDb.collection('users').doc(userData.uid).update({ plan: sub.plan }).catch(() => {});
-          }
-        }
-      } catch (err) { console.warn('[Stripe] Sub check failed:', err); }
-    }
+    // Fetch live Stripe subscription tier
+    fetchSubscriptionTier(userData.email, userData.isOwner);
     // Check URL params for checkout success
     const params = new URLSearchParams(window.location.search);
     if (params.get('checkout') === 'success') {
@@ -4710,10 +4743,10 @@ function App() {
   // Logged in - show dashboard
   const pages = {
     dashboard: { title: 'Dashboard', icon: Icons.dashboard, component: <DashboardPage stocks={stocks} watchlist={watchlist} toggleWatchlist={toggleWatchlist} onSelectStock={setSelectedStock} /> },
-    screener: { title: 'Screener', icon: Icons.screener, component: <ScreenerPage stocks={stocks} user={user} onSelectStock={setSelectedStock} onExport={(s) => exportCSV(s, `wheelpro-screener-${new Date().toISOString().slice(0,10)}.csv`)} /> },
+    screener: { title: 'Screener', icon: Icons.screener, component: <ScreenerPage stocks={stocks} user={user} subscriptionTier={subscriptionTier} onSelectStock={setSelectedStock} onExport={(s) => exportCSV(s, `wheelpro-screener-${new Date().toISOString().slice(0,10)}.csv`)} /> },
     portfolio: { title: 'Portfolio', icon: Icons.portfolio, component: <PortfolioPage stocks={stocks} /> },
-    journal: { title: 'Trade Journal', icon: Icons.journal, component: <TradeJournalPage user={user} /> },
-    backtest: { title: 'Backtest', icon: Icons.chart, component: <BacktestPage user={user} /> },
+    journal: { title: 'Trade Journal', icon: Icons.journal, component: <TradeJournalPage user={user} subscriptionTier={subscriptionTier} /> },
+    backtest: { title: 'Backtest', icon: Icons.chart, component: <BacktestPage user={user} subscriptionTier={subscriptionTier} /> },
     settings: { title: 'Settings', icon: Icons.settings, component: <SettingsPage settings={settings} setSettings={setSettings} /> },
     admin: { title: 'Admin', icon: Icons.admin, component: <AdminPage user={user} /> },
   };
@@ -4755,7 +4788,7 @@ function App() {
               <div className="sidebar-avatar">{user.name?.charAt(0)?.toUpperCase() || '?'}</div>
               <div className="sidebar-user-info">
                 <div className="sidebar-user-name">{user.name}</div>
-                <div className="sidebar-user-plan">{user.isOwner ? '👑 Owner' : user.plan === 'elite' ? '⭐ Elite' : user.plan === 'pro' ? '● Pro' : user.plan === 'starter' ? '● Starter' : '○ Free'}</div>
+                <div className="sidebar-user-plan">{user.isOwner ? '👑 Owner' : subscriptionTier === 'elite' ? `⭐ Elite${subscriptionStatus === 'trialing' ? ' Trial' : ''}` : subscriptionTier === 'pro' ? `● Pro${subscriptionStatus === 'trialing' ? ' Trial' : ''}` : subscriptionTier === 'starter' ? `● Starter${subscriptionStatus === 'trialing' ? ' Trial' : ''}` : '○ Free'}</div>
               </div>
             </div>
             <a className="sidebar-link" onClick={handleLogout} style={{marginTop:4, color:'var(--accent-red)'}}>
