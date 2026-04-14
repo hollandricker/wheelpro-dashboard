@@ -1428,6 +1428,194 @@ body.protected img { pointer-events: none; }
   padding: 16px;
   text-align: center;
 }
+
+/* ===== WHEEL CYCLE STAGE BADGES ===== */
+.wheel-stage-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 12px;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.wheel-stage-selling-puts {
+  background: rgba(74,144,217,0.12);
+  color: var(--accent-blue);
+  border: 1px solid rgba(74,144,217,0.25);
+}
+.wheel-stage-assigned {
+  background: rgba(212,168,67,0.15);
+  color: var(--accent-amber);
+  border: 1px solid rgba(212,168,67,0.35);
+}
+.wheel-stage-selling-calls {
+  background: rgba(124,107,196,0.12);
+  color: var(--accent-purple);
+  border: 1px solid rgba(124,107,196,0.25);
+}
+.wheel-stage-called-away {
+  background: rgba(34,197,94,0.12);
+  color: var(--accent-green);
+  border: 1px solid rgba(34,197,94,0.25);
+}
+
+/* ===== GOLD BUTTON ===== */
+.btn-gold {
+  background: linear-gradient(135deg, #c9a84c, #d4a843);
+  color: #0b1120;
+  font-weight: 700;
+  border: none;
+  box-shadow: 0 2px 8px rgba(201,168,76,0.25);
+}
+.btn-gold:hover {
+  background: linear-gradient(135deg, #d4b055, #e0b84e);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(201,168,76,0.4);
+}
+
+/* ===== COVERED CALL MODAL ===== */
+.cc-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.78);
+  backdrop-filter: blur(8px);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease;
+  padding: 20px;
+}
+.cc-modal {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--accent-gold);
+  border-radius: var(--radius-xl);
+  width: 100%;
+  max-width: 920px;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: fadeInUp 0.3s ease;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.6), 0 0 0 1px rgba(201,168,76,0.08);
+}
+.cc-modal-header {
+  padding: 28px 32px 20px;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(145deg, rgba(201,168,76,0.04) 0%, transparent 100%);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: blur(4px);
+}
+.cc-modal-body { padding: 24px 32px 32px; }
+.cc-category-tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+.cc-tab {
+  padding: 8px 20px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  transition: all 0.2s;
+}
+.cc-tab.active {
+  background: linear-gradient(135deg, #c9a84c, #d4a843);
+  color: #0b1120;
+  border-color: transparent;
+}
+.cc-tab:not(.active):hover { border-color: var(--accent-gold); color: var(--accent-gold); }
+.cc-rec-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.cc-rec-table th {
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+  background: rgba(0,0,0,0.2);
+  white-space: nowrap;
+}
+.cc-rec-table td {
+  padding: 13px 14px;
+  border-bottom: 1px solid rgba(30,45,69,0.5);
+  vertical-align: middle;
+}
+.cc-rec-table tbody tr:hover td { background: var(--bg-elevated); }
+.cc-rec-table tr.best-rec td { background: rgba(201,168,76,0.04); }
+.cc-rec-table tbody tr:last-child td { border-bottom: none; }
+.cc-plain-english {
+  background: linear-gradient(145deg, rgba(201,168,76,0.07) 0%, rgba(201,168,76,0.02) 100%);
+  border: 1px solid rgba(201,168,76,0.22);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.cc-warning {
+  background: rgba(212,168,67,0.08);
+  border: 1px solid rgba(212,168,67,0.28);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: var(--accent-amber);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ===== WHEEL CYCLE PROGRESS BAR ===== */
+.wheel-cycle-progress {
+  display: flex;
+  align-items: stretch;
+  margin-bottom: 20px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.wheel-cycle-step {
+  flex: 1;
+  text-align: center;
+  padding: 8px 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--bg-elevated);
+  position: relative;
+  transition: all 0.2s;
+}
+.wheel-cycle-step + .wheel-cycle-step {
+  border-left: 1px solid var(--border);
+}
+.wheel-cycle-step.active {
+  background: rgba(201,168,76,0.12);
+  color: var(--accent-gold);
+}
+.wheel-cycle-step.completed {
+  background: rgba(34,197,94,0.08);
+  color: var(--accent-green);
+}
+.wheel-cycle-step-label { font-size: 10px; margin-top: 2px; }
+
+/* ===== COVERED CALLS DASHBOARD PANEL ===== */
+.cc-dashboard-card {
+  background: var(--bg-elevated);
+  border: 1px solid rgba(201,168,76,0.2);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  transition: border-color 0.2s;
+}
+.cc-dashboard-card:hover { border-color: rgba(201,168,76,0.4); }
 </style>
 </head>
 <body class="protected">
@@ -2507,14 +2695,348 @@ function AuthModal({ mode, onClose, onSubmit, onToggle, notice }) {
   );
 }
 
+// ===== COVERED CALL HELPER =====
+const CoveredCallHelper = {
+  // Generate CC recommendations locally using a BS-like approximation
+  generateRecs(stock, costBasis, contracts = 1) {
+    const price = stock?.price || costBasis * 1.05;
+    const iv = Math.max(0.15, (stock?.iv || 28) / 100);
+    const shares = contracts * 100;
+    const results = [];
+    const dteSeries = [21, 30, 45];
+
+    dteSeries.forEach(dte => {
+      const T = dte / 365;
+      const sqrtT = Math.sqrt(T);
+      // Sample strikes from 1% to 15% OTM in 2.5% steps
+      [0.01, 0.025, 0.05, 0.075, 0.10, 0.125, 0.15].forEach(otmPct => {
+        const strike = Math.round(price * (1 + otmPct) * 4) / 4; // round to $0.25
+        const d1 = (Math.log(price / strike) + (0.001 + 0.5 * iv * iv) * T) / (iv * sqrtT);
+        const d2 = d1 - iv * sqrtT;
+        // Logistic approximation of N(x)
+        const N = x => 1 / (1 + Math.exp(-1.7 * x));
+        const callValue = price * N(d1) - strike * Math.exp(-0.001 * T) * N(d2);
+        const mid = Math.max(0.05, callValue);
+        const bid = Math.max(0.01, mid * 0.92);
+        const ask = mid * 1.08;
+        const delta = Math.max(0.04, Math.min(0.50, N(d1) * 0.65));
+        const theta = (mid * 100) / dte;
+        const annualizedYield = (mid / price) * (365 / dte) * 100;
+        const distFromCostBasis = ((strike - costBasis) / costBasis) * 100;
+        const expDate = new Date(Date.now() + dte * 86400000).toISOString().slice(0, 10);
+        results.push({
+          strike: +strike.toFixed(2), bid: +bid.toFixed(2), ask: +ask.toFixed(2),
+          mid: +mid.toFixed(2), dte, expDate,
+          delta: +delta.toFixed(2), theta: +theta.toFixed(2),
+          annualizedYield: +annualizedYield.toFixed(1),
+          distFromCostBasis: +distFromCostBasis.toFixed(1),
+          belowCostBasis: strike < costBasis,
+          totalPremium: Math.round(mid * shares),
+          otmPct: +(otmPct * 100).toFixed(1),
+        });
+      });
+    });
+
+    // Conservative: 7.5%+ OTM, 30–45 DTE — keep shares longer
+    const conservative = results
+      .filter(r => r.otmPct >= 7.5 && r.dte >= 30)
+      .sort((a, b) => b.annualizedYield - a.annualizedYield)
+      .slice(0, 6);
+
+    // Aggressive: ≤5% OTM, 21–30 DTE — maximize premium
+    const aggressive = results
+      .filter(r => r.otmPct <= 5 && r.dte <= 30)
+      .sort((a, b) => b.annualizedYield - a.annualizedYield)
+      .slice(0, 6);
+
+    return { conservative, aggressive };
+  },
+
+  async fetchRecs(symbol, costBasis, stock, contracts = 1) {
+    try {
+      const url = `${CONFIG.API_BASE_URL}/api/covered-calls/${encodeURIComponent(symbol)}?costBasis=${costBasis}`;
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 5000);
+      const res = await fetch(url, { signal: controller.signal });
+      clearTimeout(timer);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      if (data && (Array.isArray(data.conservative) || Array.isArray(data.aggressive))) return data;
+      throw new Error('Unexpected response shape');
+    } catch (e) {
+      console.warn('[WheelPro] CC backend unavailable — local calc:', e.message);
+      return this.generateRecs(stock, costBasis, contracts);
+    }
+  },
+
+  getRecommendationText(rec, costBasis, symbol) {
+    if (!rec) return null;
+    const premStr = `$${rec.mid.toFixed(2)}/share ($${rec.totalPremium} total)`;
+    const aboveBelow = rec.distFromCostBasis >= 0
+      ? `${rec.distFromCostBasis.toFixed(1)}% above your $${costBasis.toFixed(2)} cost basis — shares keep any profit if called away`
+      : `${Math.abs(rec.distFromCostBasis).toFixed(1)}% BELOW your cost basis — selling here locks in a loss on shares`;
+    return `Sell the $${rec.strike} ${symbol} call expiring ${rec.expDate} for ${premStr} — ${rec.annualizedYield}% annualized yield. Strike is ${aboveBelow}.`;
+  },
+
+  getStageInfo(stage) {
+    return {
+      selling_puts:    { label: 'Selling Puts',         cls: 'wheel-stage-selling-puts',  icon: '↓', idx: 0 },
+      assigned:        { label: 'Assigned — Own Shares', cls: 'wheel-stage-assigned',       icon: '⬛', idx: 1 },
+      selling_calls:   { label: 'Selling Covered Calls', cls: 'wheel-stage-selling-calls',  icon: '↑', idx: 2 },
+      called_away:     { label: 'Called Away',           cls: 'wheel-stage-called-away',    icon: '✓', idx: 3 },
+    }[stage] || { label: 'Selling Puts', cls: 'wheel-stage-selling-puts', icon: '↓', idx: 0 };
+  },
+};
+
+// ===== COVERED CALL MODAL =====
+function CoveredCallModal({ position, stock, onClose, onMarkSelling }) {
+  const [loading, setLoading] = useState(true);
+  const [recs, setRecs] = useState(null);
+  const [category, setCategory] = useState('conservative');
+
+  const costBasis = position.assignmentCostBasis || position.costBasis || position.strike;
+  const currentPrice = stock?.price || position.currentPrice || costBasis;
+  const shares = position.shares || position.contracts * 100;
+  const stage = position.wheelStage || 'assigned';
+  const stageInfo = CoveredCallHelper.getStageInfo(stage);
+  const stageLabels = ['Selling Puts', 'Assigned', 'Selling Calls', 'Called Away'];
+
+  useEffect(() => {
+    CoveredCallHelper.fetchRecs(position.symbol, costBasis, stock, position.contracts)
+      .then(data => { setRecs(data); setLoading(false); })
+      .catch(() => setLoading(false));
+  }, []);
+
+  const currentRecs = recs ? (recs[category] || []) : [];
+  const bestRec = currentRecs[0];
+  const recText = bestRec ? CoveredCallHelper.getRecommendationText(bestRec, costBasis, position.symbol) : null;
+  const unrealized = (currentPrice - costBasis) * shares;
+  const unrealizedPct = ((currentPrice - costBasis) / costBasis) * 100;
+
+  return (
+    <div className="cc-modal-overlay" onClick={onClose}>
+      <div className="cc-modal" onClick={e => e.stopPropagation()}>
+
+        {/* ── Header ── */}
+        <div className="cc-modal-header">
+          <div style={{display:'flex', alignItems:'flex-start', justifyContent:'space-between', marginBottom:16}}>
+            <div>
+              <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:6}}>
+                <span style={{fontFamily:'var(--font-mono)', fontSize:'26px', fontWeight:700, color:'var(--accent-gold)'}}>{position.symbol}</span>
+                <span className={`wheel-stage-badge ${stageInfo.cls}`}>{stageInfo.icon} {stageInfo.label}</span>
+              </div>
+              <div style={{fontSize:'13px', color:'var(--text-secondary)'}}>Covered Call Recommendations · Full Wheel Analysis</div>
+            </div>
+            <button onClick={onClose} style={{background:'none', border:'none', color:'var(--text-muted)', cursor:'pointer', fontSize:'22px', padding:'4px 8px', lineHeight:1, marginTop:-4}}>✕</button>
+          </div>
+
+          {/* Wheel Cycle Progress */}
+          <div className="wheel-cycle-progress">
+            {stageLabels.map((s, i) => (
+              <div key={i} className={`wheel-cycle-step ${i === stageInfo.idx ? 'active' : i < stageInfo.idx ? 'completed' : ''}`}>
+                <div>{i === stageInfo.idx ? '●' : i < stageInfo.idx ? '✓' : '○'}</div>
+                <div className="wheel-cycle-step-label">{s}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Position Info Grid */}
+          <div style={{display:'grid', gridTemplateColumns:'repeat(4, 1fr)', gap:10}}>
+            {[
+              { label:'Current Price', value:`$${currentPrice.toFixed(2)}`, color:'var(--text-primary)' },
+              { label:'Cost Basis', value:`$${costBasis.toFixed(2)}/sh`, color:'var(--accent-amber)', sub:'per share' },
+              { label:'Shares Owned', value:shares, color:'var(--text-primary)', sub:`${position.contracts} contract${position.contracts !== 1 ? 's' : ''}` },
+              {
+                label:'Unrealized P/L',
+                value:`${unrealized >= 0 ? '+' : ''}$${Math.abs(unrealized).toFixed(0)}`,
+                color: unrealized >= 0 ? 'var(--accent-green)' : 'var(--accent-red)',
+                sub:`${unrealizedPct >= 0 ? '+' : ''}${unrealizedPct.toFixed(1)}% vs cost basis`,
+              },
+            ].map(({ label, value, color, sub }) => (
+              <div key={label} style={{background:'var(--bg-elevated)', borderRadius:'var(--radius-md)', padding:'12px 14px'}}>
+                <div style={{fontSize:'10px', color:'var(--text-muted)', marginBottom:4, textTransform:'uppercase', letterSpacing:'0.5px'}}>{label}</div>
+                <div style={{fontFamily:'var(--font-mono)', fontWeight:700, fontSize:'16px', color}}>{value}</div>
+                {sub && <div style={{fontSize:'10px', color:'var(--text-muted)', marginTop:2}}>{sub}</div>}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ── Body ── */}
+        <div className="cc-modal-body">
+
+          {currentPrice < costBasis && (
+            <div className="cc-warning">
+              ⚠ Stock is ${(costBasis - currentPrice).toFixed(2)} ({((costBasis - currentPrice) / costBasis * 100).toFixed(1)}%) below your cost basis.
+              Avoid selling calls below ${costBasis.toFixed(2)} — that locks in a loss on shares.
+              Conservative OTM strikes recommended while waiting for recovery.
+            </div>
+          )}
+
+          {!loading && recText && (
+            <div className="cc-plain-english">
+              <span style={{fontSize:'20px', flexShrink:0}}>💡</span>
+              <div>
+                <div style={{fontSize:'11px', color:'var(--accent-gold)', fontWeight:700, marginBottom:5, textTransform:'uppercase', letterSpacing:'0.6px'}}>
+                  {category === 'conservative' ? 'Conservative Recommendation' : 'Aggressive Recommendation'}
+                </div>
+                <div style={{fontSize:'13px', color:'var(--text-primary)', lineHeight:1.7}}>{recText}</div>
+              </div>
+            </div>
+          )}
+
+          {/* Category Tabs */}
+          <div className="cc-category-tabs">
+            <button className={`cc-tab ${category === 'conservative' ? 'active' : ''}`} onClick={() => setCategory('conservative')}>
+              Conservative — Further OTM
+            </button>
+            <button className={`cc-tab ${category === 'aggressive' ? 'active' : ''}`} onClick={() => setCategory('aggressive')}>
+              Aggressive — More Premium
+            </button>
+          </div>
+          <div style={{fontSize:'12px', color:'var(--text-muted)', marginBottom:16, paddingLeft:2}}>
+            {category === 'conservative'
+              ? '7.5%+ OTM, 30–45 DTE — lower delta, shares less likely to be called away, more room to recover.'
+              : '≤5% OTM, 21–30 DTE — higher premium but shares will likely be called away sooner.'}
+          </div>
+
+          {loading ? (
+            <div style={{textAlign:'center', padding:'48px', color:'var(--text-muted)'}}>
+              <div className="spinner" style={{margin:'0 auto 12px'}}></div>
+              <p>Loading recommendations...</p>
+            </div>
+          ) : currentRecs.length === 0 ? (
+            <div style={{textAlign:'center', padding:'48px', color:'var(--text-muted)'}}>
+              No recommendations available for this category.
+            </div>
+          ) : (
+            <div style={{overflowX:'auto', borderRadius:'var(--radius-md)', border:'1px solid var(--border)'}}>
+              <table className="cc-rec-table">
+                <thead>
+                  <tr>
+                    <th>Strike</th>
+                    <th>Bid / Ask</th>
+                    <th>Mid Premium</th>
+                    <th>DTE / Expiry</th>
+                    <th>Delta</th>
+                    <th>Theta / Day</th>
+                    <th>Ann. Yield</th>
+                    <th>vs Cost Basis</th>
+                    <th>Total Income</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {currentRecs.map((rec, i) => {
+                    const isBest = i === 0;
+                    const aboveCB = rec.strike >= costBasis;
+                    return (
+                      <tr key={i} className={isBest ? 'best-rec' : ''}>
+                        <td>
+                          <span style={{fontFamily:'var(--font-mono)', fontWeight:700, fontSize:'15px', color: aboveCB ? 'var(--text-primary)' : 'var(--accent-red)'}}>
+                            ${rec.strike.toFixed(2)}
+                          </span>
+                          {isBest && <span style={{marginLeft:7, fontSize:'10px', background:'linear-gradient(135deg,#c9a84c,#d4a843)', color:'#0b1120', padding:'1px 7px', borderRadius:'8px', fontWeight:700}}>BEST</span>}
+                          {!aboveCB && <div style={{fontSize:'10px', color:'var(--accent-red)', marginTop:2}}>⚠ Below cost basis</div>}
+                        </td>
+                        <td style={{fontFamily:'var(--font-mono)', fontSize:'12px', color:'var(--text-secondary)'}}>
+                          ${rec.bid.toFixed(2)} / ${rec.ask.toFixed(2)}
+                        </td>
+                        <td>
+                          <span style={{fontFamily:'var(--font-mono)', fontWeight:700, color:'var(--accent-green)', fontSize:'14px'}}>
+                            ${rec.mid.toFixed(2)}
+                          </span>
+                        </td>
+                        <td style={{fontFamily:'var(--font-mono)', fontSize:'12px'}}>
+                          <div style={{fontWeight:600}}>{rec.dte}d</div>
+                          <div style={{color:'var(--text-muted)', fontSize:'10px'}}>{rec.expDate}</div>
+                        </td>
+                        <td>
+                          <span className={`indicator-pill ${rec.delta <= 0.20 ? 'pill-green' : rec.delta <= 0.32 ? 'pill-amber' : 'pill-red'}`}>
+                            {rec.delta.toFixed(2)}
+                          </span>
+                        </td>
+                        <td style={{fontFamily:'var(--font-mono)', fontSize:'12px', color:'var(--accent-green)'}}>
+                          ${rec.theta.toFixed(2)}/day
+                        </td>
+                        <td>
+                          <span style={{fontFamily:'var(--font-mono)', fontWeight:700, fontSize:'13px', color: rec.annualizedYield >= 25 ? 'var(--accent-green)' : 'var(--accent-amber)'}}>
+                            {rec.annualizedYield}%
+                          </span>
+                        </td>
+                        <td>
+                          <span style={{fontFamily:'var(--font-mono)', fontSize:'13px', fontWeight:600, color: rec.distFromCostBasis >= 0 ? 'var(--accent-green)' : 'var(--accent-red)'}}>
+                            {rec.distFromCostBasis >= 0 ? '+' : ''}{rec.distFromCostBasis.toFixed(1)}%
+                          </span>
+                          <div style={{fontSize:'10px', color:'var(--text-muted)'}}>
+                            {rec.distFromCostBasis >= 0 ? 'above' : 'below'} cost basis
+                          </div>
+                        </td>
+                        <td>
+                          <span style={{fontFamily:'var(--font-mono)', fontWeight:700, color:'var(--accent-gold)', fontSize:'14px'}}>
+                            ${rec.totalPremium}
+                          </span>
+                          <div style={{fontSize:'10px', color:'var(--text-muted)'}}>for {shares} shares</div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          <div style={{marginTop:20, padding:'14px 18px', background:'var(--bg-elevated)', borderRadius:'var(--radius-md)', fontSize:'12px', color:'var(--text-muted)', lineHeight:1.8, borderLeft:'3px solid rgba(201,168,76,0.3)'}}>
+            <strong style={{color:'var(--text-secondary)'}}>Rules of the wheel:</strong>{' '}
+            Never sell a covered call below your cost basis (${costBasis.toFixed(2)}/sh) unless intentionally accepting a loss on shares.
+            Conservative = further OTM, keeps shares longer, less premium.
+            Aggressive = closer strike, more income, higher chance of being called away.
+            Always verify live quotes with your broker before trading — premiums are estimates.
+          </div>
+
+          {onMarkSelling && (
+            <div style={{marginTop:16, display:'flex', gap:10, justifyContent:'flex-end', alignItems:'center'}}>
+              <span style={{fontSize:'12px', color:'var(--text-muted)'}}>Sold a call in your broker?</span>
+              <button
+                className="btn btn-gold"
+                style={{padding:'10px 24px', fontSize:'13px'}}
+                onClick={onMarkSelling}>
+                ✓ I've Sold This Call — Update Wheel Stage
+              </button>
+              <button className="btn btn-sm btn-secondary" onClick={onClose}>Close</button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ===== DASHBOARD PAGE =====
-function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock }) {
+function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock, onSetPage }) {
   const topStocks = useMemo(() => {
     return [...stocks]
       .filter(s => s.weeklyYield >= 0.01 && s.delta <= 0.35)
       .sort((a, b) => b.wheelScore - a.wheelScore)
       .slice(0, 20);
   }, [stocks]);
+
+  // Assigned positions needing covered calls — read from localStorage
+  const assignedPositions = useMemo(() => {
+    const positions = Storage.get('positions', []);
+    return positions.filter(p => p.isAssigned || p.wheelStage === 'assigned' || p.wheelStage === 'selling_calls');
+  }, []);
+
+  // For each assigned position, compute the best conservative CC rec
+  const assignedWithRecs = useMemo(() => {
+    return assignedPositions.map(p => {
+      const stock = stocks.find(s => s.symbol === p.symbol);
+      const costBasis = p.assignmentCostBasis || p.costBasis || (p.strike - p.premium);
+      const recs = CoveredCallHelper.generateRecs(stock, costBasis, p.contracts || 1);
+      const bestConservative = recs.conservative[0] || null;
+      const bestAggressive = recs.aggressive[0] || null;
+      return { ...p, stock, costBasis, bestConservative, bestAggressive, currentPrice: stock?.price || p.currentPrice || costBasis };
+    });
+  }, [assignedPositions, stocks]);
 
   // NEW: Recommended puts — only SELL_PUT with HIGH or MEDIUM confidence
   const recommendedPuts = useMemo(() => {
@@ -2732,6 +3254,93 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock 
                 })}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+
+      {/* ===== COVERED CALLS PANEL ===== */}
+      {assignedWithRecs.length > 0 && (
+        <div className="data-table-container" style={{marginBottom:'24px', border:'1px solid rgba(201,168,76,0.25)', background:'linear-gradient(145deg, rgba(201,168,76,0.04) 0%, var(--bg-card) 100%)'}}>
+          <div className="data-table-header" style={{borderBottom:'1px solid rgba(201,168,76,0.15)'}}>
+            <div style={{display:'flex', alignItems:'center', gap:10}}>
+              <div>
+                <h3 style={{color:'var(--accent-gold)', margin:0}}>Covered Calls — Assigned Positions</h3>
+                <span style={{fontSize:'11px', color:'var(--text-muted)'}}>You own shares on these positions — sell covered calls to generate income while holding</span>
+              </div>
+            </div>
+            <div style={{display:'flex', alignItems:'center', gap:10}}>
+              <span style={{padding:'4px 12px', borderRadius:'20px', fontSize:'12px', fontWeight:600, background:'rgba(201,168,76,0.12)', color:'var(--accent-gold)', border:'1px solid rgba(201,168,76,0.25)'}}>
+                {assignedWithRecs.length} Assigned Position{assignedWithRecs.length !== 1 ? 's' : ''}
+              </span>
+              {onSetPage && (
+                <button className="btn btn-sm btn-secondary" onClick={() => onSetPage('portfolio')} style={{fontSize:11}}>
+                  View Portfolio →
+                </button>
+              )}
+            </div>
+          </div>
+          <div style={{display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(300px, 1fr))', gap:16, padding:20}}>
+            {assignedWithRecs.map(p => {
+              const rec = p.bestConservative;
+              const unrealized = (p.currentPrice - p.costBasis) * (p.shares || p.contracts * 100);
+              const stageInfo = CoveredCallHelper.getStageInfo(p.wheelStage || 'assigned');
+              return (
+                <div key={p.id} className="cc-dashboard-card">
+                  {/* Symbol + Stage */}
+                  <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:12}}>
+                    <div style={{display:'flex', alignItems:'center', gap:8}}>
+                      <span style={{fontFamily:'var(--font-mono)', fontSize:'18px', fontWeight:700, color:'var(--accent-gold)'}}>{p.symbol}</span>
+                      <span className={`wheel-stage-badge ${stageInfo.cls}`}>{stageInfo.icon} {stageInfo.label}</span>
+                    </div>
+                    <span style={{fontFamily:'var(--font-mono)', fontSize:'13px', fontWeight:600, color: unrealized >= 0 ? 'var(--accent-green)' : 'var(--accent-red)'}}>
+                      {unrealized >= 0 ? '+' : ''}${Math.abs(unrealized).toFixed(0)}
+                    </span>
+                  </div>
+
+                  {/* Price vs Cost Basis */}
+                  <div style={{display:'flex', gap:8, marginBottom:12}}>
+                    <div style={{flex:1, background:'var(--bg-primary)', borderRadius:'var(--radius-sm)', padding:'8px 10px'}}>
+                      <div style={{fontSize:'10px', color:'var(--text-muted)', marginBottom:2}}>Price</div>
+                      <div style={{fontFamily:'var(--font-mono)', fontWeight:700, fontSize:'14px'}}>${p.currentPrice.toFixed(2)}</div>
+                    </div>
+                    <div style={{flex:1, background:'var(--bg-primary)', borderRadius:'var(--radius-sm)', padding:'8px 10px'}}>
+                      <div style={{fontSize:'10px', color:'var(--text-muted)', marginBottom:2}}>Cost Basis</div>
+                      <div style={{fontFamily:'var(--font-mono)', fontWeight:700, fontSize:'14px', color:'var(--accent-amber)'}}>${p.costBasis.toFixed(2)}</div>
+                    </div>
+                    <div style={{flex:1, background:'var(--bg-primary)', borderRadius:'var(--radius-sm)', padding:'8px 10px'}}>
+                      <div style={{fontSize:'10px', color:'var(--text-muted)', marginBottom:2}}>Shares</div>
+                      <div style={{fontFamily:'var(--font-mono)', fontWeight:700, fontSize:'14px'}}>{p.shares || p.contracts * 100}</div>
+                    </div>
+                  </div>
+
+                  {/* Best CC Recommendation */}
+                  {rec ? (
+                    <div style={{background:'rgba(201,168,76,0.06)', border:'1px solid rgba(201,168,76,0.15)', borderRadius:'var(--radius-sm)', padding:'10px 12px', marginBottom:10}}>
+                      <div style={{fontSize:'10px', color:'var(--accent-gold)', fontWeight:700, marginBottom:6, textTransform:'uppercase', letterSpacing:'0.5px'}}>Best Conservative Call</div>
+                      <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+                        <div>
+                          <span style={{fontFamily:'var(--font-mono)', fontWeight:700, fontSize:'15px'}}>${rec.strike.toFixed(2)}</span>
+                          <span style={{fontSize:'11px', color:'var(--text-muted)', marginLeft:6}}>{rec.expDate} · {rec.dte}d</span>
+                        </div>
+                        <div style={{textAlign:'right'}}>
+                          <div style={{fontFamily:'var(--font-mono)', fontWeight:700, color:'var(--accent-green)', fontSize:'14px'}}>${rec.totalPremium}</div>
+                          <div style={{fontSize:'10px', color:'var(--text-muted)'}}>{rec.annualizedYield}% ann.</div>
+                        </div>
+                      </div>
+                      <div style={{fontSize:'11px', color: rec.distFromCostBasis >= 0 ? 'var(--accent-green)' : 'var(--accent-red)', marginTop:4}}>
+                        {rec.distFromCostBasis >= 0 ? '✓' : '⚠'} Strike is {rec.distFromCostBasis >= 0 ? '+' : ''}{rec.distFromCostBasis.toFixed(1)}% {rec.distFromCostBasis >= 0 ? 'above' : 'below'} cost basis
+                      </div>
+                    </div>
+                  ) : (
+                    <div style={{fontSize:'12px', color:'var(--text-muted)', padding:'8px 0'}}>No recommendation available</div>
+                  )}
+
+                  <div style={{fontSize:'11px', color:'var(--text-muted)', textAlign:'center'}}>
+                    Go to Portfolio → Sell Covered Call for full analysis
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
@@ -3136,13 +3745,21 @@ function ScreenerPage({ stocks, user, subscriptionTier, onSelectStock, onExport 
 function PortfolioPage({ stocks }) {
   const [positions, setPositions] = useState(() => Storage.get('positions', []));
   const [showAdd, setShowAdd] = useState(false);
-  const [newPos, setNewPos] = useState({ symbol: '', strike: '', premium: '', contracts: 1, expDate: '', type: 'CSP' });
+  const [newPos, setNewPos] = useState({
+    symbol: '', strike: '', premium: '', contracts: 1, expDate: '', type: 'CSP',
+    isAssigned: false, assignedDate: new Date().toISOString().slice(0,10), shares: '', assignmentCostBasis: '',
+  });
+  const [ccPosition, setCcPosition] = useState(null);
+  const [assigningId, setAssigningId] = useState(null);
+  const [assignData, setAssignData] = useState({ assignedDate: new Date().toISOString().slice(0,10), shares: '', costBasis: '' });
 
   useEffect(() => { Storage.set('positions', positions); }, [positions]);
 
   const addPosition = () => {
     if (!newPos.symbol || !newPos.strike || !newPos.premium) return;
     const stock = stocks.find(s => s.symbol.toUpperCase() === newPos.symbol.toUpperCase());
+    const autoCB = (+newPos.strike - +newPos.premium).toFixed(2);
+    const isAssigned = newPos.isAssigned && newPos.type === 'CSP';
     setPositions(prev => [...prev, {
       id: Date.now(),
       symbol: newPos.symbol.toUpperCase(),
@@ -3151,83 +3768,107 @@ function PortfolioPage({ stocks }) {
       premium: +newPos.premium,
       contracts: +newPos.contracts || 1,
       expDate: newPos.expDate,
-      openedAt: new Date().toISOString().slice(0, 10),
+      openedAt: new Date().toISOString().slice(0,10),
       currentPrice: stock?.price || 0,
+      wheelStage: newPos.type === 'CC' ? 'selling_calls' : (isAssigned ? 'assigned' : 'selling_puts'),
+      isAssigned,
+      assignedDate: isAssigned ? newPos.assignedDate : null,
+      shares: isAssigned ? +(newPos.shares || +newPos.contracts * 100) : null,
+      assignmentCostBasis: isAssigned ? +(newPos.assignmentCostBasis || autoCB) : null,
     }]);
-    setNewPos({ symbol: '', strike: '', premium: '', contracts: 1, expDate: '', type: 'CSP' });
+    setNewPos({ symbol:'', strike:'', premium:'', contracts:1, expDate:'', type:'CSP', isAssigned:false, assignedDate:new Date().toISOString().slice(0,10), shares:'', assignmentCostBasis:'' });
     setShowAdd(false);
   };
 
   const removePosition = (id) => setPositions(prev => prev.filter(p => p.id !== id));
 
-  // Enrich positions with live data
+  const markAssigned = (id) => {
+    const pos = positions.find(p => p.id === id);
+    if (!pos) return;
+    const cb = +(assignData.costBasis || (pos.strike - pos.premium).toFixed(2));
+    setPositions(prev => prev.map(p => p.id !== id ? p : {
+      ...p, isAssigned: true, wheelStage: 'assigned',
+      assignedDate: assignData.assignedDate || new Date().toISOString().slice(0,10),
+      shares: +(assignData.shares || p.contracts * 100),
+      assignmentCostBasis: cb,
+    }));
+    setAssigningId(null);
+    setAssignData({ assignedDate: new Date().toISOString().slice(0,10), shares: '', costBasis: '' });
+  };
+
+  const markSellingCalls = (id) =>
+    setPositions(prev => prev.map(p => p.id !== id ? p : { ...p, wheelStage: 'selling_calls' }));
+
+  const markCalledAway = (id) =>
+    setPositions(prev => prev.map(p => p.id !== id ? p : {
+      ...p, wheelStage: 'called_away', calledAwayDate: new Date().toISOString().slice(0,10),
+    }));
+
+  // Enrich positions with live data + wheel-stage derived fields
   const enriched = positions.map(p => {
     const stock = stocks.find(s => s.symbol === p.symbol);
-    const currentPrice = stock?.price || p.currentPrice;
+    const currentPrice = stock?.price || p.currentPrice || 0;
     const cashLocked = p.strike * 100 * p.contracts;
     const premiumCollected = p.premium * 100 * p.contracts;
     const maxLoss = (p.strike - p.premium) * 100 * p.contracts;
-    const isITM = currentPrice < p.strike;
+    const isITM = p.type === 'CSP' ? currentPrice < p.strike : currentPrice > p.strike;
     const daysLeft = p.expDate ? Math.max(0, Math.ceil((new Date(p.expDate) - new Date()) / 86400000)) : null;
-    const costBasis = p.strike - p.premium; // What you'd own the stock at if assigned
-    return { ...p, currentPrice, cashLocked, premiumCollected, maxLoss, isITM, daysLeft, costBasis, stock };
+    const costBasis = p.assignmentCostBasis || (p.strike - p.premium);
+    const wheelStage = p.wheelStage || (p.type === 'CC' ? 'selling_calls' : 'selling_puts');
+    const isAssigned = p.isAssigned || wheelStage === 'assigned' || wheelStage === 'selling_calls' || wheelStage === 'called_away';
+    const shares = p.shares || p.contracts * 100;
+    const unrealized = isAssigned ? (currentPrice - costBasis) * shares : null;
+    return { ...p, currentPrice, cashLocked, premiumCollected, maxLoss, isITM, daysLeft, costBasis, stock, wheelStage, isAssigned, shares, unrealized };
   });
 
-  // Portfolio-level aggregates
-  const totalCashLocked = enriched.reduce((s, p) => s + p.cashLocked, 0);
+  const totalCashLocked = enriched.filter(p => !p.isAssigned).reduce((s, p) => s + p.cashLocked, 0);
   const totalPremium = enriched.reduce((s, p) => s + p.premiumCollected, 0);
-  const totalMaxLoss = enriched.reduce((s, p) => s + p.maxLoss, 0);
-  const itmCount = enriched.filter(p => p.isITM).length;
+  const itmCount = enriched.filter(p => p.isITM && p.wheelStage === 'selling_puts').length;
+  const assignedCount = enriched.filter(p => p.isAssigned && p.wheelStage !== 'called_away').length;
+  const cycleCount = enriched.filter(p => p.wheelStage === 'called_away').length;
 
-  // DCA: weighted average cost basis per symbol across all positions
-  const dcaBySymbol = {};
-  enriched.forEach(p => {
-    if (!dcaBySymbol[p.symbol]) dcaBySymbol[p.symbol] = { weighted: 0, contracts: 0, count: 0 };
-    dcaBySymbol[p.symbol].weighted += p.costBasis * p.contracts;
-    dcaBySymbol[p.symbol].contracts += p.contracts;
-    dcaBySymbol[p.symbol].count += 1;
-  });
-  Object.values(dcaBySymbol).forEach(d => { d.avg = d.weighted / d.contracts; });
-
-  // Sector concentration
   const sectorMap = {};
-  enriched.forEach(p => {
-    const sector = p.stock?.sector || 'Unknown';
-    sectorMap[sector] = (sectorMap[sector] || 0) + p.cashLocked;
+  enriched.filter(p => !p.isAssigned).forEach(p => {
+    const sec = p.stock?.sector || 'Unknown';
+    sectorMap[sec] = (sectorMap[sec] || 0) + p.cashLocked;
   });
   const sectors = Object.entries(sectorMap).sort((a, b) => b[1] - a[1]);
 
+  const iStyle = { background:'var(--bg-primary)', border:'1px solid var(--border)', borderRadius:'var(--radius-sm)', padding:'6px 10px', color:'var(--text-primary)', fontFamily:'var(--font-mono)', fontSize:'13px' };
+
   return (
     <div>
-      {/* Summary Cards */}
+      {/* ── Summary ── */}
       <div className="stats-grid">
         <div className="stat-card" style={{borderLeft:'3px solid var(--accent-blue)'}}>
           <div className="stat-label">Open Positions</div>
-          <div className="stat-value">{enriched.length}</div>
+          <div className="stat-value">{enriched.filter(p => p.wheelStage !== 'called_away').length}</div>
           <div className="stat-change" style={{color: itmCount > 0 ? 'var(--accent-red)' : 'var(--accent-green)', background: itmCount > 0 ? 'rgba(239,68,68,0.1)' : 'rgba(16,185,129,0.1)'}}>
             {itmCount > 0 ? `${itmCount} ITM ⚠` : 'All OTM ✓'}
           </div>
         </div>
-        <div className="stat-card">
-          <div className="stat-label">Total Cash Locked</div>
-          <div className="stat-value" style={{color:'var(--accent-amber)'}}>${totalCashLocked.toLocaleString()}</div>
-          <div className="stat-change" style={{color:'var(--text-muted)', background:'none'}}>Across {enriched.length} positions</div>
+        <div className="stat-card" style={{borderLeft:'3px solid var(--accent-amber)'}}>
+          <div className="stat-label">Assigned (Own Shares)</div>
+          <div className="stat-value" style={{color:'var(--accent-amber)'}}>{assignedCount}</div>
+          <div className="stat-change" style={{color: assignedCount > 0 ? 'var(--accent-gold)' : 'var(--text-muted)', background:'none'}}>
+            {assignedCount > 0 ? 'Sell covered calls →' : 'No active assignments'}
+          </div>
         </div>
-        <div className="stat-card">
+        <div className="stat-card" style={{borderLeft:'3px solid var(--accent-green)'}}>
           <div className="stat-label">Premium Collected</div>
           <div className="stat-value" style={{color:'var(--accent-green)'}}>${totalPremium.toLocaleString()}</div>
           <div className="stat-change positive">
-            {totalCashLocked > 0 ? ((totalPremium / totalCashLocked) * 100).toFixed(2) : 0}% return on capital
+            {totalCashLocked > 0 ? ((totalPremium / totalCashLocked) * 100).toFixed(2) : '—'}% ROC
           </div>
         </div>
-        <div className="stat-card">
-          <div className="stat-label">Total Max Loss</div>
-          <div className="stat-value" style={{color:'var(--accent-red)'}}>${totalMaxLoss.toLocaleString()}</div>
-          <div className="stat-change" style={{color:'var(--text-muted)', background:'none'}}>Worst-case if all assigned at $0</div>
+        <div className="stat-card" style={{borderLeft:'3px solid var(--accent-green)'}}>
+          <div className="stat-label">Completed Cycles</div>
+          <div className="stat-value" style={{color:'var(--accent-green)'}}>{cycleCount}</div>
+          <div className="stat-change" style={{color:'var(--text-muted)', background:'none'}}>Full wheel cycles completed</div>
         </div>
       </div>
 
-      {/* Sector Concentration */}
+      {/* ── Sector Concentration ── */}
       {sectors.length > 0 && (
         <div className="data-table-container" style={{marginBottom:24}}>
           <div className="data-table-header">
@@ -3237,18 +3878,18 @@ function PortfolioPage({ stocks }) {
           <div style={{padding:'16px 20px', display:'flex', flexWrap:'wrap', gap:'12px'}}>
             {sectors.map(([sector, amount]) => {
               const pct = totalCashLocked > 0 ? (amount / totalCashLocked * 100) : 0;
-              const isOverweight = pct > 40;
+              const heavy = pct > 40;
               return (
-                <div key={sector} style={{background:'var(--bg-elevated)', borderRadius:'var(--radius-md)', padding:'12px 16px', minWidth:180, border: isOverweight ? '1px solid rgba(239,68,68,0.3)' : '1px solid var(--border)'}}>
+                <div key={sector} style={{background:'var(--bg-elevated)', borderRadius:'var(--radius-md)', padding:'12px 16px', minWidth:180, border: heavy ? '1px solid rgba(239,68,68,0.3)' : '1px solid var(--border)'}}>
                   <div style={{fontSize:'12px', color:'var(--text-muted)', marginBottom:4}}>{sector}</div>
                   <div style={{display:'flex', alignItems:'baseline', gap:8}}>
                     <span style={{fontFamily:'var(--font-mono)', fontWeight:700, fontSize:'16px'}}>${amount.toLocaleString()}</span>
-                    <span style={{fontFamily:'var(--font-mono)', fontSize:'12px', color: isOverweight ? 'var(--accent-red)' : 'var(--accent-green)'}}>
-                      {pct.toFixed(0)}% {isOverweight ? '⚠ Heavy' : ''}
+                    <span style={{fontFamily:'var(--font-mono)', fontSize:'12px', color: heavy ? 'var(--accent-red)' : 'var(--accent-green)'}}>
+                      {pct.toFixed(0)}% {heavy ? '⚠ Heavy' : ''}
                     </span>
                   </div>
                   <div style={{width:'100%', height:4, background:'var(--bg-primary)', borderRadius:2, marginTop:8, overflow:'hidden'}}>
-                    <div style={{width:`${Math.min(pct, 100)}%`, height:'100%', background: isOverweight ? 'var(--accent-red)' : 'var(--accent-blue)', borderRadius:2}}></div>
+                    <div style={{width:`${Math.min(pct,100)}%`, height:'100%', background: heavy ? 'var(--accent-red)' : 'var(--accent-blue)', borderRadius:2}}></div>
                   </div>
                 </div>
               );
@@ -3257,59 +3898,79 @@ function PortfolioPage({ stocks }) {
         </div>
       )}
 
-      {/* Positions Table */}
+      {/* ── Positions Table ── */}
       <div className="data-table-container">
         <div className="data-table-header">
-          <h3>Open Positions</h3>
-          <button className="btn btn-sm btn-primary" onClick={() => setShowAdd(true)}>+ Add Position</button>
+          <h3>Wheel Positions</h3>
+          <button className="btn btn-sm btn-primary" onClick={() => setShowAdd(v => !v)}>+ Add Position</button>
         </div>
 
         {/* Add Position Form */}
         {showAdd && (
-          <div style={{padding:'16px 20px', background:'var(--bg-elevated)', borderBottom:'1px solid var(--border)', display:'flex', flexWrap:'wrap', gap:'10px', alignItems:'flex-end'}}>
-            <div>
-              <div style={{fontSize:'11px', color:'var(--text-muted)', marginBottom:4}}>Symbol</div>
-              <input style={{background:'var(--bg-primary)', border:'1px solid var(--border)', borderRadius:'var(--radius-sm)', padding:'6px 10px', color:'var(--text-primary)', fontFamily:'var(--font-mono)', width:80, fontSize:'13px'}}
-                value={newPos.symbol} onChange={e => setNewPos(p => ({...p, symbol: e.target.value.toUpperCase()}))} placeholder="AAPL" />
+          <div style={{padding:'20px', background:'var(--bg-elevated)', borderBottom:'1px solid var(--border)'}}>
+            <div style={{display:'flex', flexWrap:'wrap', gap:'10px', alignItems:'flex-end'}}>
+              <div>
+                <div style={{fontSize:'11px', color:'var(--text-muted)', marginBottom:4}}>Symbol</div>
+                <input style={{...iStyle, width:82}} value={newPos.symbol} onChange={e => setNewPos(p => ({...p, symbol:e.target.value.toUpperCase()}))} placeholder="AAPL" />
+              </div>
+              <div>
+                <div style={{fontSize:'11px', color:'var(--text-muted)', marginBottom:4}}>Type</div>
+                <select style={{...iStyle}} value={newPos.type} onChange={e => setNewPos(p => ({...p, type:e.target.value, isAssigned:false}))}>
+                  <option value="CSP">Cash-Secured Put</option>
+                  <option value="CC">Covered Call</option>
+                </select>
+              </div>
+              <div>
+                <div style={{fontSize:'11px', color:'var(--text-muted)', marginBottom:4}}>Strike $</div>
+                <input type="number" style={{...iStyle, width:90}} value={newPos.strike} onChange={e => setNewPos(p => ({...p, strike:e.target.value}))} placeholder="150.00" />
+              </div>
+              <div>
+                <div style={{fontSize:'11px', color:'var(--text-muted)', marginBottom:4}}>Premium $</div>
+                <input type="number" style={{...iStyle, width:80}} value={newPos.premium} onChange={e => setNewPos(p => ({...p, premium:e.target.value}))} placeholder="2.50" />
+              </div>
+              <div>
+                <div style={{fontSize:'11px', color:'var(--text-muted)', marginBottom:4}}>Contracts</div>
+                <input type="number" style={{...iStyle, width:64}} value={newPos.contracts} onChange={e => setNewPos(p => ({...p, contracts:e.target.value}))} min="1" />
+              </div>
+              <div>
+                <div style={{fontSize:'11px', color:'var(--text-muted)', marginBottom:4}}>Exp Date</div>
+                <input type="date" style={{...iStyle}} value={newPos.expDate} onChange={e => setNewPos(p => ({...p, expDate:e.target.value}))} />
+              </div>
+              {newPos.type === 'CSP' && (
+                <label style={{display:'flex', alignItems:'center', gap:6, paddingBottom:2, cursor:'pointer'}}>
+                  <input type="checkbox" checked={newPos.isAssigned} onChange={e => setNewPos(p => ({...p, isAssigned:e.target.checked}))} style={{accentColor:'var(--accent-gold)', cursor:'pointer'}} />
+                  <span style={{fontSize:'12px', color:'var(--accent-amber)', fontWeight:600}}>Mark as Assigned</span>
+                </label>
+              )}
+              <button className="btn btn-sm btn-primary" onClick={addPosition}>Save</button>
+              <button className="btn btn-sm btn-secondary" onClick={() => setShowAdd(false)}>Cancel</button>
             </div>
-            <div>
-              <div style={{fontSize:'11px', color:'var(--text-muted)', marginBottom:4}}>Type</div>
-              <select style={{background:'var(--bg-primary)', border:'1px solid var(--border)', borderRadius:'var(--radius-sm)', padding:'6px 10px', color:'var(--text-primary)', fontSize:'13px'}}
-                value={newPos.type} onChange={e => setNewPos(p => ({...p, type: e.target.value}))}>
-                <option value="CSP">Cash-Secured Put</option>
-                <option value="CC">Covered Call</option>
-              </select>
-            </div>
-            <div>
-              <div style={{fontSize:'11px', color:'var(--text-muted)', marginBottom:4}}>Strike $</div>
-              <input type="number" style={{background:'var(--bg-primary)', border:'1px solid var(--border)', borderRadius:'var(--radius-sm)', padding:'6px 10px', color:'var(--text-primary)', fontFamily:'var(--font-mono)', width:90, fontSize:'13px'}}
-                value={newPos.strike} onChange={e => setNewPos(p => ({...p, strike: e.target.value}))} placeholder="150.00" />
-            </div>
-            <div>
-              <div style={{fontSize:'11px', color:'var(--text-muted)', marginBottom:4}}>Premium $</div>
-              <input type="number" style={{background:'var(--bg-primary)', border:'1px solid var(--border)', borderRadius:'var(--radius-sm)', padding:'6px 10px', color:'var(--text-primary)', fontFamily:'var(--font-mono)', width:80, fontSize:'13px'}}
-                value={newPos.premium} onChange={e => setNewPos(p => ({...p, premium: e.target.value}))} placeholder="2.50" />
-            </div>
-            <div>
-              <div style={{fontSize:'11px', color:'var(--text-muted)', marginBottom:4}}>Contracts</div>
-              <input type="number" style={{background:'var(--bg-primary)', border:'1px solid var(--border)', borderRadius:'var(--radius-sm)', padding:'6px 10px', color:'var(--text-primary)', fontFamily:'var(--font-mono)', width:60, fontSize:'13px'}}
-                value={newPos.contracts} onChange={e => setNewPos(p => ({...p, contracts: e.target.value}))} min="1" />
-            </div>
-            <div>
-              <div style={{fontSize:'11px', color:'var(--text-muted)', marginBottom:4}}>Exp Date</div>
-              <input type="date" style={{background:'var(--bg-primary)', border:'1px solid var(--border)', borderRadius:'var(--radius-sm)', padding:'6px 10px', color:'var(--text-primary)', fontSize:'13px'}}
-                value={newPos.expDate} onChange={e => setNewPos(p => ({...p, expDate: e.target.value}))} />
-            </div>
-            <button className="btn btn-sm btn-primary" onClick={addPosition}>Save</button>
-            <button className="btn btn-sm btn-secondary" onClick={() => setShowAdd(false)}>Cancel</button>
+            {/* Assignment sub-fields */}
+            {newPos.isAssigned && newPos.type === 'CSP' && (
+              <div style={{display:'flex', flexWrap:'wrap', gap:10, marginTop:12, padding:'14px 16px', background:'rgba(212,168,67,0.07)', borderRadius:'var(--radius-md)', border:'1px solid rgba(212,168,67,0.22)'}}>
+                <div style={{fontSize:'12px', color:'var(--accent-amber)', fontWeight:700, width:'100%', marginBottom:2}}>Assignment Details</div>
+                <div>
+                  <div style={{fontSize:'11px', color:'var(--text-muted)', marginBottom:4}}>Assignment Date</div>
+                  <input type="date" style={{...iStyle}} value={newPos.assignedDate} onChange={e => setNewPos(p => ({...p, assignedDate:e.target.value}))} />
+                </div>
+                <div>
+                  <div style={{fontSize:'11px', color:'var(--text-muted)', marginBottom:4}}>Shares</div>
+                  <input type="number" style={{...iStyle, width:90}} placeholder={newPos.contracts * 100} value={newPos.shares} onChange={e => setNewPos(p => ({...p, shares:e.target.value}))} />
+                </div>
+                <div>
+                  <div style={{fontSize:'11px', color:'var(--text-muted)', marginBottom:4}}>Cost Basis $/sh <span style={{color:'var(--accent-gold)'}}>↳ auto: ${(+newPos.strike - +newPos.premium || 0).toFixed(2)}</span></div>
+                  <input type="number" style={{...iStyle, width:110}} placeholder={(+newPos.strike - +newPos.premium || 0).toFixed(2)} value={newPos.assignmentCostBasis} onChange={e => setNewPos(p => ({...p, assignmentCostBasis:e.target.value}))} />
+                </div>
+              </div>
+            )}
           </div>
         )}
 
         {enriched.length === 0 ? (
-          <div style={{padding:'40px 20px', textAlign:'center', color:'var(--text-muted)'}}>
-            <div style={{fontSize:'16px', marginBottom:12, color:'var(--text-muted)'}}>No data yet</div>
-            <p>No positions tracked yet. Click <strong>+ Add Position</strong> to start tracking your wheel trades.</p>
-            <p style={{fontSize:'12px', marginTop:8}}>Your positions are saved locally and auto-update with live prices.</p>
+          <div style={{padding:'48px 20px', textAlign:'center', color:'var(--text-muted)'}}>
+            <div style={{fontSize:'16px', marginBottom:12}}>No positions yet</div>
+            <p>Click <strong>+ Add Position</strong> to start tracking your wheel trades.</p>
+            <p style={{fontSize:'12px', marginTop:8}}>Positions save locally and sync with live prices.</p>
           </div>
         ) : (
           <div className="table-scroll">
@@ -3317,62 +3978,206 @@ function PortfolioPage({ stocks }) {
               <thead>
                 <tr>
                   <th>Symbol</th>
+                  <th>Wheel Stage</th>
                   <th>Type</th>
-                  <th>Current Price</th>
+                  <th>Price</th>
                   <th>Strike</th>
                   <th>Status</th>
                   <th>Cost Basis (DCA)</th>
                   <th>Premium</th>
-                  <th>Cash Locked</th>
-                  <th>Max Loss</th>
+                  <th>Cash / Shares</th>
+                  <th>Share P/L</th>
                   <th>Days Left</th>
                   <th>Opened</th>
+                  <th>Actions</th>
                   <th></th>
                 </tr>
               </thead>
               <tbody>
-                {enriched.map(p => (
-                  <tr key={p.id} style={{borderLeft: p.isITM ? '3px solid var(--accent-red)' : '3px solid var(--accent-green)'}}>
-                    <td><span className="ticker">{p.symbol}</span></td>
-                    <td><span style={{fontSize:'11px', padding:'2px 8px', borderRadius:'10px', background: p.type === 'CSP' ? 'rgba(59,130,246,0.1)' : 'rgba(139,92,246,0.1)', color: p.type === 'CSP' ? 'var(--accent-blue)' : 'var(--accent-purple)'}}>{p.type === 'CSP' ? 'Put' : 'Call'}</span></td>
-                    <td style={{fontFamily:'var(--font-mono)', fontWeight:600}}>${p.currentPrice.toFixed(2)}</td>
-                    <td style={{fontFamily:'var(--font-mono)'}}>${p.strike.toFixed(2)}</td>
-                    <td>
-                      <span style={{fontSize:'11px', padding:'2px 8px', borderRadius:'10px', fontWeight:600,
-                        background: p.isITM ? 'rgba(239,68,68,0.15)' : 'rgba(16,185,129,0.15)',
-                        color: p.isITM ? 'var(--accent-red)' : 'var(--accent-green)'}}>
-                        {p.isITM ? '⚠ ITM' : '✓ OTM'}
-                      </span>
-                    </td>
-                    <td style={{fontFamily:'var(--font-mono)', fontSize:'12px'}}>
-                      ${p.costBasis.toFixed(2)}/share
-                      {dcaBySymbol[p.symbol]?.count > 1 && (
-                        <div style={{fontSize:'10px', color:'var(--accent-amber)', marginTop:2}}>
-                          DCA: ${dcaBySymbol[p.symbol].avg.toFixed(2)}
-                        </div>
+                {enriched.map(p => {
+                  const si = CoveredCallHelper.getStageInfo(p.wheelStage);
+                  const isCalledAway = p.wheelStage === 'called_away';
+                  const isAssigning = assigningId === p.id;
+                  const borderColor = isCalledAway ? 'var(--accent-green)' : p.isAssigned ? 'var(--accent-amber)' : p.isITM ? 'var(--accent-red)' : 'var(--accent-green)';
+                  return (
+                    <React.Fragment key={p.id}>
+                      <tr style={{borderLeft:`3px solid ${borderColor}`, opacity: isCalledAway ? 0.75 : 1}}>
+
+                        <td>
+                          <span className="ticker">{p.symbol}</span>
+                          {p.assignedDate && <div style={{fontSize:'10px', color:'var(--text-muted)', marginTop:1}}>assigned {p.assignedDate}</div>}
+                        </td>
+
+                        <td><span className={`wheel-stage-badge ${si.cls}`}>{si.icon} {si.label}</span></td>
+
+                        <td>
+                          <span style={{fontSize:'11px', padding:'2px 8px', borderRadius:'10px',
+                            background: p.type==='CSP' ? 'rgba(59,130,246,0.1)' : 'rgba(139,92,246,0.1)',
+                            color: p.type==='CSP' ? 'var(--accent-blue)' : 'var(--accent-purple)'}}>
+                            {p.type==='CSP' ? 'Put' : 'Call'}
+                          </span>
+                        </td>
+
+                        <td style={{fontFamily:'var(--font-mono)', fontWeight:600}}>${p.currentPrice.toFixed(2)}</td>
+                        <td style={{fontFamily:'var(--font-mono)'}}>${p.strike.toFixed(2)}</td>
+
+                        <td>
+                          {isCalledAway ? (
+                            <span style={{fontSize:'11px', padding:'2px 8px', borderRadius:'10px', fontWeight:600, background:'rgba(34,197,94,0.12)', color:'var(--accent-green)'}}>✓ Called Away</span>
+                          ) : p.isAssigned ? (
+                            <span style={{fontSize:'11px', padding:'2px 8px', borderRadius:'10px', fontWeight:600, background:'rgba(212,168,67,0.12)', color:'var(--accent-amber)'}}>⬛ Shares Owned</span>
+                          ) : (
+                            <span style={{fontSize:'11px', padding:'2px 8px', borderRadius:'10px', fontWeight:600,
+                              background: p.isITM ? 'rgba(239,68,68,0.15)' : 'rgba(16,185,129,0.15)',
+                              color: p.isITM ? 'var(--accent-red)' : 'var(--accent-green)'}}>
+                              {p.isITM ? '⚠ ITM' : '✓ OTM'}
+                            </span>
+                          )}
+                        </td>
+
+                        <td style={{fontFamily:'var(--font-mono)', fontSize:'12px'}}>
+                          ${p.costBasis.toFixed(2)}/sh
+                          {p.isAssigned && (
+                            <div style={{fontSize:'10px', color: p.currentPrice >= p.costBasis ? 'var(--accent-green)' : 'var(--accent-red)'}}>
+                              {p.currentPrice >= p.costBasis ? '+' : ''}{(((p.currentPrice - p.costBasis) / p.costBasis) * 100).toFixed(1)}%
+                            </div>
+                          )}
+                        </td>
+
+                        <td style={{fontFamily:'var(--font-mono)', color:'var(--accent-green)'}}>
+                          ${p.premiumCollected.toLocaleString()}
+                          <span style={{fontSize:'10px', color:'var(--text-muted)'}}> ({p.contracts}×)</span>
+                        </td>
+
+                        <td style={{fontFamily:'var(--font-mono)', fontSize:'12px'}}>
+                          {p.isAssigned
+                            ? <span style={{color:'var(--accent-amber)'}}>{p.shares} sh</span>
+                            : <span>${p.cashLocked.toLocaleString()}</span>}
+                        </td>
+
+                        <td style={{fontFamily:'var(--font-mono)', fontSize:'12px'}}>
+                          {p.unrealized !== null ? (
+                            <span style={{color: p.unrealized >= 0 ? 'var(--accent-green)' : 'var(--accent-red)', fontWeight:600}}>
+                              {p.unrealized >= 0 ? '+' : ''}${Math.abs(p.unrealized).toFixed(0)}
+                            </span>
+                          ) : <span style={{color:'var(--text-muted)'}}>—</span>}
+                        </td>
+
+                        <td>
+                          {p.daysLeft !== null
+                            ? <span style={{fontFamily:'var(--font-mono)', fontWeight:600, color: p.daysLeft <= 3 ? 'var(--accent-amber)' : 'var(--text-secondary)'}}>{p.daysLeft}d</span>
+                            : '—'}
+                        </td>
+
+                        <td style={{fontFamily:'var(--font-mono)', fontSize:'11px', color:'var(--text-muted)'}}>{p.openedAt}</td>
+
+                        {/* Actions */}
+                        <td>
+                          <div style={{display:'flex', gap:5, flexWrap:'nowrap'}}>
+                            {/* Mark Assigned — CSP positions not yet assigned */}
+                            {p.type === 'CSP' && !p.isAssigned && !isCalledAway && (
+                              <button
+                                className="btn btn-sm btn-secondary"
+                                style={{fontSize:'10px', padding:'3px 8px', borderColor:'rgba(212,168,67,0.3)', color:'var(--accent-amber)', whiteSpace:'nowrap'}}
+                                onClick={() => {
+                                  setAssigningId(p.id);
+                                  setAssignData({ assignedDate: new Date().toISOString().slice(0,10), shares: p.contracts * 100, costBasis: (p.strike - p.premium).toFixed(2) });
+                                }}>
+                                Mark Assigned
+                              </button>
+                            )}
+                            {/* Sell Covered Call — gold button on assigned positions */}
+                            {p.isAssigned && !isCalledAway && (
+                              <button
+                                className="btn btn-sm btn-gold"
+                                style={{fontSize:'10px', padding:'3px 10px', whiteSpace:'nowrap'}}
+                                onClick={() => setCcPosition(p)}>
+                                Sell Covered Call
+                              </button>
+                            )}
+                            {/* Mark Called Away — on selling_calls positions */}
+                            {p.wheelStage === 'selling_calls' && (
+                              <button
+                                className="btn btn-sm btn-secondary"
+                                style={{fontSize:'10px', padding:'3px 8px', borderColor:'rgba(34,197,94,0.3)', color:'var(--accent-green)', whiteSpace:'nowrap'}}
+                                onClick={() => markCalledAway(p.id)}>
+                                Called Away
+                              </button>
+                            )}
+                          </div>
+                        </td>
+
+                        <td>
+                          <button onClick={() => removePosition(p.id)}
+                            style={{background:'none', border:'none', cursor:'pointer', color:'var(--accent-red)', fontSize:'14px', padding:'4px'}} title="Remove">✕</button>
+                        </td>
+                      </tr>
+
+                      {/* ── Inline assign form ── */}
+                      {isAssigning && (
+                        <tr>
+                          <td colSpan={14} style={{padding:0}}>
+                            <div style={{padding:'14px 20px', background:'rgba(212,168,67,0.06)', borderBottom:'1px solid rgba(212,168,67,0.2)', display:'flex', flexWrap:'wrap', gap:10, alignItems:'flex-end'}}>
+                              <div style={{fontSize:'12px', color:'var(--accent-amber)', fontWeight:700, width:'100%', marginBottom:2}}>
+                                ⬛ Mark {p.symbol} as Assigned — Confirm Details
+                              </div>
+                              <div>
+                                <div style={{fontSize:'11px', color:'var(--text-muted)', marginBottom:4}}>Assignment Date</div>
+                                <input type="date" style={{...iStyle}} value={assignData.assignedDate} onChange={e => setAssignData(d => ({...d, assignedDate:e.target.value}))} />
+                              </div>
+                              <div>
+                                <div style={{fontSize:'11px', color:'var(--text-muted)', marginBottom:4}}>Shares</div>
+                                <input type="number" style={{...iStyle, width:90}} value={assignData.shares} onChange={e => setAssignData(d => ({...d, shares:e.target.value}))} placeholder={p.contracts * 100} />
+                              </div>
+                              <div>
+                                <div style={{fontSize:'11px', color:'var(--text-muted)', marginBottom:4}}>
+                                  Cost Basis $/sh <span style={{color:'var(--accent-gold)'}}>↳ ${(p.strike - p.premium).toFixed(2)} auto</span>
+                                </div>
+                                <input type="number" style={{...iStyle, width:110}} value={assignData.costBasis} onChange={e => setAssignData(d => ({...d, costBasis:e.target.value}))} placeholder={(p.strike - p.premium).toFixed(2)} />
+                              </div>
+                              <button className="btn btn-sm btn-gold" onClick={() => markAssigned(p.id)} style={{fontSize:'11px'}}>Confirm Assignment</button>
+                              <button className="btn btn-sm btn-secondary" onClick={() => setAssigningId(null)} style={{fontSize:'11px'}}>Cancel</button>
+                            </div>
+                          </td>
+                        </tr>
                       )}
-                    </td>
-                    <td style={{fontFamily:'var(--font-mono)', color:'var(--accent-green)'}}>${p.premiumCollected.toLocaleString()}<span style={{fontSize:'10px', color:'var(--text-muted)'}}> ({p.contracts}x)</span></td>
-                    <td style={{fontFamily:'var(--font-mono)', fontSize:'12px'}}>${p.cashLocked.toLocaleString()}</td>
-                    <td style={{fontFamily:'var(--font-mono)', fontSize:'12px', color:'var(--accent-red)'}}>${p.maxLoss.toLocaleString()}</td>
-                    <td>
-                      {p.daysLeft !== null ? (
-                        <span style={{fontFamily:'var(--font-mono)', fontWeight:600, color: p.daysLeft <= 3 ? 'var(--accent-amber)' : 'var(--text-secondary)'}}>
-                          {p.daysLeft}d
-                        </span>
-                      ) : '—'}
-                    </td>
-                    <td style={{fontFamily:'var(--font-mono)', fontSize:'11px', color:'var(--text-muted)'}}>{p.openedAt}</td>
-                    <td>
-                      <button onClick={() => removePosition(p.id)} style={{background:'none', border:'none', cursor:'pointer', color:'var(--accent-red)', fontSize:'14px', padding:'4px'}} title="Remove position">✕</button>
-                    </td>
-                  </tr>
-                ))}
+
+                      {/* ── Called Away P&L row ── */}
+                      {isCalledAway && (
+                        <tr>
+                          <td colSpan={14} style={{padding:0}}>
+                            <div style={{padding:'10px 20px', background:'rgba(34,197,94,0.04)', borderBottom:'1px solid rgba(34,197,94,0.12)', fontSize:'12px', color:'var(--text-secondary)', display:'flex', gap:20, flexWrap:'wrap', alignItems:'center'}}>
+                              <span style={{color:'var(--accent-green)', fontWeight:700, fontSize:'13px'}}>✓ Wheel Cycle Complete</span>
+                              <span>Called away at <strong>${p.strike.toFixed(2)}</strong> · cost basis <strong>${p.costBasis.toFixed(2)}</strong>/sh</span>
+                              <span>Capital {(p.strike - p.costBasis) >= 0 ? 'gain' : 'loss'}: <strong style={{color:(p.strike - p.costBasis) >= 0 ? 'var(--accent-green)' : 'var(--accent-red)'}}>
+                                {(p.strike - p.costBasis) >= 0 ? '+' : ''}${((p.strike - p.costBasis) * p.shares).toFixed(0)}
+                              </strong></span>
+                              <span>Premium earned: <strong style={{color:'var(--accent-green)'}}>+${p.premiumCollected.toLocaleString()}</strong></span>
+                              <span>Total: <strong style={{color:'var(--accent-gold)', fontSize:'14px'}}>
+                                +${(((p.strike - p.costBasis) * p.shares) + p.premiumCollected).toFixed(0)}
+                              </strong></span>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
+                  );
+                })}
               </tbody>
             </table>
           </div>
         )}
       </div>
+
+      {/* ── Covered Call Modal ── */}
+      {ccPosition && (
+        <CoveredCallModal
+          position={ccPosition}
+          stock={stocks.find(s => s.symbol === ccPosition.symbol)}
+          onClose={() => setCcPosition(null)}
+          onMarkSelling={() => { markSellingCalls(ccPosition.id); setCcPosition(null); }}
+        />
+      )}
     </div>
   );
 }
@@ -4829,7 +5634,7 @@ function App() {
 
   // Logged in - show dashboard
   const pages = {
-    dashboard: { title: 'Dashboard', icon: Icons.dashboard, component: <DashboardPage stocks={stocks} watchlist={watchlist} toggleWatchlist={toggleWatchlist} onSelectStock={setSelectedStock} /> },
+    dashboard: { title: 'Dashboard', icon: Icons.dashboard, component: <DashboardPage stocks={stocks} watchlist={watchlist} toggleWatchlist={toggleWatchlist} onSelectStock={setSelectedStock} onSetPage={setPage} /> },
     screener: { title: 'Screener', icon: Icons.screener, component: <ScreenerPage stocks={stocks} user={user} subscriptionTier={subscriptionTier} onSelectStock={setSelectedStock} onExport={(s) => exportCSV(s, `wheelpro-screener-${new Date().toISOString().slice(0,10)}.csv`)} /> },
     portfolio: { title: 'Portfolio', icon: Icons.portfolio, component: <PortfolioPage stocks={stocks} /> },
     journal: { title: 'Trade Journal', icon: Icons.journal, component: <TradeJournalPage user={user} subscriptionTier={subscriptionTier} /> },
