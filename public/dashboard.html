@@ -3003,7 +3003,7 @@ function ScreenerPage({ stocks, user, subscriptionTier, onSelectStock, onExport 
             </thead>
             <tbody>
               {filteredStocks.map((stock, i) => (
-                <tr key={stock.symbol}>
+                <tr key={stock.symbol} style={{cursor:'pointer'}} onClick={() => onSelectStock && onSelectStock(stock)}>
                   <td><span className="ticker">{stock.symbol}</span></td>
                   <td style={{fontSize:'12px', color:'var(--text-secondary)', maxWidth:140, overflow:'hidden', textOverflow:'ellipsis'}}>{stock.name}</td>
                   <td>
@@ -3109,6 +3109,16 @@ function PortfolioPage({ stocks }) {
   const totalPremium = enriched.reduce((s, p) => s + p.premiumCollected, 0);
   const totalMaxLoss = enriched.reduce((s, p) => s + p.maxLoss, 0);
   const itmCount = enriched.filter(p => p.isITM).length;
+
+  // DCA: weighted average cost basis per symbol across all positions
+  const dcaBySymbol = {};
+  enriched.forEach(p => {
+    if (!dcaBySymbol[p.symbol]) dcaBySymbol[p.symbol] = { weighted: 0, contracts: 0, count: 0 };
+    dcaBySymbol[p.symbol].weighted += p.costBasis * p.contracts;
+    dcaBySymbol[p.symbol].contracts += p.contracts;
+    dcaBySymbol[p.symbol].count += 1;
+  });
+  Object.values(dcaBySymbol).forEach(d => { d.avg = d.weighted / d.contracts; });
 
   // Sector concentration
   const sectorMap = {};
@@ -3242,7 +3252,7 @@ function PortfolioPage({ stocks }) {
                   <th>Current Price</th>
                   <th>Strike</th>
                   <th>Status</th>
-                  <th>Cost Basis</th>
+                  <th>Cost Basis (DCA)</th>
                   <th>Premium</th>
                   <th>Cash Locked</th>
                   <th>Max Loss</th>
@@ -3265,7 +3275,14 @@ function PortfolioPage({ stocks }) {
                         {p.isITM ? '⚠ ITM' : '✓ OTM'}
                       </span>
                     </td>
-                    <td style={{fontFamily:'var(--font-mono)', fontSize:'12px'}}>${p.costBasis.toFixed(2)}/share</td>
+                    <td style={{fontFamily:'var(--font-mono)', fontSize:'12px'}}>
+                      ${p.costBasis.toFixed(2)}/share
+                      {dcaBySymbol[p.symbol]?.count > 1 && (
+                        <div style={{fontSize:'10px', color:'var(--accent-amber)', marginTop:2}}>
+                          DCA: ${dcaBySymbol[p.symbol].avg.toFixed(2)}
+                        </div>
+                      )}
+                    </td>
                     <td style={{fontFamily:'var(--font-mono)', color:'var(--accent-green)'}}>${p.premiumCollected.toLocaleString()}<span style={{fontSize:'10px', color:'var(--text-muted)'}}> ({p.contracts}x)</span></td>
                     <td style={{fontFamily:'var(--font-mono)', fontSize:'12px'}}>${p.cashLocked.toLocaleString()}</td>
                     <td style={{fontFamily:'var(--font-mono)', fontSize:'12px', color:'var(--accent-red)'}}>${p.maxLoss.toLocaleString()}</td>
@@ -4258,13 +4275,13 @@ function OnboardingTour({ onComplete }) {
     {
       title: 'Welcome to WheelPro™',
       icon: '○',
-      body: 'WheelPro scans the market and finds the best cash-secured puts to sell using the wheel strategy. Every recommendation passes through a 3-gate safety system before reaching you.',
+      body: 'WheelPro covers the entire wheel strategy cycle: find the best puts to sell, manage assignments, and optimize covered calls. Every recommendation passes through a 3-gate safety system. The full cycle: sell a put → get assigned shares → sell covered calls → get called away → repeat for consistent income.',
       position: 'center',
     },
     {
       title: 'Recommended Puts',
       icon: '○',
-      body: 'This panel shows your top trades right now. Green means HIGH confidence — all 3 safety gates passed (RSI, Momentum, and Earnings). Yellow means MEDIUM confidence. Only trade what\'s green when starting out.',
+      body: 'This panel shows your top put-selling opportunities. Green means HIGH confidence — all 3 safety gates passed (RSI, Momentum, and Earnings). Each recommendation includes theta decay showing how much you earn per day from time passing. When you get assigned shares, WheelPro helps you find the best covered calls to sell next.',
       position: 'top',
     },
     {
