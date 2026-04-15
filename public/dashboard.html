@@ -767,7 +767,7 @@ body.protected img { pointer-events: none; }
   background: var(--gradient-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  overflow: hidden;
+  overflow: clip; /* clip for border-radius without breaking position:sticky */
 }
 .data-table-header {
   display: flex;
@@ -782,7 +782,8 @@ body.protected img { pointer-events: none; }
 }
 .data-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
 }
 .data-table th {
   text-align: left;
@@ -823,7 +824,7 @@ body.protected img { pointer-events: none; }
   left: 0;
   background: #0d1526;
   z-index: 5;
-  border-right: 1px solid rgba(201,168,76,0.12);
+  box-shadow: 2px 0 5px rgba(0,0,0,0.3);
 }
 .data-table th:first-child {
   z-index: 20; /* corner: sticky in both directions */
@@ -1531,7 +1532,7 @@ body.protected img { pointer-events: none; }
   border-color: transparent;
 }
 .cc-tab:not(.active):hover { border-color: var(--accent-gold); color: var(--accent-gold); }
-.cc-rec-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.cc-rec-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; }
 .cc-rec-table th {
   padding: 10px 14px;
   text-align: left;
@@ -3121,8 +3122,8 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
             <table className="data-table">
               <thead>
                 <tr>
+                  <th>Symbol</th>
                   <th>Confidence</th>
-                  <th style={{position:'sticky', left:0, zIndex:20, background:'#0d1526'}}>Symbol</th>
                   <th>Price</th>
                   <th>Strike</th>
                   <th>Support</th>
@@ -3154,14 +3155,14 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
                   const strikeVsSupport = stock.supportLevel ? stock.strikePrice <= stock.supportLevel : false;
                   return (
                     <tr key={stock.symbol} style={{animation: `slideIn 0.3s ease-out ${i * 0.04}s both`, background: stock.recommendation.confidence === 'HIGH' ? 'rgba(16,185,129,0.03)' : 'transparent'}}>
+                      <td style={{background: stock.recommendation.confidence === 'HIGH' ? '#0e1a2e' : '#0d1526'}}>
+                        <div className="ticker" style={{cursor:'pointer'}} onClick={() => onSelectStock && onSelectStock(stock)}>{stock.symbol}</div>
+                        <div style={{fontSize:'10px', color:'var(--text-muted)'}}>{stock.name}</div>
+                      </td>
                       <td>
                         <span style={{padding:'3px 10px', borderRadius:'12px', fontSize:'11px', fontWeight:700, background:confStyle.bg, color:confStyle.color, border:confStyle.border, letterSpacing:'0.5px'}}>
                           {stock.recommendation.confidence}
                         </span>
-                      </td>
-                      <td style={{position:'sticky', left:0, zIndex:5, background: stock.recommendation.confidence === 'HIGH' ? '#0e1a2e' : '#0d1526'}}>
-                        <div className="ticker" style={{cursor:'pointer'}} onClick={() => onSelectStock && onSelectStock(stock)}>{stock.symbol}</div>
-                        <div style={{fontSize:'10px', color:'var(--text-muted)'}}>{stock.name}</div>
                       </td>
                       <td style={{fontFamily:'var(--font-mono)', fontWeight:600}}>${stock.price.toFixed(2)}</td>
                       <td style={{fontFamily:'var(--font-mono)', fontWeight:700, color:'var(--accent-blue)'}}>
@@ -3577,8 +3578,49 @@ function ScreenerPage({ stocks, user, subscriptionTier, onSelectStock, onExport 
 
   const sectors = useMemo(() => ['All', ...new Set(stocks.map(s => s.sector))], [stocks]);
 
+  // Dynamic search: when the search term matches nothing in the loaded list, query the API
+  const [extraStocks, setExtraStocks] = React.useState([]);
+  React.useEffect(() => {
+    const term = filters.search.trim();
+    if (!term) { setExtraStocks([]); return; }
+    const hasMatch = stocks.some(s =>
+      s.symbol.toLowerCase().includes(term.toLowerCase()) ||
+      s.name.toLowerCase().includes(term.toLowerCase())
+    );
+    if (hasMatch) { setExtraStocks([]); return; }
+    // Nothing found in loaded data — query the backend
+    const apiConfigured = typeof CONFIG !== 'undefined' && CONFIG.API_BASE_URL && !CONFIG.API_BASE_URL.includes('YOUR-RAILWAY-URL');
+    if (!apiConfigured) return;
+    const controller = new AbortController();
+    const timer = setTimeout(() => {
+      fetch(`${CONFIG.API_BASE_URL}/api/stocks?q=${encodeURIComponent(term)}`, { signal: controller.signal })
+        .then(r => r.ok ? r.json() : Promise.reject())
+        .then(result => {
+          if (result.success && result.data && result.data.length > 0) {
+            const existing = new Set(stocks.map(s => s.symbol));
+            const fresh = result.data.filter(s => !existing.has(s.symbol)).map(s => {
+              s.dataSource = 'yahoo-finance';
+              if (!s.wheelScore) s.wheelScore = WheelScoring.calculateScore(s);
+              if (!s.recommendation) s.recommendation = WheelScoring.getRecommendation(s);
+              return s;
+            });
+            setExtraStocks(fresh);
+          }
+        })
+        .catch(() => {});
+    }, 400);
+    return () => { clearTimeout(timer); controller.abort(); };
+  }, [filters.search, stocks]);
+
+  // Combine loaded stocks with any dynamically fetched extras
+  const allScreenerStocks = React.useMemo(() => {
+    if (extraStocks.length === 0) return stocks;
+    const existing = new Set(stocks.map(s => s.symbol));
+    return [...stocks, ...extraStocks.filter(s => !existing.has(s.symbol))];
+  }, [stocks, extraStocks]);
+
   const filteredStocks = useMemo(() => {
-    let result = stocks.filter(s => {
+    let result = allScreenerStocks.filter(s => {
       if (filters.sector !== 'All' && s.sector !== filters.sector) return false;
       if (s.weeklyYield < filters.minYield / 100) return false;
       if (s.delta > filters.maxDelta) return false;
@@ -3604,7 +3646,7 @@ function ScreenerPage({ stocks, user, subscriptionTier, onSelectStock, onExport 
     });
 
     return result;
-  }, [stocks, filters]);
+  }, [allScreenerStocks, filters]);
 
   const handleSort = (field) => {
     setFilters(f => ({
