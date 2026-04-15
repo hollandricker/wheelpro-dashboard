@@ -677,8 +677,10 @@ body.protected img { pointer-events: none; }
 /* Main Content */
 .main-content {
   flex: 1;
+  min-width: 0;
   margin-left: 260px;
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 .topbar {
@@ -767,7 +769,7 @@ body.protected img { pointer-events: none; }
   background: var(--gradient-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  /* overflow removed — clip/hidden break position:sticky in some Chrome versions */
+  overflow-x: hidden;
 }
 .data-table-header {
   display: flex;
@@ -820,6 +822,8 @@ body.protected img { pointer-events: none; }
 /* ===== SPLIT-TABLE: frozen column via JS + dual-panel layout ===== */
 .split-table-wrapper {
   display: flex;
+  width: 100%;
+  max-width: 100%;
   max-height: 580px;
   overflow: hidden;
 }
