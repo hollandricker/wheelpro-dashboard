@@ -21,6 +21,21 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the wheel strategy in options trading?","acceptedAnswer":{"@type":"Answer","text":"The wheel strategy is an options income strategy where you sell cash-secured puts on stocks you want to own. If assigned, you then sell covered calls until the stock is called away. This cycle generates consistent premium income."}},{"@type":"Question","name":"How does WheelPro help with the wheel strategy?","acceptedAnswer":{"@type":"Answer","text":"WheelPro scans 1,100+ stocks using 5 technical indicators (RSI, MACD, Bollinger Bands, EMA, SMA), calculates a proprietary Wheel Score from 0-100, and recommends the best puts to sell with specific strike prices, deltas, and expected yields."}},{"@type":"Question","name":"What is a poor man's covered call?","acceptedAnswer":{"@type":"Answer","text":"A poor man's covered call (PMCC) uses a deep in-the-money LEAPS call instead of 100 shares of stock as collateral for selling covered calls. It requires less capital than a traditional covered call while generating similar premium income."}}]}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+
+<!-- PostHog Analytics -->
+<!-- TODO: Replace 'YOUR_POSTHOG_PROJECT_API_KEY' with your actual PostHog project API key.
+     1. Sign up at https://app.posthog.com (free, no credit card required — 1M events/month)
+     2. Create a new project and copy the "Project API Key" from Project Settings → Project
+     3. Replace the placeholder string below with your key, then save and redeploy -->
+<script>
+  !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]);t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.people.toString()+" (stub)"},o="capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures getActiveMatchingSurveys getSurveys getNextSurveyStep onSessionId setPersonPropertiesForFlags".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+  posthog.init('YOUR_POSTHOG_PROJECT_API_KEY', {
+    api_host: 'https://us.i.posthog.com',
+    person_profiles: 'identified_only',
+    capture_pageview: true,
+  });
+</script>
+
 <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -49,39 +64,39 @@ const firebaseDb = firebase.firestore();
    ============================================================ */
 
 :root {
-  --bg-primary: #0b1120;
-  --bg-secondary: #0f1729;
-  --bg-card: #131c2f;
-  --bg-card-hover: #182236;
-  --bg-elevated: #1a2540;
-  --border: #1e2d45;
-  --border-focus: #c9a84c;
-  --text-primary: #e8ecf1;
-  --text-secondary: #8899ad;
-  --text-muted: #5a6b7f;
-  --accent-blue: #4a90d9;
-  --accent-blue-glow: rgba(74, 144, 217, 0.12);
-  --accent-green: #22c55e;
-  --accent-green-glow: rgba(34, 197, 94, 0.12);
-  --accent-red: #dc2626;
-  --accent-red-glow: rgba(220, 38, 38, 0.12);
-  --accent-amber: #d4a843;
-  --accent-amber-glow: rgba(212, 168, 67, 0.12);
-  --accent-purple: #7c6bc4;
-  --accent-gold: #c9a84c;
-  --accent-gold-glow: rgba(201, 168, 76, 0.12);
-  --gradient-hero: linear-gradient(135deg, #0b1120 0%, #0f1a30 40%, #0b1120 100%);
-  --gradient-card: linear-gradient(145deg, #131c2f 0%, #0f1729 100%);
-  --gradient-accent: linear-gradient(135deg, #c9a84c, #d4a843);
-  --font-body: 'DM Sans', sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
-  --font-display: 'Playfair Display', serif;
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
-  --shadow-card: 0 4px 24px rgba(0,0,0,0.4);
-  --shadow-glow: 0 0 40px rgba(201,168,76,0.06);
+  --bg-primary: #080d19;
+  --bg-secondary: #0c1220;
+  --bg-card: #101827;
+  --bg-card-hover: #151f30;
+  --bg-elevated: #162032;
+  --border: #1a2740;
+  --border-focus: #b89a3e;
+  --text-primary: #e2e7ef;
+  --text-secondary: #7d8da0;
+  --text-muted: #4a5a6e;
+  --accent-blue: #4a8fd4;
+  --accent-blue-glow: rgba(74, 143, 212, 0.08);
+  --accent-green: #1ea651;
+  --accent-green-glow: rgba(30, 166, 81, 0.08);
+  --accent-red: #c93030;
+  --accent-red-glow: rgba(201, 48, 48, 0.08);
+  --accent-amber: #c49a38;
+  --accent-amber-glow: rgba(196, 154, 56, 0.08);
+  --accent-purple: #7265b8;
+  --accent-gold: #b89a3e;
+  --accent-gold-glow: rgba(184, 154, 62, 0.08);
+  --gradient-hero: linear-gradient(135deg, #080d19 0%, #0c1528 40%, #080d19 100%);
+  --gradient-card: linear-gradient(145deg, #101827 0%, #0c1220 100%);
+  --gradient-accent: linear-gradient(135deg, #b89a3e, #c49a38);
+  --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', 'IBM Plex Mono', 'SF Mono', monospace;
+  --font-display: 'Playfair Display', Georgia, serif;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --shadow-card: 0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
+  --shadow-glow: 0 0 20px rgba(184,154,62,0.04);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -92,24 +107,27 @@ body {
   font-family: var(--font-body);
   background: var(--bg-primary);
   color: var(--text-primary);
-  line-height: 1.6;
+  line-height: 1.5;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "kern" 1;
+  letter-spacing: 0.01em;
 }
 
-/* Scrollbar */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: var(--bg-primary); }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+/* Scrollbar — thin, subtle, matches dark terminal */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.14); }
+* { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.08) transparent; }
 
 /* Selection */
-::selection { background: var(--accent-blue); color: white; }
+::selection { background: rgba(74,143,212,0.35); color: white; }
 
 /* Animations */
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(20px); }
+  from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: translateY(0); }
 }
 @keyframes fadeIn {
@@ -117,8 +135,8 @@ body {
   to { opacity: 1; }
 }
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 20px rgba(59,130,246,0.1); }
-  50% { box-shadow: 0 0 40px rgba(59,130,246,0.2); }
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
 }
 @keyframes shimmer {
   0% { background-position: -200% 0; }
@@ -132,12 +150,23 @@ body {
   to { transform: rotate(360deg); }
 }
 @keyframes countUp {
-  from { opacity: 0; transform: translateY(10px); }
+  from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
 }
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 0.04; }
+  50% { opacity: 0.08; }
+}
 
-.animate-in { animation: fadeInUp 0.5s ease-out forwards; }
-.animate-fade { animation: fadeIn 0.3s ease-out forwards; }
+.animate-in { animation: fadeInUp 0.4s ease-out forwards; }
+.animate-fade { animation: fadeIn 0.25s ease-out forwards; }
+
+/* Tabular numbers — all monospace numerals align in columns */
+[style*="font-mono"], .stat-value, .ticker, .pricing-amount,
+.score-badge-inner, .indicator-pill, .detail-row .value {
+  font-feature-settings: "tnum" 1, "lnum" 1;
+  font-variant-numeric: tabular-nums lining-nums;
+}
 
 /* ===== ANTI-COPY PROTECTIONS ===== */
 body.protected {
@@ -191,22 +220,23 @@ body.protected img { pointer-events: none; }
 }
 .landing-logo {
   font-family: var(--font-display);
-  font-size: 28px;
+  font-size: 26px;
   font-weight: 800;
   background: var(--gradient-accent);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  letter-spacing: -0.5px;
+  letter-spacing: -0.3px;
 }
 .landing-logo span {
-  font-family: var(--font-body);
+  font-family: var(--font-mono);
   font-weight: 400;
-  font-size: 14px;
+  font-size: 10px;
   -webkit-text-fill-color: var(--text-muted);
-  margin-left: 8px;
-  letter-spacing: 2px;
+  margin-left: 10px;
+  letter-spacing: 3px;
   text-transform: uppercase;
+  opacity: 0.7;
 }
 
 .landing-nav-links { display: flex; gap: 32px; align-items: center; }
@@ -236,18 +266,20 @@ body.protected img { pointer-events: none; }
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 16px;
-  background: rgba(59,130,246,0.1);
-  border: 1px solid rgba(59,130,246,0.2);
+  padding: 5px 14px;
+  background: rgba(74,143,212,0.06);
+  border: 1px solid rgba(74,143,212,0.15);
   border-radius: 100px;
-  font-size: 13px;
+  font-size: 12px;
   color: var(--accent-blue);
   font-weight: 500;
   margin-bottom: 32px;
   animation: fadeInUp 0.6s ease-out;
+  letter-spacing: 0.3px;
+  font-family: var(--font-mono);
 }
 .landing-badge .dot {
-  width: 6px; height: 6px;
+  width: 5px; height: 5px;
   background: var(--accent-green);
   border-radius: 50%;
   animation: pulse-glow 2s infinite;
@@ -288,33 +320,35 @@ body.protected img { pointer-events: none; }
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 14px 28px;
-  border-radius: var(--radius-md);
-  font-size: 15px;
+  padding: 12px 24px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.15s ease;
   border: none;
   text-decoration: none;
   font-family: var(--font-body);
+  letter-spacing: 0.02em;
 }
 .btn-primary {
   background: var(--gradient-accent);
-  color: #0b1120;
+  color: #080d19;
   font-weight: 700;
-  box-shadow: 0 4px 20px rgba(201,168,76,0.3);
+  box-shadow: 0 1px 8px rgba(184,154,62,0.2);
 }
 .btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(201,168,76,0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 16px rgba(184,154,62,0.3);
+  filter: brightness(1.08);
 }
 .btn-secondary {
-  background: var(--bg-elevated);
+  background: transparent;
   color: var(--text-primary);
   border: 1px solid var(--border);
 }
 .btn-secondary:hover {
-  background: var(--bg-card-hover);
+  background: var(--bg-card);
   border-color: var(--text-muted);
 }
 .btn-sm {
@@ -573,7 +607,7 @@ body.protected img { pointer-events: none; }
 
 /* Sidebar */
 .sidebar {
-  width: 260px;
+  width: 240px;
   background: var(--bg-secondary);
   border-right: 1px solid var(--border);
   display: flex;
@@ -586,99 +620,109 @@ body.protected img { pointer-events: none; }
   transition: transform 0.3s;
 }
 .sidebar-header {
-  padding: 20px 24px;
+  padding: 18px 20px;
   border-bottom: 1px solid var(--border);
 }
 .sidebar-logo {
   font-family: var(--font-display);
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 800;
   background: var(--gradient-accent);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  letter-spacing: -0.3px;
 }
 .sidebar-logo-sub {
-  font-size: 11px;
+  font-size: 9px;
   color: var(--text-muted);
-  letter-spacing: 1.5px;
+  letter-spacing: 2.5px;
   text-transform: uppercase;
-  margin-top: 2px;
+  margin-top: 3px;
+  font-family: var(--font-mono);
+  opacity: 0.6;
 }
-.sidebar-nav { padding: 16px 12px; flex: 1; }
+.sidebar-nav { padding: 12px 10px; flex: 1; }
 .sidebar-section-label {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 1.5px;
+  letter-spacing: 2px;
   padding: 8px 12px;
-  margin-top: 16px;
+  margin-top: 14px;
+  font-family: var(--font-mono);
+  opacity: 0.6;
 }
 .sidebar-section-label:first-child { margin-top: 0; }
 .sidebar-link {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 12px;
+  gap: 10px;
+  padding: 8px 12px;
   border-radius: var(--radius-sm);
   color: var(--text-secondary);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all 0.12s ease;
   text-decoration: none;
 }
 .sidebar-link:hover {
-  background: var(--bg-card);
+  background: rgba(255,255,255,0.03);
   color: var(--text-primary);
 }
 .sidebar-link.active {
-  background: var(--accent-blue-glow);
+  background: rgba(74,143,212,0.08);
   color: var(--accent-blue);
+  border-left: 2px solid var(--accent-blue);
+  padding-left: 10px;
 }
-.sidebar-link .icon { font-size: 18px; width: 24px; text-align: center; }
+.sidebar-link .icon { font-size: 16px; width: 22px; text-align: center; opacity: 0.8; }
 
 .sidebar-footer {
-  padding: 16px 12px;
+  padding: 12px 10px;
   border-top: 1px solid var(--border);
 }
 .sidebar-user {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 12px;
+  gap: 10px;
+  padding: 8px 12px;
   border-radius: var(--radius-sm);
 }
 .sidebar-avatar {
-  width: 36px; height: 36px;
+  width: 32px; height: 32px;
   background: var(--gradient-accent);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  font-size: 14px;
-  color: white;
+  font-size: 12px;
+  color: #080d19;
 }
 .sidebar-user-info { flex: 1; min-width: 0; }
 .sidebar-user-name {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .sidebar-user-plan {
-  font-size: 11px;
-  color: var(--accent-green);
+  font-size: 10px;
+  color: var(--accent-gold);
   font-weight: 500;
+  font-family: var(--font-mono);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
 /* Main Content */
 .main-content {
   flex: 1;
   min-width: 0;
-  margin-left: 260px;
+  margin-left: 240px;
   min-height: 100vh;
   overflow-x: hidden;
 }
@@ -687,10 +731,10 @@ body.protected img { pointer-events: none; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 32px;
+  padding: 10px 28px;
   border-bottom: 1px solid var(--border);
-  background: rgba(10,14,23,0.8);
-  backdrop-filter: blur(12px);
+  background: rgba(8,13,25,0.92);
+  backdrop-filter: blur(16px);
   position: sticky;
   top: 0;
   z-index: 50;
@@ -848,6 +892,7 @@ body.protected img { pointer-events: none; }
   min-width: 0;
   overflow-x: auto;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 .split-table-scroll .data-table { width: 100%; }
 /* Hide scrollbar on fixed panel (scroll synced from scrollable panel) */
@@ -1220,14 +1265,14 @@ body.protected img { pointer-events: none; }
 
 /* ===== FOOTER ===== */
 .footer {
-  padding: 16px 32px;
+  padding: 10px 28px;
   border-top: 1px solid var(--border);
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-size: 11px;
   color: var(--text-muted);
-  margin-left: 260px;
+  margin-left: 240px;
 }
 .footer-copyright {
   font-weight: 500;
@@ -1318,6 +1363,19 @@ body.protected img { pointer-events: none; }
   .screener-filters { flex-direction: column; gap: 8px; }
   .filter-group { width: 100%; }
   .filter-select, .filter-input { width: 100%; min-width: unset; }
+
+  /* Split-table: mobile freeze-pane optimizations */
+  .fixed-col-subtext { display: none; }
+  .split-table-wrapper { max-height: 400px; }
+  .split-table-fixed { max-width: 100px; }
+  .split-table-fixed .data-table th,
+  .split-table-fixed .data-table td { padding: 8px 8px; }
+  .split-table-scroll .data-table th,
+  .split-table-scroll .data-table td { padding: 8px 6px; }
+  .data-table th { font-size: 9px; letter-spacing: 0.3px; }
+  .data-table td { font-size: 11px; }
+  .split-table-fixed .ticker,
+  .split-table-scroll .ticker { font-size: 12px; }
 }
 
 /* ===== WATERMARK ===== */
@@ -2598,6 +2656,7 @@ function AuthModal({ mode, onClose, onSubmit, onToggle, notice }) {
       let userData;
       if (mode === 'signup') {
         userData = await FirebaseHelper.signUp(email, password, name);
+        if (window.posthog) window.posthog.capture('sign_up', { method: 'email' });
       } else {
         userData = await FirebaseHelper.signIn(email, password);
       }
@@ -2613,6 +2672,7 @@ function AuthModal({ mode, onClose, onSubmit, onToggle, notice }) {
     setLoading(true);
     try {
       const userData = await FirebaseHelper.signInWithGoogle();
+      if (window.posthog) window.posthog.capture('sign_up', { method: 'google' });
       onSubmit(userData);
     } catch (err) {
       setError(FirebaseHelper.getErrorMessage(err.code));
@@ -3169,7 +3229,7 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
                     <tr key={stock.symbol} style={{animation: `slideIn 0.3s ease-out ${i * 0.04}s both`, background: stock.recommendation.confidence === 'HIGH' ? 'rgba(16,185,129,0.03)' : 'transparent'}}>
                       <td style={{background: stock.recommendation.confidence === 'HIGH' ? '#0e1a2e' : '#0d1526'}}>
                         <div className="ticker" style={{cursor:'pointer'}} onClick={() => onSelectStock && onSelectStock(stock)}>{stock.symbol}</div>
-                        <div style={{fontSize:'10px', color:'var(--text-muted)'}}>{stock.name}</div>
+                        <div className="fixed-col-subtext" style={{fontSize:'10px', color:'var(--text-muted)'}}>{stock.name}</div>
                       </td>
                     </tr>
                   ))}
@@ -3446,7 +3506,7 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
                       <div style={{display:'flex', alignItems:'center', gap:'10px'}}>
                         <div>
                           <div className="ticker" style={{cursor:'pointer'}} onClick={() => onSelectStock && onSelectStock(stock)}>{stock.symbol}</div>
-                          <div style={{fontSize:'11px', color:'var(--text-muted)'}}>{stock.sector}</div>
+                          <div className="fixed-col-subtext" style={{fontSize:'11px', color:'var(--text-muted)'}}>{stock.sector}</div>
                         </div>
                       </div>
                     </td>
@@ -3683,6 +3743,16 @@ function ScreenerPage({ stocks, user, subscriptionTier, onSelectStock, onExport 
     }, 400);
     return () => { clearTimeout(timer); controller.abort(); };
   }, [filters.search, stocks]);
+
+  // Track screener searches with 400ms debounce (mirrors the API search delay)
+  React.useEffect(() => {
+    const term = filters.search.trim();
+    if (!term) return;
+    const timer = setTimeout(() => {
+      if (window.posthog) window.posthog.capture('screener_search', { query: term });
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [filters.search]);
 
   // Combine loaded stocks with any dynamically fetched extras
   const allScreenerStocks = React.useMemo(() => {
@@ -4737,6 +4807,11 @@ function BacktestPage({ user, subscriptionTier }) {
   }
 
   const runBacktest = async () => {
+    if (window.posthog) window.posthog.capture('backtest_run', {
+      symbol: symbol.trim().toUpperCase() || 'all',
+      months: params.months,
+      capital: params.capital,
+    });
     setLoading(true);
     setError('');
     try {
@@ -4951,6 +5026,9 @@ function BacktestPage({ user, subscriptionTier }) {
 // ===== STOCK DETAIL MODAL =====
 function StockDetailModal({ stock, onClose }) {
   if (!stock) return null;
+  React.useEffect(() => {
+    if (window.posthog) window.posthog.capture('stock_modal_open', { symbol: stock.symbol, sector: stock.sector, wheel_score: stock.wheelScore });
+  }, [stock.symbol]);
   const pop = stock.probOfProfit || Math.round((1 - stock.delta) * 100);
   const cashReq = stock.cashRequired || Math.round(stock.strikePrice * 100);
   const maxLoss = stock.maxLoss || Math.round((stock.strikePrice - stock.premium) * 100);
@@ -5078,6 +5156,7 @@ function StockDetailModal({ stock, onClose }) {
 
 // ===== CSV EXPORT HELPER =====
 function exportCSV(stocks, filename) {
+  if (window.posthog) window.posthog.capture('csv_export', { row_count: stocks.length, filename: filename || 'wheelpro-export.csv' });
   const headers = ['Symbol','Name','Sector','Price','Change%','Score','Action','Confidence','Strike','OTM%','Premium','Wk Yield','Mo Yield','Ann Yield','Delta','POP','Cash Req','Max Loss','RSI','Signal','IV','IV%ile','P/C Ratio','Earnings','DTE'];
   const rows = stocks.map(s => [
     s.symbol, s.name, s.sector, s.price.toFixed(2), s.changePct,
@@ -5873,6 +5952,7 @@ function App() {
           onLogin={() => setShowAuth('login')}
           onSignup={() => setShowAuth('signup')}
           onSubscribe={(plan) => {
+            if (window.posthog) window.posthog.capture('checkout_click', { plan, logged_in: !!user });
             // If not logged in, store the plan and show signup — checkout happens after account creation
             if (!user) { setPendingPlan(plan); setShowAuth('signup'); return; }
             StripeHelper.createCheckout(plan, user.email, user.uid);
