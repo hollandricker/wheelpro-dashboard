@@ -1340,6 +1340,7 @@ body.protected img { pointer-events: none; }
   overflow-x: auto;
   overflow-y: auto;
   max-height: 580px;
+  position: relative;
 }
 
 /* ===== ONBOARDING TOUR ===== */
@@ -2248,6 +2249,10 @@ const generateStockData = () => {
     { symbol: 'PYPL', name: 'PayPal Holdings', sector: 'Financial Services', basePrice: 82 },
     { symbol: 'MU', name: 'Micron Technology', sector: 'Technology', basePrice: 98 },
     { symbol: 'QCOM', name: 'Qualcomm Inc.', sector: 'Technology', basePrice: 168 },
+    { symbol: 'SPY', name: 'SPDR S&P 500 ETF Trust', sector: 'ETF', basePrice: 510 },
+    { symbol: 'QQQ', name: 'Invesco QQQ Trust (Nasdaq-100)', sector: 'ETF', basePrice: 440 },
+    { symbol: 'IWM', name: 'iShares Russell 2000 ETF', sector: 'ETF', basePrice: 195 },
+    { symbol: 'GLD', name: 'SPDR Gold Shares ETF', sector: 'ETF', basePrice: 245 },
   ];
 
   return stocks.map(s => {
@@ -3117,7 +3122,7 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
               <thead>
                 <tr>
                   <th>Confidence</th>
-                  <th>Symbol</th>
+                  <th style={{position:'sticky', left:0, zIndex:20, background:'#0d1526'}}>Symbol</th>
                   <th>Price</th>
                   <th>Strike</th>
                   <th>Support</th>
@@ -3154,7 +3159,7 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
                           {stock.recommendation.confidence}
                         </span>
                       </td>
-                      <td>
+                      <td style={{position:'sticky', left:0, zIndex:5, background: stock.recommendation.confidence === 'HIGH' ? '#0e1a2e' : '#0d1526'}}>
                         <div className="ticker" style={{cursor:'pointer'}} onClick={() => onSelectStock && onSelectStock(stock)}>{stock.symbol}</div>
                         <div style={{fontSize:'10px', color:'var(--text-muted)'}}>{stock.name}</div>
                       </td>
@@ -4544,6 +4549,35 @@ function SettingsPage({ settings, setSettings }) {
   );
 }
 
+// ===== ERROR BOUNDARY =====
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error, info) {
+    console.error('[WheelPro] Render error caught by boundary:', error, info);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{padding:'40px 20px', textAlign:'center'}}>
+          <div style={{color:'var(--accent-red)', marginBottom:16, fontSize:14}}>
+            Something went wrong: {this.state.error?.message || 'Unknown error'}
+          </div>
+          <button className="btn btn-primary" onClick={() => this.setState({ hasError: false, error: null })}>
+            Try Again
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 // ===== BACKTEST PAGE =====
 function BacktestPage({ user, subscriptionTier }) {
   const [symbol, setSymbol] = useState('');
@@ -4576,11 +4610,12 @@ function BacktestPage({ user, subscriptionTier }) {
       if (data.success) setResults(data);
       else throw new Error(data.error || 'Backtest failed');
     } catch (err) {
-      setError(err.message);
-      // Demo results for UI preview
-      setResults(getDemoBacktestResults(params));
+      setError(err.message || 'An unexpected error occurred');
+      // Demo results for UI preview — so screen never goes blank
+      try { setResults(getDemoBacktestResults(params)); } catch(e) { console.error('[WheelPro] Demo backtest failed:', e); }
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   // Demo results generator for when API isn't connected yet
@@ -4702,7 +4737,7 @@ function BacktestPage({ user, subscriptionTier }) {
                 {results.summary.totalReturn}%
               </div>
               <div className="stat-change" style={{color: results.summary.totalPnl >= 0 ? 'var(--accent-green)' : 'var(--accent-red)', background: results.summary.totalPnl >= 0 ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)'}}>
-                {results.summary.totalPnl >= 0 ? '+' : ''}${results.summary.totalPnl.toLocaleString()}
+                {(results.summary.totalPnl ?? 0) >= 0 ? '+' : ''}${(results.summary.totalPnl ?? 0).toLocaleString()}
               </div>
             </div>
             <div className="stat-card" style={{borderLeft:'3px solid var(--accent-blue)'}}>
@@ -5201,6 +5236,12 @@ function OnboardingTour({ onComplete }) {
       position: 'top',
     },
     {
+      title: 'Covered Calls — Complete the Cycle',
+      icon: '○',
+      body: 'When you get assigned shares after a put expires in-the-money, the wheel continues. WheelPro recommends covered calls to generate income while you hold the stock — turning an "assignment" into another income opportunity. Full cycle: Sell Put → Get Assigned Shares → Sell Covered Call → Shares Called Away → Repeat.',
+      position: 'top',
+    },
+    {
       title: 'Understanding the Wheel Score',
       icon: '○',
       body: 'Every stock gets a proprietary Wheel Score from 0 to 100 based on multiple factors including premium potential, risk safety, technical momentum, market liquidity, and volatility conditions. Hover over any score to see a summary.',
@@ -5219,9 +5260,9 @@ function OnboardingTour({ onComplete }) {
       position: 'center',
     },
     {
-      title: 'You\'re Ready!',
+      title: 'Thank You for Choosing WheelPro™',
       icon: '○',
-      body: 'Start with the top HIGH confidence recommendation. Hover over any number to understand what it means. WheelPro does the analysis — you make the final call. Remember: this is an educational tool, not financial advice. Good luck!',
+      body: 'We\'re here to help you trade with confidence. Start with the top HIGH confidence recommendation and never sell puts through earnings. Questions or feedback? Email us at support@wheelpro.io and follow us on social media for daily trade ideas and market insights. WheelPro is an educational tool — always trade responsibly.',
       position: 'center',
     },
   ];
@@ -5498,7 +5539,13 @@ function App() {
     const unsubscribe = firebaseAuth.onAuthStateChanged(async (fbUser) => {
       if (fbUser) {
         try {
-          const profile = await FirebaseHelper.getProfile(fbUser.uid);
+          let profile = await FirebaseHelper.getProfile(fbUser.uid);
+          if (!profile) {
+            // Race condition: Firebase auth fires before Firestore profile is written during signup.
+            // Wait 1.5s and retry once so the new user isn't sent back to the login screen.
+            await new Promise(r => setTimeout(r, 1500));
+            profile = await FirebaseHelper.getProfile(fbUser.uid);
+          }
           if (profile) {
             // Clear any stale data from a previous user before loading this user's cloud data
             Storage.set('positions', []);
@@ -5686,7 +5733,7 @@ function App() {
     screener: { title: 'Screener', icon: Icons.screener, component: <ScreenerPage stocks={stocks} user={user} subscriptionTier={subscriptionTier} onSelectStock={setSelectedStock} onExport={(s) => exportCSV(s, `wheelpro-screener-${new Date().toISOString().slice(0,10)}.csv`)} /> },
     portfolio: { title: 'Portfolio', icon: Icons.portfolio, component: <PortfolioPage key={user?.uid || 'guest'} stocks={stocks} /> },
     journal: { title: 'Trade Journal', icon: Icons.journal, component: <TradeJournalPage key={user?.uid || 'guest'} user={user} subscriptionTier={subscriptionTier} /> },
-    backtest: { title: 'Backtest', icon: Icons.chart, component: <BacktestPage user={user} subscriptionTier={subscriptionTier} /> },
+    backtest: { title: 'Backtest', icon: Icons.chart, component: <ErrorBoundary><BacktestPage user={user} subscriptionTier={subscriptionTier} /></ErrorBoundary> },
     settings: { title: 'Settings', icon: Icons.settings, component: <SettingsPage settings={settings} setSettings={setSettings} /> },
     admin: { title: 'Admin', icon: Icons.admin, component: <AdminPage user={user} /> },
   };
