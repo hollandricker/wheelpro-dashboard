@@ -125,8 +125,8 @@ body {
   100% { background-position: 200% 0; }
 }
 @keyframes slideIn {
-  from { opacity: 0; transform: translateX(-10px); }
-  to { opacity: 1; transform: translateX(0); }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 @keyframes spin {
   to { transform: rotate(360deg); }
@@ -767,7 +767,7 @@ body.protected img { pointer-events: none; }
   background: var(--gradient-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  overflow: clip; /* clip for border-radius without breaking position:sticky */
+  /* overflow removed — clip/hidden break position:sticky in some Chrome versions */
 }
 .data-table-header {
   display: flex;
