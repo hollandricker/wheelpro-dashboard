@@ -5806,6 +5806,12 @@ function App() {
             // Now set user state — PortfolioPage/Journal will remount reading correct localStorage
             setUser(profile);
             Storage.set('user', profile);
+            // Identify authenticated user in PostHog so events are tied to their account
+            if (window.posthog) window.posthog.identify(fbUser.uid, {
+              email: fbUser.email,
+              name: profile.name,
+              plan: profile.plan,
+            });
             // Fetch live Stripe subscription tier
             fetchSubscriptionTier(fbUser.email, profile.isOwner);
             // Detect successful Stripe checkout redirect
