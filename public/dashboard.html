@@ -841,6 +841,7 @@ body.protected img { pointer-events: none; }
 }
 .split-table-scroll {
   flex: 1;
+  min-width: 0;
   overflow-x: auto;
   overflow-y: auto;
 }
@@ -886,12 +887,7 @@ body.protected img { pointer-events: none; }
   cursor: help;
 }
 .tip-wrap .tip-box {
-  visibility: hidden;
-  opacity: 0;
-  position: absolute;
-  bottom: calc(100% + 8px);
-  left: 50%;
-  transform: translateX(-50%);
+  position: fixed;
   background: #1a1f2e;
   color: #e2e8f0;
   border: 1px solid rgba(99,102,241,0.3);
@@ -903,10 +899,9 @@ body.protected img { pointer-events: none; }
   white-space: pre-line;
   width: max-content;
   max-width: 300px;
-  z-index: 9999;
+  z-index: 99999;
   pointer-events: none;
   box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-  transition: opacity 0.15s, visibility 0.15s;
 }
 .tip-wrap .tip-box::after {
   content: '';
@@ -917,9 +912,11 @@ body.protected img { pointer-events: none; }
   border: 6px solid transparent;
   border-top-color: #1a1f2e;
 }
-.tip-wrap:hover .tip-box {
-  visibility: visible;
-  opacity: 1;
+.tip-wrap .tip-box.tip-below::after {
+  top: auto;
+  bottom: 100%;
+  border-top-color: transparent;
+  border-bottom-color: #1a1f2e;
 }
 .tip-label { color: #818cf8; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
 .tip-val { color: #10b981; font-weight: 700; font-family: var(--font-mono); }
@@ -5195,11 +5192,38 @@ function AdminPage({ user }) {
 // ===== MAIN APP =====
 // ===== TOOLTIP COMPONENT =====
 function Tip({ children, text }) {
-  return React.createElement('span', { className: 'tip-wrap' },
+  const [show, setShow] = React.useState(false);
+  const [tipStyle, setTipStyle] = React.useState({});
+  const [below, setBelow] = React.useState(false);
+  const ref = React.useRef(null);
+
+  const onEnter = () => {
+    const el = ref.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const isBelow = r.top < 120;
+    setBelow(isBelow);
+    let left = r.left + r.width / 2;
+    left = Math.max(160, Math.min(window.innerWidth - 160, left));
+    setTipStyle({
+      left: left + 'px',
+      top: isBelow ? (r.bottom + 8) + 'px' : (r.top - 8) + 'px',
+      transform: isBelow ? 'translateX(-50%)' : 'translateX(-50%) translateY(-100%)',
+    });
+    setShow(true);
+  };
+
+  return React.createElement('span', {
+    className: 'tip-wrap',
+    ref,
+    onMouseEnter: onEnter,
+    onMouseLeave: () => setShow(false),
+  },
     children,
-    React.createElement('span', { className: 'tip-box' },
-      typeof text === 'string' ? text : text
-    )
+    show && React.createElement('span', {
+      className: 'tip-box' + (below ? ' tip-below' : ''),
+      style: tipStyle,
+    }, text)
   );
 }
 
