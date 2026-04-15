@@ -817,42 +817,37 @@ body.protected img { pointer-events: none; }
   border-bottom: none;
 }
 
-/* Frozen first column — applies to all data tables (Symbol in Screener) */
-.data-table th:first-child,
-.data-table td:first-child {
-  position: sticky;
-  left: 0;
+/* ===== SPLIT-TABLE: frozen column via JS + dual-panel layout ===== */
+.split-table-wrapper {
+  display: flex;
+  max-height: 580px;
+  overflow: hidden;
+}
+.split-table-fixed {
+  flex-shrink: 0;
+  overflow: hidden;
+  border-right: 2px solid rgba(201,168,76,0.25);
+  box-shadow: 3px 0 10px rgba(0,0,0,0.35);
+  z-index: 10;
+  position: relative;
+}
+.split-table-fixed .data-table { width: auto; }
+.split-table-fixed .data-table th,
+.split-table-fixed .data-table td {
   background: #0d1526;
-  z-index: 5;
-  box-shadow: 2px 0 5px rgba(0,0,0,0.3);
 }
-.data-table th:first-child {
-  z-index: 20; /* corner: sticky in both directions */
-}
-.data-table tbody tr:hover td:first-child {
+.split-table-fixed .data-table tbody tr:hover td {
   background: var(--bg-card-hover);
 }
-
-/* Dashboard candidates table — also freeze col 2 (Symbol) alongside # */
-.data-table-dashboard th:first-child,
-.data-table-dashboard td:first-child {
-  min-width: 46px;
-  width: 46px;
+.split-table-scroll {
+  flex: 1;
+  overflow-x: auto;
+  overflow-y: auto;
 }
-.data-table-dashboard th:nth-child(2),
-.data-table-dashboard td:nth-child(2) {
-  position: sticky;
-  left: 46px;
-  background: #0d1526;
-  z-index: 5;
-  border-right: 2px solid rgba(201,168,76,0.2);
-}
-.data-table-dashboard th:nth-child(2) {
-  z-index: 20;
-}
-.data-table-dashboard tbody tr:hover td:nth-child(2) {
-  background: var(--bg-card-hover);
-}
+.split-table-scroll .data-table { width: 100%; }
+/* Hide scrollbar on fixed panel (scroll synced from scrollable panel) */
+.split-table-fixed { scrollbar-width: none; -ms-overflow-style: none; }
+.split-table-fixed::-webkit-scrollbar { display: none; }
 
 /* DTE filter select — Wall Street Premium style */
 .dte-filter-select {
@@ -3017,6 +3012,45 @@ function CoveredCallModal({ position, stock, onClose, onMarkSelling }) {
   );
 }
 
+// ===== SPLIT-TABLE HOOK: syncs vertical scroll + row heights between fixed & scrollable panels =====
+function useSplitTable(deps) {
+  const fixedRef = React.useRef(null);
+  const scrollRef = React.useRef(null);
+
+  // Sync vertical scroll: scrollable panel drives fixed panel
+  React.useEffect(() => {
+    const s = scrollRef.current;
+    const f = fixedRef.current;
+    if (!s || !f) return;
+    const onScroll = () => { f.scrollTop = s.scrollTop; };
+    s.addEventListener('scroll', onScroll, { passive: true });
+    return () => s.removeEventListener('scroll', onScroll);
+  }, []);
+
+  // Sync row heights so both panels stay aligned
+  React.useEffect(() => {
+    const f = fixedRef.current;
+    const s = scrollRef.current;
+    if (!f || !s) return;
+    const fRows = f.querySelectorAll('tr');
+    const sRows = s.querySelectorAll('tr');
+    // Reset to natural height first
+    fRows.forEach(r => { r.style.height = ''; r.style.boxSizing = 'border-box'; });
+    sRows.forEach(r => { r.style.height = ''; r.style.boxSizing = 'border-box'; });
+    // Measure then apply max
+    requestAnimationFrame(() => {
+      const len = Math.min(fRows.length, sRows.length);
+      for (let i = 0; i < len; i++) {
+        const h = Math.max(fRows[i].getBoundingClientRect().height, sRows[i].getBoundingClientRect().height);
+        fRows[i].style.height = h + 'px';
+        sRows[i].style.height = h + 'px';
+      }
+    });
+  }, deps);
+
+  return { fixedRef, scrollRef };
+}
+
 // ===== DASHBOARD PAGE =====
 function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock, onSetPage }) {
   const topStocks = useMemo(() => {
@@ -3075,6 +3109,10 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
   }, [recommendedPuts]);
   const avgCashPerTrade = recommendedPuts.length > 0 ? Math.round(totalCashNeeded / recommendedPuts.length) : 0;
 
+  // Split-table refs for frozen Symbol columns
+  const recSplit = useSplitTable([recommendedPuts]);
+  const candSplit = useSplitTable([topStocks]);
+
   return (
     <div>
       <div className="stats-grid">
@@ -3118,148 +3156,163 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
               {recommendedPuts.length} Active Signal{recommendedPuts.length !== 1 ? 's' : ''}
             </span>
           </div>
-          <div className="table-scroll">
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th style={{position:'sticky', left:0, zIndex:20, background:'#0d1526'}}>Symbol</th>
-                  <th>Confidence</th>
-                  <th>Price</th>
-                  <th>Strike</th>
-                  <th>Support</th>
-                  <th>Resistance</th>
-                  <th>Exp Date</th>
-                  <th>Premium</th>
-                  <th>Wk Yield</th>
-                  <th>Mo. Yield</th>
-                  <th>Theta/Day</th>
-                  <th>Delta</th>
-                  <th>P.O.P.</th>
-                  <th>Cash Req.</th>
-                  <th>Max Loss</th>
-                  <th>IV %ile</th>
-                  <th>P/C Ratio</th>
-                  <th>Bid-Ask</th>
-                  <th>Earnings</th>
-                  <th>Ex-Div</th>
-                  <th>Score</th>
-                  <th>Reason</th>
-                </tr>
-              </thead>
-              <tbody>
-                {recommendedPuts.map((stock, i) => {
-                  const confStyle = WheelScoring.getConfidenceStyle(stock.recommendation.confidence);
-                  const pop = stock.probOfProfit || WheelScoring.getProbOfProfit(stock.delta);
-                  const cashReq = stock.cashRequired || WheelScoring.getCashRequired(stock.strikePrice);
-                  const maxLoss = stock.maxLoss || Math.round((stock.strikePrice - stock.premium) * 100);
-                  const strikeVsSupport = stock.supportLevel ? stock.strikePrice <= stock.supportLevel : false;
-                  return (
+          <div className="split-table-wrapper">
+            {/* FIXED: Symbol column */}
+            <div className="split-table-fixed" ref={recSplit.fixedRef}>
+              <table className="data-table">
+                <thead>
+                  <tr><th>Symbol</th></tr>
+                </thead>
+                <tbody>
+                  {recommendedPuts.map((stock, i) => (
                     <tr key={stock.symbol} style={{animation: `slideIn 0.3s ease-out ${i * 0.04}s both`, background: stock.recommendation.confidence === 'HIGH' ? 'rgba(16,185,129,0.03)' : 'transparent'}}>
-                      <td style={{position:'sticky', left:0, zIndex:5, background: stock.recommendation.confidence === 'HIGH' ? '#0e1a2e' : '#0d1526'}}>
+                      <td style={{background: stock.recommendation.confidence === 'HIGH' ? '#0e1a2e' : '#0d1526'}}>
                         <div className="ticker" style={{cursor:'pointer'}} onClick={() => onSelectStock && onSelectStock(stock)}>{stock.symbol}</div>
                         <div style={{fontSize:'10px', color:'var(--text-muted)'}}>{stock.name}</div>
                       </td>
-                      <td>
-                        <span style={{padding:'3px 10px', borderRadius:'12px', fontSize:'11px', fontWeight:700, background:confStyle.bg, color:confStyle.color, border:confStyle.border, letterSpacing:'0.5px'}}>
-                          {stock.recommendation.confidence}
-                        </span>
-                      </td>
-                      <td style={{fontFamily:'var(--font-mono)', fontWeight:600}}>${stock.price.toFixed(2)}</td>
-                      <td style={{fontFamily:'var(--font-mono)', fontWeight:700, color:'var(--accent-blue)'}}>
-                        ${stock.strikePrice.toFixed(2)}
-                        <div style={{fontSize:'10px', color:'var(--text-muted)'}}>{((1 - stock.strikePrice/stock.price)*100).toFixed(1)}% OTM</div>
-                      </td>
-                      <td style={{fontFamily:'var(--font-mono)', fontSize:'12px', color: stock.strikePrice < (stock.supportLevel||0) ? 'var(--accent-green)' : 'var(--accent-amber)'}}>
-                        ${(stock.supportLevel||0).toFixed(2)}
-                        {stock.strikePrice < (stock.supportLevel||0) && <div style={{fontSize:'9px',color:'var(--accent-green)'}}>✓ Below</div>}
-                      </td>
-                      <td style={{fontFamily:'var(--font-mono)', fontSize:'12px', color:'var(--text-muted)'}}>
-                        ${(stock.resistanceLevel||0).toFixed(2)}
-                      </td>
-                      <td style={{fontFamily:'var(--font-mono)', fontSize:'12px'}}>{stock.expDateStr || `${stock.daysToExpiry}d`}</td>
-                      <td style={{fontFamily:'var(--font-mono)', color:'var(--accent-green)', fontWeight:700}}>${stock.premium.toFixed(2)}</td>
-                      <td style={{fontFamily:'var(--font-mono)', fontWeight:700, color:'var(--accent-blue)'}}>
-                        {(stock.weeklyYield * 100).toFixed(2)}%
-                      </td>
-                      <td>
-                        <Tip text={`MONTHLY YIELD: ${(stock.weeklyYield * (stock.daysToExpiry || 7) / 30 * 100).toFixed(2)}%\n= Weekly yield × (${stock.daysToExpiry || 7} DTE ÷ 30)\nThis is your actual expected return\nfor this specific contract period.`}>
-                        <span style={{fontFamily:'var(--font-mono)', fontWeight:700, color:'var(--accent-purple)'}}>
-                          {(stock.weeklyYield * (stock.daysToExpiry || 7) / 30 * 100).toFixed(2)}%
-                        </span>
-                        </Tip>
-                      </td>
-                      <td>
-                        <Tip text={`THETA DECAY: $${(stock.thetaPerDay || (stock.premium * 100 / (stock.daysToExpiry || 7))).toFixed(2)}/day\nThis is how much the option loses in value each day — money that flows to you as the seller.\n\nProjected income from theta:\nPer week: $${(stock.thetaPerWeek || (stock.premium * 100 / (stock.daysToExpiry || 7) * 5)).toFixed(2)}\nPer month: $${((stock.thetaPerDay || (stock.premium * 100 / (stock.daysToExpiry || 7))) * 21).toFixed(2)}\nPer year: $${((stock.thetaPerDay || (stock.premium * 100 / (stock.daysToExpiry || 7))) * 252).toFixed(0)} (if repeated)\n\n${stock.gammaRisk === 'HIGH' ? 'HIGH gamma risk — delta can change rapidly on short DTE' : stock.gammaRisk === 'ELEVATED' ? 'Elevated gamma — monitor position closely' : 'Normal gamma risk'}`}>
-                        <span style={{fontFamily:'var(--font-mono)', fontWeight:700, color:'var(--accent-green)'}}>
-                          ${(stock.thetaPerDay || (stock.premium * 100 / (stock.daysToExpiry || 7))).toFixed(2)}
-                        </span>
-                        </Tip>
-                      </td>
-                      <td>
-                        <Tip text={TipText.delta(stock)}>
-                        <span className={`indicator-pill ${stock.delta <= 0.20 ? 'pill-green' : stock.delta <= 0.28 ? 'pill-amber' : 'pill-red'}`}>
-                          {stock.delta.toFixed(2)}
-                        </span>
-                        </Tip>
-                      </td>
-                      <td>
-                        <Tip text={TipText.pop(stock)}>
-                        <span style={{fontFamily:'var(--font-mono)', fontWeight:600, color: pop >= 80 ? 'var(--accent-green)' : pop >= 70 ? 'var(--accent-amber)' : 'var(--accent-red)'}}>
-                        {pop}%
-                        </span>
-                        </Tip>
-                      </td>
-                      <td style={{fontFamily:'var(--font-mono)', fontSize:'12px'}}>${cashReq.toLocaleString()}</td>
-                      <td style={{fontFamily:'var(--font-mono)', fontSize:'12px', color:'var(--accent-red)'}}>${maxLoss.toLocaleString()}</td>
-                      <td>
-                        <span className={`indicator-pill ${(stock.ivPercentile||50) >= 50 ? 'pill-green' : 'pill-amber'}`}>
-                          {stock.ivPercentile || 50}%
-                        </span>
-                      </td>
-                      <td style={{fontFamily:'var(--font-mono)', fontSize:'11px', color: (stock.putCallRatio||1) > 1.2 ? 'var(--accent-red)' : (stock.putCallRatio||1) < 0.8 ? 'var(--accent-green)' : 'var(--text-muted)'}}>
-                        {(stock.putCallRatio||1).toFixed(2)}
-                        <div style={{fontSize:'9px', color:'var(--text-muted)'}}>{(stock.putCallRatio||1) > 1.2 ? 'Bearish' : (stock.putCallRatio||1) < 0.8 ? 'Bullish' : 'Neutral'}</div>
-                      </td>
-                      <td>
-                        <span style={{fontFamily:'var(--font-mono)', fontSize:'11px', color: stock.bidAskSpread <= 0.05 ? 'var(--accent-green)' : stock.bidAskSpread <= 0.10 ? 'var(--text-secondary)' : 'var(--accent-amber)'}}>
-                          ${stock.bidAskSpread.toFixed(2)}
-                        </span>
-                      </td>
-                      <td>
-                        {stock.earningsIn <= 14 && stock.earningsConfirmed !== false ? (
-                          <span style={{fontSize:'11px', padding:'2px 6px', borderRadius:'4px', background:'rgba(239,68,68,0.15)', color:'var(--accent-red)'}}>
-                            ⚠ {stock.earningsDateStr || stock.earningsIn+'d'}
-                          </span>
-                        ) : stock.earningsConfirmed === false ? (
-                          <span style={{fontFamily:'var(--font-mono)', fontSize:'11px', color:'var(--text-muted)'}}>~{stock.earningsDateStr || stock.earningsIn+'d'}</span>
-                        ) : (
-                          <span style={{fontFamily:'var(--font-mono)', fontSize:'11px', color:'var(--text-muted)'}}>{stock.earningsDateStr || stock.earningsIn+'d'}</span>
-                        )}
-                      </td>
-                      <td>
-                        {stock.exDivBeforeExpiry ? (
-                          <span style={{fontSize:'11px', padding:'2px 6px', borderRadius:'4px', background:'rgba(245,158,11,0.15)', color:'var(--accent-amber)'}}>
-                            ⚠ {stock.exDivDateStr}
-                          </span>
-                        ) : stock.exDivDateStr ? (
-                          <span style={{fontFamily:'var(--font-mono)', fontSize:'11px', color:'var(--text-muted)'}}>{stock.exDivDateStr}</span>
-                        ) : (
-                          <span style={{fontSize:'11px', color:'var(--text-muted)'}}>—</span>
-                        )}
-                      </td>
-                      <td>
-                        <Tip text={TipText.score(stock)}>
-                        <span className={`score-badge ${stock.wheelScore >= 75 ? 'score-high' : stock.wheelScore >= 50 ? 'score-mid' : 'score-low'}`}>
-                          {stock.wheelScore}
-                        </span>
-                        </Tip>
-                      </td>
-                      <td style={{fontSize:'11px', color:'var(--text-muted)', maxWidth:'140px'}}>{stock.recommendation.reason}</td>
                     </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {/* SCROLLABLE: all other columns */}
+            <div className="split-table-scroll" ref={recSplit.scrollRef}>
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Confidence</th>
+                    <th>Price</th>
+                    <th>Strike</th>
+                    <th>Support</th>
+                    <th>Resistance</th>
+                    <th>Exp Date</th>
+                    <th>Premium</th>
+                    <th>Wk Yield</th>
+                    <th>Mo. Yield</th>
+                    <th>Theta/Day</th>
+                    <th>Delta</th>
+                    <th>P.O.P.</th>
+                    <th>Cash Req.</th>
+                    <th>Max Loss</th>
+                    <th>IV %ile</th>
+                    <th>P/C Ratio</th>
+                    <th>Bid-Ask</th>
+                    <th>Earnings</th>
+                    <th>Ex-Div</th>
+                    <th>Score</th>
+                    <th>Reason</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {recommendedPuts.map((stock, i) => {
+                    const confStyle = WheelScoring.getConfidenceStyle(stock.recommendation.confidence);
+                    const pop = stock.probOfProfit || WheelScoring.getProbOfProfit(stock.delta);
+                    const cashReq = stock.cashRequired || WheelScoring.getCashRequired(stock.strikePrice);
+                    const maxLoss = stock.maxLoss || Math.round((stock.strikePrice - stock.premium) * 100);
+                    return (
+                      <tr key={stock.symbol} style={{animation: `slideIn 0.3s ease-out ${i * 0.04}s both`, background: stock.recommendation.confidence === 'HIGH' ? 'rgba(16,185,129,0.03)' : 'transparent'}}>
+                        <td>
+                          <span style={{padding:'3px 10px', borderRadius:'12px', fontSize:'11px', fontWeight:700, background:confStyle.bg, color:confStyle.color, border:confStyle.border, letterSpacing:'0.5px'}}>
+                            {stock.recommendation.confidence}
+                          </span>
+                        </td>
+                        <td style={{fontFamily:'var(--font-mono)', fontWeight:600}}>${stock.price.toFixed(2)}</td>
+                        <td style={{fontFamily:'var(--font-mono)', fontWeight:700, color:'var(--accent-blue)'}}>
+                          ${stock.strikePrice.toFixed(2)}
+                          <div style={{fontSize:'10px', color:'var(--text-muted)'}}>{((1 - stock.strikePrice/stock.price)*100).toFixed(1)}% OTM</div>
+                        </td>
+                        <td style={{fontFamily:'var(--font-mono)', fontSize:'12px', color: stock.strikePrice < (stock.supportLevel||0) ? 'var(--accent-green)' : 'var(--accent-amber)'}}>
+                          ${(stock.supportLevel||0).toFixed(2)}
+                          {stock.strikePrice < (stock.supportLevel||0) && <div style={{fontSize:'9px',color:'var(--accent-green)'}}>✓ Below</div>}
+                        </td>
+                        <td style={{fontFamily:'var(--font-mono)', fontSize:'12px', color:'var(--text-muted)'}}>
+                          ${(stock.resistanceLevel||0).toFixed(2)}
+                        </td>
+                        <td style={{fontFamily:'var(--font-mono)', fontSize:'12px'}}>{stock.expDateStr || `${stock.daysToExpiry}d`}</td>
+                        <td style={{fontFamily:'var(--font-mono)', color:'var(--accent-green)', fontWeight:700}}>${stock.premium.toFixed(2)}</td>
+                        <td style={{fontFamily:'var(--font-mono)', fontWeight:700, color:'var(--accent-blue)'}}>
+                          {(stock.weeklyYield * 100).toFixed(2)}%
+                        </td>
+                        <td>
+                          <Tip text={`MONTHLY YIELD: ${(stock.weeklyYield * (stock.daysToExpiry || 7) / 30 * 100).toFixed(2)}%\n= Weekly yield × (${stock.daysToExpiry || 7} DTE ÷ 30)\nThis is your actual expected return\nfor this specific contract period.`}>
+                          <span style={{fontFamily:'var(--font-mono)', fontWeight:700, color:'var(--accent-purple)'}}>
+                            {(stock.weeklyYield * (stock.daysToExpiry || 7) / 30 * 100).toFixed(2)}%
+                          </span>
+                          </Tip>
+                        </td>
+                        <td>
+                          <Tip text={`THETA DECAY: $${(stock.thetaPerDay || (stock.premium * 100 / (stock.daysToExpiry || 7))).toFixed(2)}/day\nThis is how much the option loses in value each day — money that flows to you as the seller.\n\nProjected income from theta:\nPer week: $${(stock.thetaPerWeek || (stock.premium * 100 / (stock.daysToExpiry || 7) * 5)).toFixed(2)}\nPer month: $${((stock.thetaPerDay || (stock.premium * 100 / (stock.daysToExpiry || 7))) * 21).toFixed(2)}\nPer year: $${((stock.thetaPerDay || (stock.premium * 100 / (stock.daysToExpiry || 7))) * 252).toFixed(0)} (if repeated)\n\n${stock.gammaRisk === 'HIGH' ? 'HIGH gamma risk — delta can change rapidly on short DTE' : stock.gammaRisk === 'ELEVATED' ? 'Elevated gamma — monitor position closely' : 'Normal gamma risk'}`}>
+                          <span style={{fontFamily:'var(--font-mono)', fontWeight:700, color:'var(--accent-green)'}}>
+                            ${(stock.thetaPerDay || (stock.premium * 100 / (stock.daysToExpiry || 7))).toFixed(2)}
+                          </span>
+                          </Tip>
+                        </td>
+                        <td>
+                          <Tip text={TipText.delta(stock)}>
+                          <span className={`indicator-pill ${stock.delta <= 0.20 ? 'pill-green' : stock.delta <= 0.28 ? 'pill-amber' : 'pill-red'}`}>
+                            {stock.delta.toFixed(2)}
+                          </span>
+                          </Tip>
+                        </td>
+                        <td>
+                          <Tip text={TipText.pop(stock)}>
+                          <span style={{fontFamily:'var(--font-mono)', fontWeight:600, color: pop >= 80 ? 'var(--accent-green)' : pop >= 70 ? 'var(--accent-amber)' : 'var(--accent-red)'}}>
+                          {pop}%
+                          </span>
+                          </Tip>
+                        </td>
+                        <td style={{fontFamily:'var(--font-mono)', fontSize:'12px'}}>${cashReq.toLocaleString()}</td>
+                        <td style={{fontFamily:'var(--font-mono)', fontSize:'12px', color:'var(--accent-red)'}}>${maxLoss.toLocaleString()}</td>
+                        <td>
+                          <span className={`indicator-pill ${(stock.ivPercentile||50) >= 50 ? 'pill-green' : 'pill-amber'}`}>
+                            {stock.ivPercentile || 50}%
+                          </span>
+                        </td>
+                        <td style={{fontFamily:'var(--font-mono)', fontSize:'11px', color: (stock.putCallRatio||1) > 1.2 ? 'var(--accent-red)' : (stock.putCallRatio||1) < 0.8 ? 'var(--accent-green)' : 'var(--text-muted)'}}>
+                          {(stock.putCallRatio||1).toFixed(2)}
+                          <div style={{fontSize:'9px', color:'var(--text-muted)'}}>{(stock.putCallRatio||1) > 1.2 ? 'Bearish' : (stock.putCallRatio||1) < 0.8 ? 'Bullish' : 'Neutral'}</div>
+                        </td>
+                        <td>
+                          <span style={{fontFamily:'var(--font-mono)', fontSize:'11px', color: stock.bidAskSpread <= 0.05 ? 'var(--accent-green)' : stock.bidAskSpread <= 0.10 ? 'var(--text-secondary)' : 'var(--accent-amber)'}}>
+                            ${stock.bidAskSpread.toFixed(2)}
+                          </span>
+                        </td>
+                        <td>
+                          {stock.earningsIn <= 14 && stock.earningsConfirmed !== false ? (
+                            <span style={{fontSize:'11px', padding:'2px 6px', borderRadius:'4px', background:'rgba(239,68,68,0.15)', color:'var(--accent-red)'}}>
+                              ⚠ {stock.earningsDateStr || stock.earningsIn+'d'}
+                            </span>
+                          ) : stock.earningsConfirmed === false ? (
+                            <span style={{fontFamily:'var(--font-mono)', fontSize:'11px', color:'var(--text-muted)'}}>~{stock.earningsDateStr || stock.earningsIn+'d'}</span>
+                          ) : (
+                            <span style={{fontFamily:'var(--font-mono)', fontSize:'11px', color:'var(--text-muted)'}}>{stock.earningsDateStr || stock.earningsIn+'d'}</span>
+                          )}
+                        </td>
+                        <td>
+                          {stock.exDivBeforeExpiry ? (
+                            <span style={{fontSize:'11px', padding:'2px 6px', borderRadius:'4px', background:'rgba(245,158,11,0.15)', color:'var(--accent-amber)'}}>
+                              ⚠ {stock.exDivDateStr}
+                            </span>
+                          ) : stock.exDivDateStr ? (
+                            <span style={{fontFamily:'var(--font-mono)', fontSize:'11px', color:'var(--text-muted)'}}>{stock.exDivDateStr}</span>
+                          ) : (
+                            <span style={{fontSize:'11px', color:'var(--text-muted)'}}>—</span>
+                          )}
+                        </td>
+                        <td>
+                          <Tip text={TipText.score(stock)}>
+                          <span className={`score-badge ${stock.wheelScore >= 75 ? 'score-high' : stock.wheelScore >= 50 ? 'score-mid' : 'score-low'}`}>
+                            {stock.wheelScore}
+                          </span>
+                          </Tip>
+                        </td>
+                        <td style={{fontSize:'11px', color:'var(--text-muted)', maxWidth:'140px'}}>{stock.recommendation.reason}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       )}
@@ -3375,188 +3428,206 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
             <span style={{fontSize:'12px', color:'var(--text-muted)'}}>Sorted by Wheel Score · {topStocks.length} stocks</span>
           </div>
         </div>
-        <div className="table-scroll">
-          <table className="data-table data-table-dashboard">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Symbol</th>
-                <th>Price</th>
-                <th>Score</th>
-                <th>Action</th>
-                <th>Strike</th>
-                <th>Support</th>
-                <th>Resist.</th>
-                <th>Exp Date</th>
-                <th>Premium</th>
-                <th>Wk Yield</th>
-                <th>Ann. Yield</th>
-                <th>Delta</th>
-                <th>P.O.P.</th>
-                <th>Cash Req.</th>
-                <th>Max Loss</th>
-                <th>RSI</th>
-                <th>Signal</th>
-                <th>IV %ile</th>
-                <th>P/C Ratio</th>
-                <th>Earnings</th>
-                <th>Ex-Div</th>
-                <th>Trend</th>
-                <th>IV Rank</th>
-              </tr>
-            </thead>
-            <tbody>
-              {topStocks.map((stock, i) => {
-                const isRecommended = stock.recommendation && stock.recommendation.type === 'SELL_PUT' && (stock.recommendation.confidence === 'HIGH' || stock.recommendation.confidence === 'MEDIUM');
-                const pop = stock.probOfProfit || WheelScoring.getProbOfProfit(stock.delta);
-                const cashReq = stock.cashRequired || WheelScoring.getCashRequired(stock.strikePrice);
-                const maxLoss = stock.maxLoss || Math.round((stock.strikePrice - stock.premium) * 100);
-                return (
-                <tr key={stock.symbol} style={{animation: `slideIn 0.3s ease-out ${i * 0.03}s both`, borderLeft: isRecommended ? '3px solid var(--accent-green)' : '3px solid transparent'}}>
-                  <td style={{color:'var(--text-muted)', fontFamily:'var(--font-mono)', fontSize:'12px'}}>{i + 1}</td>
-                  <td>
-                    <div style={{display:'flex', alignItems:'center', gap:'10px'}}>
-                      <div>
-                        <div className="ticker" style={{cursor:'pointer'}} onClick={() => onSelectStock && onSelectStock(stock)}>{stock.symbol}</div>
-                        <div style={{fontSize:'11px', color:'var(--text-muted)'}}>{stock.sector}</div>
+        <div className="split-table-wrapper">
+          {/* FIXED: # + Symbol columns */}
+          <div className="split-table-fixed" ref={candSplit.fixedRef}>
+            <table className="data-table">
+              <thead>
+                <tr><th>#</th><th>Symbol</th></tr>
+              </thead>
+              <tbody>
+                {topStocks.map((stock, i) => {
+                  const isRecommended = stock.recommendation && stock.recommendation.type === 'SELL_PUT' && (stock.recommendation.confidence === 'HIGH' || stock.recommendation.confidence === 'MEDIUM');
+                  return (
+                  <tr key={stock.symbol} style={{animation: `slideIn 0.3s ease-out ${i * 0.03}s both`, borderLeft: isRecommended ? '3px solid var(--accent-green)' : '3px solid transparent'}}>
+                    <td style={{color:'var(--text-muted)', fontFamily:'var(--font-mono)', fontSize:'12px'}}>{i + 1}</td>
+                    <td>
+                      <div style={{display:'flex', alignItems:'center', gap:'10px'}}>
+                        <div>
+                          <div className="ticker" style={{cursor:'pointer'}} onClick={() => onSelectStock && onSelectStock(stock)}>{stock.symbol}</div>
+                          <div style={{fontSize:'11px', color:'var(--text-muted)'}}>{stock.sector}</div>
+                        </div>
                       </div>
-                    </div>
-                  </td>
-                  <td>
-                    <div style={{fontFamily:'var(--font-mono)', fontWeight:600}}>${stock.price.toFixed(2)}</div>
-                    <div style={{fontSize:'11px', color: stock.change >= 0 ? 'var(--accent-green)' : 'var(--accent-red)'}}>{stock.change >= 0 ? '+' : ''}{stock.changePct}%</div>
-                  </td>
-                  <td>
-                    <Tip text={TipText.score(stock)}>
-                    <span className={`score-badge ${stock.wheelScore >= 75 ? 'score-high' : stock.wheelScore >= 50 ? 'score-mid' : 'score-low'}`}>
-                      {stock.wheelScore}
-                    </span>
-                    </Tip>
-                  </td>
-                  <td>
-                    <Tip text={TipText.action(stock)}>
-                    <span className={`signal-badge signal-${stock.recommendation.color === 'green' ? 'bullish' : stock.recommendation.color === 'amber' ? 'neutral' : 'bearish'}`}>
-                      {stock.recommendation.label}
-                    </span>
-                    </Tip>
-                  </td>
-                  <td style={{fontFamily:'var(--font-mono)'}}>
-                    <Tip text={TipText.strike(stock)}>
-                    <span>${stock.strikePrice.toFixed(2)}
-                    <div style={{fontSize:'10px',color:'var(--text-muted)'}}>{((1 - stock.strikePrice/stock.price)*100).toFixed(1)}% OTM</div>
-                    </span>
-                    </Tip>
-                  </td>
-                  <td style={{fontFamily:'var(--font-mono)', fontSize:'12px', color: stock.strikePrice < (stock.supportLevel||0) ? 'var(--accent-green)' : 'var(--text-muted)'}}>
-                    ${(stock.supportLevel||0).toFixed(2)}
-                  </td>
-                  <td style={{fontFamily:'var(--font-mono)', fontSize:'12px', color:'var(--text-muted)'}}>
-                    ${(stock.resistanceLevel||0).toFixed(2)}
-                  </td>
-                  <td style={{fontFamily:'var(--font-mono)', fontSize:'12px'}}>{stock.expDateStr || `${stock.daysToExpiry}d`}</td>
-                  <td style={{fontFamily:'var(--font-mono)', color:'var(--accent-green)'}}>${stock.premium.toFixed(2)}</td>
-                  <td>
-                    <Tip text={TipText.yield(stock)}>
-                    <span style={{fontFamily:'var(--font-mono)', fontWeight:700, color:'var(--accent-blue)'}}>
-                    {(stock.weeklyYield * 100).toFixed(2)}%
-                    </span>
-                    </Tip>
-                  </td>
-                  <td>
-                    <Tip text={TipText.annYield(stock)}>
-                    <span style={{fontFamily:'var(--font-mono)', fontWeight:700, color:'var(--accent-green)'}}>
-                    {stock.annualizedYield}%
-                    </span>
-                    </Tip>
-                  </td>
-                  <td>
-                    <Tip text={TipText.delta(stock)}>
-                    <span className={`indicator-pill ${stock.delta <= 0.20 ? 'pill-green' : stock.delta <= 0.28 ? 'pill-amber' : 'pill-red'}`}>
-                      {stock.delta.toFixed(2)}
-                    </span>
-                    </Tip>
-                  </td>
-                  <td>
-                    <Tip text={TipText.pop(stock)}>
-                    <span style={{fontFamily:'var(--font-mono)', fontSize:'12px', color: pop >= 80 ? 'var(--accent-green)' : pop >= 70 ? 'var(--text-secondary)' : 'var(--accent-red)'}}>
-                    {pop}%
-                    </span>
-                    </Tip>
-                  </td>
-                  <td style={{fontFamily:'var(--font-mono)', fontSize:'12px'}}>${cashReq.toLocaleString()}</td>
-                  <td>
-                    <Tip text={TipText.maxLoss(stock)}>
-                    <span style={{fontFamily:'var(--font-mono)', fontSize:'12px', color:'var(--accent-red)'}}>${maxLoss.toLocaleString()}</span>
-                    </Tip>
-                  </td>
-                  <td>
-                    <Tip text={TipText.rsi(stock)}>
-                    <span className={`indicator-pill ${stock.rsi < 35 ? 'pill-green' : stock.rsi > 65 ? 'pill-red' : 'pill-amber'}`}>
-                      {stock.rsi}
-                    </span>
-                    </Tip>
-                  </td>
-                  <td>
-                    <Tip text={TipText.signal(stock)}>
-                    <span className={`signal-badge ${stock.technicalSignal > 0.2 ? 'signal-bullish' : stock.technicalSignal < -0.2 ? 'signal-bearish' : 'signal-neutral'}`}>
-                      {stock.technicalSignal > 0.2 ? '↑ Bull' : stock.technicalSignal < -0.2 ? '↓ Bear' : '— Neutral'}
-                    </span>
-                    </Tip>
-                  </td>
-                  <td>
-                    <Tip text={TipText.iv(stock)}>
-                    <span className={`indicator-pill ${(stock.ivPercentile||50) >= 50 ? 'pill-green' : 'pill-amber'}`}>
-                      {stock.ivPercentile || 50}%
-                    </span>
-                    </Tip>
-                  </td>
-                  <td>
-                    <Tip text={TipText.pcRatio(stock)}>
-                    <span style={{fontFamily:'var(--font-mono)', fontSize:'11px', color: (stock.putCallRatio||1) > 1.2 ? 'var(--accent-red)' : (stock.putCallRatio||1) < 0.8 ? 'var(--accent-green)' : 'var(--text-muted)'}}>
-                    {(stock.putCallRatio||1).toFixed(2)}
-                    </span>
-                    </Tip>
-                  </td>
-                  <td>
-                    <Tip text={TipText.earnings(stock)}>
-                    {stock.earningsIn <= 14 && stock.earningsConfirmed !== false ? (
-                      <span style={{fontSize:'11px', padding:'2px 6px', borderRadius:'4px', background:'rgba(239,68,68,0.15)', color:'var(--accent-red)'}}>
-                        ⚠ {stock.earningsDateStr || stock.earningsIn+'d'}
-                      </span>
-                    ) : stock.earningsConfirmed === false ? (
-                      <span style={{fontFamily:'var(--font-mono)', fontSize:'11px', color:'var(--text-muted)'}}>~{stock.earningsDateStr || stock.earningsIn+'d'}</span>
-                    ) : (
-                      <span style={{fontFamily:'var(--font-mono)', fontSize:'11px', color:'var(--text-muted)'}}>{stock.earningsDateStr || stock.earningsIn+'d'}</span>
-                    )}
-                    </Tip>
-                  </td>
-                  <td>
-                    <Tip text={TipText.exDiv(stock)}>
-                    {stock.exDivBeforeExpiry ? (
-                      <span style={{fontSize:'11px', padding:'2px 6px', borderRadius:'4px', background:'rgba(245,158,11,0.15)', color:'var(--accent-amber)'}}>⚠ {stock.exDivDateStr}</span>
-                    ) : stock.exDivDateStr ? (
-                      <span style={{fontFamily:'var(--font-mono)', fontSize:'11px', color:'var(--text-muted)'}}>{stock.exDivDateStr}</span>
-                    ) : (
-                      <span style={{fontSize:'11px', color:'var(--text-muted)'}}>—</span>
-                    )}
-                    </Tip>
-                  </td>
-                  <td>
-                    <Sparkline data={stock.closes.slice(-20)} color={stock.technicalSignal > 0 ? '#10b981' : '#ef4444'} />
-                  </td>
-                  <td>
-                    <div style={{display:'flex', alignItems:'center', gap:'6px'}}>
-                      <div style={{width:40, height:4, background:'var(--bg-primary)', borderRadius:2, overflow:'hidden'}}>
-                        <div style={{width:`${stock.ivRank}%`, height:'100%', background: stock.ivRank > 50 ? 'var(--accent-green)' : 'var(--accent-amber)', borderRadius:2}}></div>
-                      </div>
-                      <span style={{fontFamily:'var(--font-mono)', fontSize:'11px'}}>{stock.ivRank}%</span>
-                    </div>
-                  </td>
+                    </td>
+                  </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          {/* SCROLLABLE: all other columns */}
+          <div className="split-table-scroll" ref={candSplit.scrollRef}>
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Price</th>
+                  <th>Score</th>
+                  <th>Action</th>
+                  <th>Strike</th>
+                  <th>Support</th>
+                  <th>Resist.</th>
+                  <th>Exp Date</th>
+                  <th>Premium</th>
+                  <th>Wk Yield</th>
+                  <th>Ann. Yield</th>
+                  <th>Delta</th>
+                  <th>P.O.P.</th>
+                  <th>Cash Req.</th>
+                  <th>Max Loss</th>
+                  <th>RSI</th>
+                  <th>Signal</th>
+                  <th>IV %ile</th>
+                  <th>P/C Ratio</th>
+                  <th>Earnings</th>
+                  <th>Ex-Div</th>
+                  <th>Trend</th>
+                  <th>IV Rank</th>
                 </tr>
-                );
-              })}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {topStocks.map((stock, i) => {
+                  const isRecommended = stock.recommendation && stock.recommendation.type === 'SELL_PUT' && (stock.recommendation.confidence === 'HIGH' || stock.recommendation.confidence === 'MEDIUM');
+                  const pop = stock.probOfProfit || WheelScoring.getProbOfProfit(stock.delta);
+                  const cashReq = stock.cashRequired || WheelScoring.getCashRequired(stock.strikePrice);
+                  const maxLoss = stock.maxLoss || Math.round((stock.strikePrice - stock.premium) * 100);
+                  return (
+                  <tr key={stock.symbol} style={{animation: `slideIn 0.3s ease-out ${i * 0.03}s both`, borderLeft: isRecommended ? '3px solid var(--accent-green)' : '3px solid transparent'}}>
+                    <td>
+                      <div style={{fontFamily:'var(--font-mono)', fontWeight:600}}>${stock.price.toFixed(2)}</div>
+                      <div style={{fontSize:'11px', color: stock.change >= 0 ? 'var(--accent-green)' : 'var(--accent-red)'}}>{stock.change >= 0 ? '+' : ''}{stock.changePct}%</div>
+                    </td>
+                    <td>
+                      <Tip text={TipText.score(stock)}>
+                      <span className={`score-badge ${stock.wheelScore >= 75 ? 'score-high' : stock.wheelScore >= 50 ? 'score-mid' : 'score-low'}`}>
+                        {stock.wheelScore}
+                      </span>
+                      </Tip>
+                    </td>
+                    <td>
+                      <Tip text={TipText.action(stock)}>
+                      <span className={`signal-badge signal-${stock.recommendation.color === 'green' ? 'bullish' : stock.recommendation.color === 'amber' ? 'neutral' : 'bearish'}`}>
+                        {stock.recommendation.label}
+                      </span>
+                      </Tip>
+                    </td>
+                    <td style={{fontFamily:'var(--font-mono)'}}>
+                      <Tip text={TipText.strike(stock)}>
+                      <span>${stock.strikePrice.toFixed(2)}
+                      <div style={{fontSize:'10px',color:'var(--text-muted)'}}>{((1 - stock.strikePrice/stock.price)*100).toFixed(1)}% OTM</div>
+                      </span>
+                      </Tip>
+                    </td>
+                    <td style={{fontFamily:'var(--font-mono)', fontSize:'12px', color: stock.strikePrice < (stock.supportLevel||0) ? 'var(--accent-green)' : 'var(--text-muted)'}}>
+                      ${(stock.supportLevel||0).toFixed(2)}
+                    </td>
+                    <td style={{fontFamily:'var(--font-mono)', fontSize:'12px', color:'var(--text-muted)'}}>
+                      ${(stock.resistanceLevel||0).toFixed(2)}
+                    </td>
+                    <td style={{fontFamily:'var(--font-mono)', fontSize:'12px'}}>{stock.expDateStr || `${stock.daysToExpiry}d`}</td>
+                    <td style={{fontFamily:'var(--font-mono)', color:'var(--accent-green)'}}>${stock.premium.toFixed(2)}</td>
+                    <td>
+                      <Tip text={TipText.yield(stock)}>
+                      <span style={{fontFamily:'var(--font-mono)', fontWeight:700, color:'var(--accent-blue)'}}>
+                      {(stock.weeklyYield * 100).toFixed(2)}%
+                      </span>
+                      </Tip>
+                    </td>
+                    <td>
+                      <Tip text={TipText.annYield(stock)}>
+                      <span style={{fontFamily:'var(--font-mono)', fontWeight:700, color:'var(--accent-green)'}}>
+                      {stock.annualizedYield}%
+                      </span>
+                      </Tip>
+                    </td>
+                    <td>
+                      <Tip text={TipText.delta(stock)}>
+                      <span className={`indicator-pill ${stock.delta <= 0.20 ? 'pill-green' : stock.delta <= 0.28 ? 'pill-amber' : 'pill-red'}`}>
+                        {stock.delta.toFixed(2)}
+                      </span>
+                      </Tip>
+                    </td>
+                    <td>
+                      <Tip text={TipText.pop(stock)}>
+                      <span style={{fontFamily:'var(--font-mono)', fontSize:'12px', color: pop >= 80 ? 'var(--accent-green)' : pop >= 70 ? 'var(--text-secondary)' : 'var(--accent-red)'}}>
+                      {pop}%
+                      </span>
+                      </Tip>
+                    </td>
+                    <td style={{fontFamily:'var(--font-mono)', fontSize:'12px'}}>${cashReq.toLocaleString()}</td>
+                    <td>
+                      <Tip text={TipText.maxLoss(stock)}>
+                      <span style={{fontFamily:'var(--font-mono)', fontSize:'12px', color:'var(--accent-red)'}}>${maxLoss.toLocaleString()}</span>
+                      </Tip>
+                    </td>
+                    <td>
+                      <Tip text={TipText.rsi(stock)}>
+                      <span className={`indicator-pill ${stock.rsi < 35 ? 'pill-green' : stock.rsi > 65 ? 'pill-red' : 'pill-amber'}`}>
+                        {stock.rsi}
+                      </span>
+                      </Tip>
+                    </td>
+                    <td>
+                      <Tip text={TipText.signal(stock)}>
+                      <span className={`signal-badge ${stock.technicalSignal > 0.2 ? 'signal-bullish' : stock.technicalSignal < -0.2 ? 'signal-bearish' : 'signal-neutral'}`}>
+                        {stock.technicalSignal > 0.2 ? '↑ Bull' : stock.technicalSignal < -0.2 ? '↓ Bear' : '— Neutral'}
+                      </span>
+                      </Tip>
+                    </td>
+                    <td>
+                      <Tip text={TipText.iv(stock)}>
+                      <span className={`indicator-pill ${(stock.ivPercentile||50) >= 50 ? 'pill-green' : 'pill-amber'}`}>
+                        {stock.ivPercentile || 50}%
+                      </span>
+                      </Tip>
+                    </td>
+                    <td>
+                      <Tip text={TipText.pcRatio(stock)}>
+                      <span style={{fontFamily:'var(--font-mono)', fontSize:'11px', color: (stock.putCallRatio||1) > 1.2 ? 'var(--accent-red)' : (stock.putCallRatio||1) < 0.8 ? 'var(--accent-green)' : 'var(--text-muted)'}}>
+                      {(stock.putCallRatio||1).toFixed(2)}
+                      </span>
+                      </Tip>
+                    </td>
+                    <td>
+                      <Tip text={TipText.earnings(stock)}>
+                      {stock.earningsIn <= 14 && stock.earningsConfirmed !== false ? (
+                        <span style={{fontSize:'11px', padding:'2px 6px', borderRadius:'4px', background:'rgba(239,68,68,0.15)', color:'var(--accent-red)'}}>
+                          ⚠ {stock.earningsDateStr || stock.earningsIn+'d'}
+                        </span>
+                      ) : stock.earningsConfirmed === false ? (
+                        <span style={{fontFamily:'var(--font-mono)', fontSize:'11px', color:'var(--text-muted)'}}>~{stock.earningsDateStr || stock.earningsIn+'d'}</span>
+                      ) : (
+                        <span style={{fontFamily:'var(--font-mono)', fontSize:'11px', color:'var(--text-muted)'}}>{stock.earningsDateStr || stock.earningsIn+'d'}</span>
+                      )}
+                      </Tip>
+                    </td>
+                    <td>
+                      <Tip text={TipText.exDiv(stock)}>
+                      {stock.exDivBeforeExpiry ? (
+                        <span style={{fontSize:'11px', padding:'2px 6px', borderRadius:'4px', background:'rgba(245,158,11,0.15)', color:'var(--accent-amber)'}}>⚠ {stock.exDivDateStr}</span>
+                      ) : stock.exDivDateStr ? (
+                        <span style={{fontFamily:'var(--font-mono)', fontSize:'11px', color:'var(--text-muted)'}}>{stock.exDivDateStr}</span>
+                      ) : (
+                        <span style={{fontSize:'11px', color:'var(--text-muted)'}}>—</span>
+                      )}
+                      </Tip>
+                    </td>
+                    <td>
+                      <Sparkline data={stock.closes.slice(-20)} color={stock.technicalSignal > 0 ? '#10b981' : '#ef4444'} />
+                    </td>
+                    <td>
+                      <div style={{display:'flex', alignItems:'center', gap:'6px'}}>
+                        <div style={{width:40, height:4, background:'var(--bg-primary)', borderRadius:2, overflow:'hidden'}}>
+                          <div style={{width:`${stock.ivRank}%`, height:'100%', background: stock.ivRank > 50 ? 'var(--accent-green)' : 'var(--accent-amber)', borderRadius:2}}></div>
+                        </div>
+                        <span style={{fontFamily:'var(--font-mono)', fontSize:'11px'}}>{stock.ivRank}%</span>
+                      </div>
+                    </td>
+                  </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
@@ -3648,6 +3719,9 @@ function ScreenerPage({ stocks, user, subscriptionTier, onSelectStock, onExport 
     return result;
   }, [allScreenerStocks, filters]);
 
+  // Split-table refs for frozen Symbol column
+  const scrSplit = useSplitTable([filteredStocks]);
+
   const handleSort = (field) => {
     setFilters(f => ({
       ...f,
@@ -3723,91 +3797,112 @@ function ScreenerPage({ stocks, user, subscriptionTier, onSelectStock, onExport 
       </div>
 
       <div className="data-table-container">
-        <div className="table-scroll">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th style={{cursor:'pointer', position:'sticky', left:0, background:'#0d1526', zIndex:20}} onClick={() => handleSort('symbol')}>Symbol <SortIcon field="symbol"/></th>
-                <th>Name</th>
-                <th style={{cursor:'pointer'}} onClick={() => handleSort('price')}>Price <SortIcon field="price"/></th>
-                <th style={{cursor:'pointer'}} onClick={() => handleSort('wheelScore')}>Score <SortIcon field="wheelScore"/></th>
-                <th>Recommendation</th>
-                <th>Strike</th>
-                <th>Exp Date</th>
-                <th style={{cursor:'pointer'}} onClick={() => handleSort('weeklyYield')}>Wk Yield <SortIcon field="weeklyYield"/></th>
-                <th style={{cursor:'pointer'}} onClick={() => handleSort('annualizedYield')}>Ann Yield <SortIcon field="annualizedYield"/></th>
-                <th style={{cursor:'pointer'}} onClick={() => handleSort('delta')}>Delta <SortIcon field="delta"/></th>
-                <th style={{cursor:'pointer'}} onClick={() => handleSort('rsi')}>RSI <SortIcon field="rsi"/></th>
-                <th>MACD</th>
-                <th>BB %B</th>
-                <th style={{cursor:'pointer'}} onClick={() => handleSort('iv')}>IV <SortIcon field="iv"/></th>
-                <th style={{cursor:'pointer'}} onClick={() => handleSort('optionVolume')}>Opt Vol <SortIcon field="optionVolume"/></th>
-                <th>Earnings</th>
-                <th>Trend</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredStocks.length === 0 && (
+        <div className="split-table-wrapper">
+          {/* FIXED: Symbol column */}
+          <div className="split-table-fixed" ref={scrSplit.fixedRef}>
+            <table className="data-table">
+              <thead>
                 <tr>
-                  <td colSpan={17} style={{textAlign:'center', padding:'40px 20px', color:'var(--text-muted)', fontSize:'14px'}}>
-                    No stocks match your filters. Try adjusting the search term or filter values above.
-                  </td>
+                  <th style={{cursor:'pointer'}} onClick={() => handleSort('symbol')}>Symbol <SortIcon field="symbol"/></th>
                 </tr>
-              )}
-              {filteredStocks.map((stock, i) => (
-                <tr key={stock.symbol} style={{cursor:'pointer'}} onClick={() => onSelectStock && onSelectStock(stock)}>
-                  <td style={{position:'sticky', left:0, background:'#0d1526', zIndex:5}}><span className="ticker">{stock.symbol}</span></td>
-                  <td style={{fontSize:'12px', color:'var(--text-secondary)', maxWidth:140, overflow:'hidden', textOverflow:'ellipsis'}}>{stock.name}</td>
-                  <td>
-                    <span style={{fontFamily:'var(--font-mono)', fontWeight:600}}>${stock.price.toFixed(2)}</span>
-                    <span style={{fontSize:'11px', marginLeft:4, color: stock.change >= 0 ? 'var(--accent-green)' : 'var(--accent-red)'}}>
-                      {stock.change >= 0 ? '+' : ''}{stock.changePct}%
-                    </span>
-                  </td>
-                  <td>
-                    <Tip text={TipText.score(stock)}>
-                    <span className={`score-badge ${stock.wheelScore >= 75 ? 'score-high' : stock.wheelScore >= 50 ? 'score-mid' : 'score-low'}`}>
-                      {stock.wheelScore}
-                    </span>
-                    </Tip>
-                  </td>
-                  <td>
-                    <Tip text={TipText.action(stock)}>
-                    <span className={`signal-badge signal-${stock.recommendation.color === 'green' ? 'bullish' : stock.recommendation.color === 'amber' ? 'neutral' : 'bearish'}`} style={{fontSize:'11px'}}>
-                      {stock.recommendation.label}
-                    </span>
-                    </Tip>
-                  </td>
-                  <td style={{fontFamily:'var(--font-mono)', fontSize:'12px'}}>${stock.strikePrice.toFixed(2)}</td>
-                  <td style={{fontFamily:'var(--font-mono)', fontSize:'12px'}}>{stock.expDateStr || `${stock.daysToExpiry}d`}</td>
-                  <td><Tip text={TipText.yield(stock)}><span style={{fontFamily:'var(--font-mono)', fontWeight:700, color:'var(--accent-blue)'}}>{(stock.weeklyYield * 100).toFixed(2)}%</span></Tip></td>
-                  <td><Tip text={TipText.annYield(stock)}><span style={{fontFamily:'var(--font-mono)', fontWeight:700, color:'var(--accent-green)'}}>{stock.annualizedYield}%</span></Tip></td>
-                  <td><Tip text={TipText.delta(stock)}><span className={`indicator-pill ${stock.delta <= 0.20 ? 'pill-green' : stock.delta <= 0.28 ? 'pill-amber' : 'pill-red'}`}>{stock.delta.toFixed(2)}</span></Tip></td>
-                  <td><Tip text={TipText.rsi(stock)}><span className={`indicator-pill ${stock.rsi < 35 ? 'pill-green' : stock.rsi > 65 ? 'pill-red' : 'pill-amber'}`}>{stock.rsi}</span></Tip></td>
-                  <td style={{fontFamily:'var(--font-mono)', fontSize:'11px', color: stock.macd && stock.macd.histogram > 0 ? 'var(--accent-green)' : 'var(--accent-red)'}}>
-                    {stock.macd ? (stock.macd.histogram > 0 ? '↑' : '↓') + ' ' + Math.abs(stock.macd.histogram).toFixed(2) : '—'}
-                  </td>
-                  <td>
-                    {stock.bb ? (
-                      <span className={`indicator-pill ${stock.bb.percentB < 0.3 ? 'pill-green' : stock.bb.percentB > 0.7 ? 'pill-red' : 'pill-amber'}`}>
-                        {(stock.bb.percentB * 100).toFixed(0)}%
+              </thead>
+              <tbody>
+                {filteredStocks.length === 0 && (
+                  <tr><td style={{padding:'40px 20px', color:'var(--text-muted)', fontSize:'14px', whiteSpace:'normal'}}>No match</td></tr>
+                )}
+                {filteredStocks.map((stock, i) => (
+                  <tr key={stock.symbol} style={{cursor:'pointer'}} onClick={() => onSelectStock && onSelectStock(stock)}>
+                    <td><span className="ticker">{stock.symbol}</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {/* SCROLLABLE: all other columns */}
+          <div className="split-table-scroll" ref={scrSplit.scrollRef}>
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th style={{cursor:'pointer'}} onClick={() => handleSort('price')}>Price <SortIcon field="price"/></th>
+                  <th style={{cursor:'pointer'}} onClick={() => handleSort('wheelScore')}>Score <SortIcon field="wheelScore"/></th>
+                  <th>Recommendation</th>
+                  <th>Strike</th>
+                  <th>Exp Date</th>
+                  <th style={{cursor:'pointer'}} onClick={() => handleSort('weeklyYield')}>Wk Yield <SortIcon field="weeklyYield"/></th>
+                  <th style={{cursor:'pointer'}} onClick={() => handleSort('annualizedYield')}>Ann Yield <SortIcon field="annualizedYield"/></th>
+                  <th style={{cursor:'pointer'}} onClick={() => handleSort('delta')}>Delta <SortIcon field="delta"/></th>
+                  <th style={{cursor:'pointer'}} onClick={() => handleSort('rsi')}>RSI <SortIcon field="rsi"/></th>
+                  <th>MACD</th>
+                  <th>BB %B</th>
+                  <th style={{cursor:'pointer'}} onClick={() => handleSort('iv')}>IV <SortIcon field="iv"/></th>
+                  <th style={{cursor:'pointer'}} onClick={() => handleSort('optionVolume')}>Opt Vol <SortIcon field="optionVolume"/></th>
+                  <th>Earnings</th>
+                  <th>Trend</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredStocks.length === 0 && (
+                  <tr>
+                    <td colSpan={16} style={{textAlign:'center', padding:'40px 20px', color:'var(--text-muted)', fontSize:'14px'}}>
+                      No stocks match your filters. Try adjusting the search term or filter values above.
+                    </td>
+                  </tr>
+                )}
+                {filteredStocks.map((stock, i) => (
+                  <tr key={stock.symbol} style={{cursor:'pointer'}} onClick={() => onSelectStock && onSelectStock(stock)}>
+                    <td style={{fontSize:'12px', color:'var(--text-secondary)', maxWidth:140, overflow:'hidden', textOverflow:'ellipsis'}}>{stock.name}</td>
+                    <td>
+                      <span style={{fontFamily:'var(--font-mono)', fontWeight:600}}>${stock.price.toFixed(2)}</span>
+                      <span style={{fontSize:'11px', marginLeft:4, color: stock.change >= 0 ? 'var(--accent-green)' : 'var(--accent-red)'}}>
+                        {stock.change >= 0 ? '+' : ''}{stock.changePct}%
                       </span>
-                    ) : '—'}
-                  </td>
-                  <td style={{fontFamily:'var(--font-mono)', fontSize:'12px'}}>{stock.iv}%</td>
-                  <td style={{fontFamily:'var(--font-mono)', fontSize:'12px'}}>{stock.optionVolume.toLocaleString()}</td>
-                  <td>
-                    <Tip text={TipText.earnings(stock)}>
-                    <span className={`indicator-pill ${stock.earningsConfirmed === false ? 'pill-amber' : stock.earningsIn <= 7 ? 'pill-red' : stock.earningsIn <= 14 ? 'pill-amber' : 'pill-green'}`}>
-                      {stock.earningsConfirmed === false ? '~' : ''}{stock.earningsDateStr || stock.earningsIn+'d'}
-                    </span>
-                    </Tip>
-                  </td>
-                  <td><Sparkline data={stock.closes.slice(-15)} width={60} height={24} color={stock.technicalSignal > 0 ? '#10b981' : '#ef4444'} /></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    </td>
+                    <td>
+                      <Tip text={TipText.score(stock)}>
+                      <span className={`score-badge ${stock.wheelScore >= 75 ? 'score-high' : stock.wheelScore >= 50 ? 'score-mid' : 'score-low'}`}>
+                        {stock.wheelScore}
+                      </span>
+                      </Tip>
+                    </td>
+                    <td>
+                      <Tip text={TipText.action(stock)}>
+                      <span className={`signal-badge signal-${stock.recommendation.color === 'green' ? 'bullish' : stock.recommendation.color === 'amber' ? 'neutral' : 'bearish'}`} style={{fontSize:'11px'}}>
+                        {stock.recommendation.label}
+                      </span>
+                      </Tip>
+                    </td>
+                    <td style={{fontFamily:'var(--font-mono)', fontSize:'12px'}}>${stock.strikePrice.toFixed(2)}</td>
+                    <td style={{fontFamily:'var(--font-mono)', fontSize:'12px'}}>{stock.expDateStr || `${stock.daysToExpiry}d`}</td>
+                    <td><Tip text={TipText.yield(stock)}><span style={{fontFamily:'var(--font-mono)', fontWeight:700, color:'var(--accent-blue)'}}>{(stock.weeklyYield * 100).toFixed(2)}%</span></Tip></td>
+                    <td><Tip text={TipText.annYield(stock)}><span style={{fontFamily:'var(--font-mono)', fontWeight:700, color:'var(--accent-green)'}}>{stock.annualizedYield}%</span></Tip></td>
+                    <td><Tip text={TipText.delta(stock)}><span className={`indicator-pill ${stock.delta <= 0.20 ? 'pill-green' : stock.delta <= 0.28 ? 'pill-amber' : 'pill-red'}`}>{stock.delta.toFixed(2)}</span></Tip></td>
+                    <td><Tip text={TipText.rsi(stock)}><span className={`indicator-pill ${stock.rsi < 35 ? 'pill-green' : stock.rsi > 65 ? 'pill-red' : 'pill-amber'}`}>{stock.rsi}</span></Tip></td>
+                    <td style={{fontFamily:'var(--font-mono)', fontSize:'11px', color: stock.macd && stock.macd.histogram > 0 ? 'var(--accent-green)' : 'var(--accent-red)'}}>
+                      {stock.macd ? (stock.macd.histogram > 0 ? '↑' : '↓') + ' ' + Math.abs(stock.macd.histogram).toFixed(2) : '—'}
+                    </td>
+                    <td>
+                      {stock.bb ? (
+                        <span className={`indicator-pill ${stock.bb.percentB < 0.3 ? 'pill-green' : stock.bb.percentB > 0.7 ? 'pill-red' : 'pill-amber'}`}>
+                          {(stock.bb.percentB * 100).toFixed(0)}%
+                        </span>
+                      ) : '—'}
+                    </td>
+                    <td style={{fontFamily:'var(--font-mono)', fontSize:'12px'}}>{stock.iv}%</td>
+                    <td style={{fontFamily:'var(--font-mono)', fontSize:'12px'}}>{stock.optionVolume.toLocaleString()}</td>
+                    <td>
+                      <Tip text={TipText.earnings(stock)}>
+                      <span className={`indicator-pill ${stock.earningsConfirmed === false ? 'pill-amber' : stock.earningsIn <= 7 ? 'pill-red' : stock.earningsIn <= 14 ? 'pill-amber' : 'pill-green'}`}>
+                        {stock.earningsConfirmed === false ? '~' : ''}{stock.earningsDateStr || stock.earningsIn+'d'}
+                      </span>
+                      </Tip>
+                    </td>
+                    <td><Sparkline data={stock.closes.slice(-15)} width={60} height={24} color={stock.technicalSignal > 0 ? '#10b981' : '#ef4444'} /></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
