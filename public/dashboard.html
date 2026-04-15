@@ -3122,7 +3122,7 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>Symbol</th>
+                  <th style={{position:'sticky', left:0, zIndex:20, background:'#0d1526'}}>Symbol</th>
                   <th>Confidence</th>
                   <th>Price</th>
                   <th>Strike</th>
@@ -3155,7 +3155,7 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
                   const strikeVsSupport = stock.supportLevel ? stock.strikePrice <= stock.supportLevel : false;
                   return (
                     <tr key={stock.symbol} style={{animation: `slideIn 0.3s ease-out ${i * 0.04}s both`, background: stock.recommendation.confidence === 'HIGH' ? 'rgba(16,185,129,0.03)' : 'transparent'}}>
-                      <td style={{background: stock.recommendation.confidence === 'HIGH' ? '#0e1a2e' : '#0d1526'}}>
+                      <td style={{position:'sticky', left:0, zIndex:5, background: stock.recommendation.confidence === 'HIGH' ? '#0e1a2e' : '#0d1526'}}>
                         <div className="ticker" style={{cursor:'pointer'}} onClick={() => onSelectStock && onSelectStock(stock)}>{stock.symbol}</div>
                         <div style={{fontSize:'10px', color:'var(--text-muted)'}}>{stock.name}</div>
                       </td>
