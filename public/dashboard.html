@@ -72,8 +72,9 @@ const firebaseDb = firebase.firestore();
   --border: #1a2740;
   --border-focus: #b89a3e;
   --text-primary: #e2e7ef;
-  --text-secondary: #7d8da0;
-  --text-muted: #4a5a6e;
+  --text-secondary: #b8c3d1;  /* v3.3: bumped from #7d8da0 for readability */
+  --text-muted: #8896a8;      /* v3.3: bumped from #4a5a6e for readability */
+  --text-subtle: #6b7686;     /* v3.3: new — for truly tertiary info (timestamps, captions) */
   --accent-blue: #4a8fd4;
   --accent-blue-glow: rgba(74, 143, 212, 0.08);
   --accent-green: #1ea651;
@@ -115,12 +116,25 @@ body {
   letter-spacing: 0.01em;
 }
 
-/* Scrollbar — thin, subtle, matches dark terminal */
-::-webkit-scrollbar { width: 5px; height: 5px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 10px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.14); }
-* { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.08) transparent; }
+/* Scrollbar — v3.3.1: bright white by default for max visibility on dark bg */
+::-webkit-scrollbar { width: 12px; height: 12px; }
+::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 10px; }
+::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.7);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.95); background-clip: padding-box; border: 2px solid transparent; }
+::-webkit-scrollbar-thumb:active { background: #ffffff; background-clip: padding-box; border: 2px solid transparent; }
+* { scrollbar-width: auto; scrollbar-color: rgba(255,255,255,0.7) rgba(255,255,255,0.05); }
+
+/* Light-background contexts (modals, light panels) — darker scrollbar for contrast */
+.light-panel ::-webkit-scrollbar-thumb,
+.light-bg ::-webkit-scrollbar-thumb { background: rgba(30,40,60,0.35); background-clip: padding-box; border: 2px solid transparent; }
+.light-panel ::-webkit-scrollbar-thumb:hover,
+.light-bg ::-webkit-scrollbar-thumb:hover { background: rgba(30,40,60,0.55); background-clip: padding-box; border: 2px solid transparent; }
+.light-panel, .light-bg { scrollbar-color: rgba(30,40,60,0.35) rgba(0,0,0,0.05); }
 
 /* Selection */
 ::selection { background: rgba(74,143,212,0.35); color: white; }
@@ -842,20 +856,20 @@ body.protected img { pointer-events: none; }
 }
 .data-table th {
   text-align: left;
-  padding: 8px 12px;
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--text-muted);
+  padding: 10px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #e8eef7;  /* v3.3: bright white-ish for readability */
   text-transform: uppercase;
-  letter-spacing: 1.2px;
-  border-bottom: 1px solid rgba(184,154,62,0.2);
-  background: #090f1c;
+  letter-spacing: 0.8px;
+  border-bottom: 2px solid rgba(184,154,62,0.35);
+  background: #0a1220;
   font-family: var(--font-mono);
   white-space: nowrap;
   position: sticky;
   top: 0;
   z-index: 10;
-  box-shadow: 0 2px 0 rgba(201,168,76,0.08);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
 }
 .data-table td {
   padding: 7px 12px;
@@ -909,6 +923,138 @@ body.protected img { pointer-events: none; }
 /* Hide scrollbar on fixed panel (scroll synced from scrollable panel) */
 .split-table-fixed { scrollbar-width: none; -ms-overflow-style: none; }
 .split-table-fixed::-webkit-scrollbar { display: none; }
+
+/* ===== Freeze-pane variant: for non-split tables that still need a sticky first col ===== */
+.data-table-container.freeze-pane { overflow-x: auto; }
+.data-table-container.freeze-pane .data-table th:first-child,
+.data-table-container.freeze-pane .data-table td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 5;
+  background: var(--bg-card);
+}
+.data-table-container.freeze-pane .data-table th:first-child {
+  z-index: 15;
+  background: #0a1220;
+}
+
+/* ===== RESPONSIVE LAYOUT: fade transition between table and card view ===== */
+.responsive-layout-fade {
+  animation: layoutFadeIn 0.2s ease-out;
+}
+@keyframes layoutFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ===== MOBILE STOCK CARD VIEW ===== */
+.stock-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  background: transparent;
+}
+.stock-card {
+  position: relative;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px 12px 18px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+  overflow: hidden;
+}
+.stock-card:hover,
+.stock-card:active {
+  background: var(--bg-card-hover);
+  border-color: rgba(184,154,62,0.3);
+}
+.stock-card:active {
+  transform: scale(0.995);
+}
+.stock-card-tierbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--accent-green);
+}
+.stock-card-tierbar.tier-high    { background: var(--accent-green); }
+.stock-card-tierbar.tier-medium  { background: var(--accent-amber); }
+.stock-card-tierbar.tier-low     { background: #d4b83a; }
+.stock-card-tierbar.tier-wait    { background: var(--accent-red); }
+.stock-card-tierbar.tier-default { background: var(--text-muted); }
+.stock-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.stock-card-symbol {
+  font-family: var(--font-mono);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 0.5px;
+  line-height: 1.1;
+}
+.stock-card-name {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+.stock-card-pill {
+  flex-shrink: 0;
+  padding: 3px 8px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  font-family: var(--font-mono);
+}
+.stock-card-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 8px 0;
+}
+.stock-card-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+.stock-card-cell .stock-card-label {
+  font-size: 9px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+.stock-card-cell .stock-card-value {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+.stock-card-reason {
+  font-size: 11px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  margin-top: 4px;
+}
+.stock-card-reason-label {
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-right: 4px;
+}
 
 /* DTE filter select — Wall Street Premium style */
 .dte-filter-select {
@@ -1032,10 +1178,10 @@ body.protected img { pointer-events: none; }
   flex-wrap: wrap;
 }
 .indicator-pill {
-  font-size: 10px;
-  padding: 1px 6px;
-  border-radius: 3px;
-  font-weight: 600;
+  font-size: 11px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-weight: 700;
   font-family: var(--font-mono);
   letter-spacing: 0.2px;
 }
@@ -1162,6 +1308,71 @@ body.protected img { pointer-events: none; }
 .settings-row .label-group { flex: 1; }
 .settings-row .label-main { font-size: 14px; font-weight: 500; }
 .settings-row .label-desc { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+/* Advanced Gate Thresholds section */
+.advanced-gates-card { margin-top: 16px; }
+.advanced-gates-header {
+  display: flex; align-items: center; justify-content: space-between;
+  cursor: pointer; user-select: none; padding: 6px 0;
+}
+.advanced-gates-header h3 { margin: 0; }
+.advanced-gates-chevron { font-size: 14px; color: var(--text-muted); transition: transform 0.2s; }
+.advanced-gates-chevron.open { transform: rotate(90deg); }
+.advanced-gates-warning {
+  background: rgba(196,154,56,0.08);
+  border: 1px solid rgba(196,154,56,0.25);
+  color: #c49a38;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1.5;
+  margin: 12px 0;
+}
+.advanced-gates-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 10px 16px;
+  align-items: start;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(30,41,59,0.3);
+}
+.advanced-gates-row:last-of-type { border-bottom: none; }
+.advanced-gates-row .label-main { font-size: 14px; font-weight: 500; }
+.advanced-gates-row .label-desc {
+  font-size: 12px; color: var(--text-muted); margin-top: 4px;
+  grid-column: 1 / -1; line-height: 1.5;
+}
+.advanced-gates-input {
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  padding: 6px 10px; border-radius: 4px;
+  width: 80px; font-size: 13px;
+}
+.advanced-gates-reset-link {
+  background: none; border: none;
+  color: var(--text-muted); font-size: 11px;
+  cursor: pointer; text-decoration: underline;
+  padding: 6px 0; white-space: nowrap;
+}
+.advanced-gates-reset-link:hover { color: var(--accent); }
+.advanced-gates-dual { display: flex; gap: 8px; align-items: center; }
+.advanced-gates-dual .dual-label { font-size: 11px; color: var(--text-muted); }
+.advanced-gates-actions {
+  display: flex; gap: 12px; justify-content: flex-end;
+  padding-top: 16px; margin-top: 8px;
+  border-top: 1px solid rgba(30,41,59,0.4);
+  position: sticky; bottom: 0;
+  background: var(--bg-secondary, inherit);
+}
+.advanced-gates-toast {
+  background: rgba(30,166,81,0.12);
+  border: 1px solid rgba(30,166,81,0.3);
+  color: #1ea651;
+  padding: 10px 12px; border-radius: 6px;
+  font-size: 13px; margin-bottom: 12px;
+}
 
 /* Toggle Switch */
 .toggle {
@@ -1392,7 +1603,7 @@ body.protected img { pointer-events: none; }
   .split-table-fixed .data-table td { padding: 8px 8px; }
   .split-table-scroll .data-table th,
   .split-table-scroll .data-table td { padding: 8px 6px; }
-  .data-table th { font-size: 9px; letter-spacing: 0.3px; }
+  .data-table th { font-size: 10px; letter-spacing: 0.5px; font-weight: 700; }
   .data-table td { font-size: 11px; }
   .split-table-fixed .ticker,
   .split-table-scroll .ticker { font-size: 12px; }
@@ -1609,15 +1820,15 @@ body.protected img { pointer-events: none; }
 .cc-tab:not(.active):hover { border-color: var(--accent-gold); color: var(--accent-gold); }
 .cc-rec-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; }
 .cc-rec-table th {
-  padding: 7px 12px;
+  padding: 9px 12px;
   text-align: left;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.8px;
+  letter-spacing: 0.6px;
   text-transform: uppercase;
-  color: var(--text-muted);
-  border-bottom: 1px solid var(--border);
-  background: rgba(0,0,0,0.2);
+  color: #e8eef7;  /* v3.3: bright white for readability */
+  border-bottom: 2px solid rgba(184,154,62,0.3);
+  background: rgba(0,0,0,0.35);
   white-space: nowrap;
 }
 .cc-rec-table td {
@@ -2118,6 +2329,33 @@ const TechnicalAnalysis = {
   }
 };
 
+// ===== USER GATE THRESHOLDS (configurable via Settings → Advanced) =====
+// Top-liquid names get relaxed yield floors (ETFs + mega-caps)
+const TOP_LIQUID_SYMBOLS = new Set(['SPY','QQQ','IWM','DIA','VTI','AAPL','MSFT','GOOGL','GOOG','AMZN','NVDA','META']);
+const DEFAULT_GATE_THRESHOLDS = {
+  rsiDailyMax: 78,
+  rsiWeeklyMax: 72,
+  earningsBufferDays: 14,
+  yieldHighStandard: 12,       // annualized %
+  yieldMediumStandard: 7,      // annualized %
+  yieldHighTopLiquid: 8,       // annualized %
+  yieldMediumTopLiquid: 4,     // annualized %
+  deltaHighMax: 0.35,
+};
+// Module-level mutable holder so WheelScoring.getRecommendation can read user overrides
+// without refactoring every call site. Populated at app mount from Firestore/localStorage.
+let userGateThresholds = { ...DEFAULT_GATE_THRESHOLDS };
+function setUserGateThresholds(next) {
+  userGateThresholds = { ...DEFAULT_GATE_THRESHOLDS, ...(next || {}) };
+  try { localStorage.setItem('gateThresholds', JSON.stringify(userGateThresholds)); } catch(e) {}
+}
+function getUserGateThresholds() { return userGateThresholds; }
+// Bootstrap from localStorage immediately so scoring uses user values before Firestore resolves
+try {
+  const cached = localStorage.getItem('gateThresholds');
+  if (cached) userGateThresholds = { ...DEFAULT_GATE_THRESHOLDS, ...JSON.parse(cached) };
+} catch(e) {}
+
 // ===== WHEEL STRATEGY SCORING =====
 const WheelScoring = {
   // Calculate comprehensive wheel score (0-100)
@@ -2172,13 +2410,21 @@ const WheelScoring = {
   // Get strategy recommendation — 3-Gate Entry System (v2.5)
   // All 3 gates must pass for HIGH confidence. Transparent, explainable, 6th-grader readable.
   getRecommendation(stock) {
+    const thr = (typeof getUserGateThresholds === 'function') ? getUserGateThresholds() : DEFAULT_GATE_THRESHOLDS;
+    const isTopLiquid = TOP_LIQUID_SYMBOLS.has((stock.symbol || '').toUpperCase());
+    const yieldHighPct = isTopLiquid ? thr.yieldHighTopLiquid : thr.yieldHighStandard;
+    const yieldMedPct  = isTopLiquid ? thr.yieldMediumTopLiquid : thr.yieldMediumStandard;
+    // weeklyYield is stored as a decimal per-week; convert user's annualized % floor to weekly decimal
+    const yieldHighFloor = (yieldHighPct / 100) / 52;
+    const yieldMedFloor  = (yieldMedPct  / 100) / 52;
+
     const score = stock.wheelScore || 0;
     const signal = stock.technicalSignal || 0;
     const rsi = stock.rsi || 50;
     const weeklyRsi = stock.weeklyRsi || 50;
     const delta = stock.delta || 0.5;
     const weeklyYield = stock.weeklyYield || 0;
-    const earningsIn = stock.earningsIn || 999;
+    const earningsIn = stock.earningsIn ?? 999;  // null = unknown = treat as far future
     const daysToExpiry = stock.daysToExpiry || 7;
     const bidAskSpread = stock.bidAskSpread || 1;
     const premium = stock.premium || 0;
@@ -2202,12 +2448,12 @@ const WheelScoring = {
     const gates = [];
     const gateDetails = [];
 
-    // GATE 1: RSI Check — Daily RSI ≤ 70 AND Weekly RSI < 65
-    const gate1 = rsi <= 70 && weeklyRsi < 65;
+    // GATE 1: RSI Check — Daily RSI ≤ user max AND Weekly RSI < user max
+    const gate1 = rsi <= thr.rsiDailyMax && weeklyRsi < thr.rsiWeeklyMax;
     gates.push(gate1);
     gateDetails.push(gate1
       ? `Gate 1 ✓ RSI ${rsi.toFixed(0)} · Weekly RSI ${weeklyRsi.toFixed(0)}`
-      : `Gate 1 ✗ ${rsi > 70 ? `RSI ${rsi.toFixed(0)} > 70 (overbought)` : `Weekly RSI ${weeklyRsi.toFixed(0)} ≥ 65`}`);
+      : `Gate 1 ✗ ${rsi > thr.rsiDailyMax ? `RSI ${rsi.toFixed(0)} > ${thr.rsiDailyMax} (overbought)` : `Weekly RSI ${weeklyRsi.toFixed(0)} ≥ ${thr.rsiWeeklyMax}`}`);
 
     // GATE 2: Momentum Check — RSI + MACD not both bearish simultaneously
     const rsiBearish = rsi > 65;
@@ -2218,26 +2464,26 @@ const WheelScoring = {
       ? `Gate 2 ✓ Momentum OK${macd ? ` · MACD ${macd.histogram > 0 ? 'bullish' : 'neutral'}` : ''}`
       : `Gate 2 ✗ RSI + MACD both bearish — high reversal risk`);
 
-    // GATE 3: Earnings Safety — Confirmed earnings ≥ 14 days away (hard floor)
-    const gate3 = !earningsConfirmed || earningsIn >= 14;
+    // GATE 3: Earnings Safety — Confirmed earnings ≥ user buffer days away (hard floor)
+    const gate3 = !earningsConfirmed || earningsIn >= thr.earningsBufferDays;
     gates.push(gate3);
     gateDetails.push(gate3
       ? `Gate 3 ✓ Earnings ${earningsConfirmed ? earningsIn + 'd out' : 'unconfirmed'} — safe`
-      : `Gate 3 ✗ Earnings in ${earningsIn}d — too close`);
+      : `Gate 3 ✗ Earnings in ${earningsIn}d < ${thr.earningsBufferDays}d buffer`);
 
     const gatesPassed = gates.filter(g => g).length;
     const allGatesPassed = gatesPassed === 3;
     const spreadPct = premium > 0 ? bidAskSpread / premium : 1;
 
-    // HIGH CONFIDENCE: All 3 gates + score ≥75 + yield ≥2% + delta ≤0.30
-    if (allGatesPassed && score >= 75 && weeklyYield >= 0.02 && delta <= 0.30 && signal > 0 && spreadPct < 0.3) {
+    // HIGH CONFIDENCE: All 3 gates + score ≥75 + yield ≥ user HIGH floor + delta ≤ user ceiling
+    if (allGatesPassed && score >= 75 && weeklyYield >= yieldHighFloor && delta <= thr.deltaHighMax && signal > 0 && spreadPct < 0.3) {
       return { type: 'SELL_PUT', label: 'Sell Put', color: 'green', confidence: 'HIGH',
         reason: `All 3 gates passed · RSI ${rsi.toFixed(0)} · Weekly RSI ${weeklyRsi.toFixed(0)} · Strong setup`,
         gates: '3/3', gateDetails };
     }
 
-    // MEDIUM CONFIDENCE: All 3 gates + score ≥65 + yield ≥1.5% + delta ≤0.30
-    if (allGatesPassed && score >= 65 && weeklyYield >= 0.015 && delta <= 0.30 && signal > -0.2) {
+    // MEDIUM CONFIDENCE: All 3 gates + score ≥65 + yield ≥ user MEDIUM floor + delta ≤ user ceiling
+    if (allGatesPassed && score >= 65 && weeklyYield >= yieldMedFloor && delta <= thr.deltaHighMax && signal > -0.2) {
       return { type: 'SELL_PUT', label: 'Sell Put', color: 'amber', confidence: 'MEDIUM',
         reason: `${gatesPassed}/3 gates passed · ${spreadPct >= 0.3 ? 'Watch bid-ask spread' : 'Good setup — monitor entry'}`,
         gates: `${gatesPassed}/3`, gateDetails };
@@ -2254,8 +2500,8 @@ const WheelScoring = {
     let reason = [];
     if (gatesPassed < 3) reason.push(`${gatesPassed}/3 gates passed`);
     if (score < 65) reason.push(`Score ${score} < 65`);
-    if (weeklyYield < 0.015) reason.push(`Yield ${(weeklyYield*100).toFixed(2)}% < 1.5%`);
-    if (delta > 0.30) reason.push(`Delta ${delta.toFixed(2)} > 0.30`);
+    if (weeklyYield < yieldMedFloor) reason.push(`Yield ${(weeklyYield*52*100).toFixed(1)}% ann. < ${yieldMedPct}% floor`);
+    if (delta > thr.deltaHighMax) reason.push(`Delta ${delta.toFixed(2)} > ${thr.deltaHighMax.toFixed(2)}`);
     if (failedGates.length > 0) reason.push(failedGates[0]);
 
     return { type: 'WAIT', label: 'Wait', color: 'red', confidence: 'NONE',
@@ -3095,6 +3341,122 @@ function CoveredCallModal({ position, stock, onClose, onMarkSelling }) {
 }
 
 // ===== SPLIT-TABLE HOOK: syncs vertical scroll + row heights between fixed & scrollable panels =====
+// ===== Responsive layout hook: decides between table and card view =====
+// Rules:
+//   width >= 900                                    -> 'table'
+//   width >= 700 && width > height (landscape)      -> 'table'
+//   else                                            -> 'cards'
+function useResponsiveLayout() {
+  const compute = () => {
+    if (typeof window === 'undefined') return 'table';
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    if (w >= 900) return 'table';
+    if (w >= 700 && w > h) return 'table';
+    return 'cards';
+  };
+  const [layout, setLayout] = React.useState(compute);
+  React.useEffect(() => {
+    let raf = null;
+    const onResize = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = null;
+        const next = compute();
+        setLayout(prev => (prev === next ? prev : next));
+      });
+    };
+    window.addEventListener('resize', onResize, { passive: true });
+    window.addEventListener('orientationchange', onResize, { passive: true });
+    return () => {
+      if (raf) cancelAnimationFrame(raf);
+      window.removeEventListener('resize', onResize);
+      window.removeEventListener('orientationchange', onResize);
+    };
+  }, []);
+  return layout;
+}
+
+// ===== Mobile StockCard component (used when layout === 'cards') =====
+function StockCard({ stock, onClick }) {
+  const conf = stock.recommendation && stock.recommendation.confidence;
+  const tierClass =
+    conf === 'HIGH'   ? 'tier-high'   :
+    conf === 'MEDIUM' ? 'tier-medium' :
+    conf === 'LOW'    ? 'tier-low'    :
+    conf === 'WAIT'   ? 'tier-wait'   : 'tier-default';
+  const pillStyle = WheelScoring.getConfidenceStyle(conf);
+  const monthlyYield = (stock.weeklyYield * (stock.daysToExpiry || 7) / 30 * 100).toFixed(2);
+  const earnings = stock.earningsIn != null ? (stock.earningsDateStr || (stock.earningsIn + 'd')) : '—';
+  return (
+    <div className="stock-card" onClick={() => onClick && onClick(stock)}>
+      <div className={`stock-card-tierbar ${tierClass}`}></div>
+      <div className="stock-card-header">
+        <div>
+          <div className="stock-card-symbol">{stock.symbol}</div>
+          <div className="stock-card-name">{stock.name}</div>
+        </div>
+        {conf && (
+          <span className="stock-card-pill" style={{background: pillStyle.bg, color: pillStyle.color, border: pillStyle.border}}>
+            {conf}
+          </span>
+        )}
+      </div>
+      <div className="stock-card-divider"></div>
+      <div className="stock-card-row">
+        <div className="stock-card-cell">
+          <div className="stock-card-label">Price</div>
+          <div className="stock-card-value">${stock.price.toFixed(2)}</div>
+        </div>
+        <div className="stock-card-cell">
+          <div className="stock-card-label">Strike</div>
+          <div className="stock-card-value" style={{color:'var(--accent-blue)'}}>${stock.strikePrice.toFixed(2)}</div>
+        </div>
+        <div className="stock-card-cell">
+          <div className="stock-card-label">Premium</div>
+          <div className="stock-card-value" style={{color:'var(--accent-green)'}}>${stock.premium.toFixed(2)}</div>
+        </div>
+        <div className="stock-card-cell">
+          <div className="stock-card-label">Score</div>
+          <div className="stock-card-value" style={{color: stock.wheelScore >= 75 ? 'var(--accent-green)' : stock.wheelScore >= 50 ? 'var(--accent-amber)' : 'var(--accent-red)'}}>
+            {stock.wheelScore}
+          </div>
+        </div>
+      </div>
+      <div className="stock-card-divider"></div>
+      <div className="stock-card-row">
+        <div className="stock-card-cell">
+          <div className="stock-card-label">Mo. Yield</div>
+          <div className="stock-card-value" style={{color:'var(--accent-purple)'}}>{monthlyYield}%</div>
+        </div>
+        <div className="stock-card-cell">
+          <div className="stock-card-label">Delta</div>
+          <div className="stock-card-value">{stock.delta.toFixed(2)}</div>
+        </div>
+        <div className="stock-card-cell">
+          <div className="stock-card-label">IV %ile</div>
+          <div className="stock-card-value">{stock.ivPercentile || 50}%</div>
+        </div>
+        <div className="stock-card-cell">
+          <div className="stock-card-label">Earnings</div>
+          <div className="stock-card-value" style={{fontSize: earnings === '—' ? '12px' : '10px', color: stock.earningsIn != null && stock.earningsIn <= 14 ? 'var(--accent-red)' : 'var(--text-secondary)'}}>
+            {earnings}
+          </div>
+        </div>
+      </div>
+      {stock.recommendation && stock.recommendation.reason && (
+        <React.Fragment>
+          <div className="stock-card-divider"></div>
+          <div className="stock-card-reason">
+            <span className="stock-card-reason-label">Reason:</span>
+            {stock.recommendation.reason}
+          </div>
+        </React.Fragment>
+      )}
+    </div>
+  );
+}
+
 function useSplitTable(deps) {
   const fixedRef = React.useRef(null);
   const scrollRef = React.useRef(null);
@@ -3134,7 +3496,23 @@ function useSplitTable(deps) {
 }
 
 // ===== DASHBOARD PAGE =====
-function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock, onSetPage }) {
+// Capital tier definitions: upper bound is cash cap per trade (strike * 100)
+const CAPITAL_TIERS = {
+  all:     { label: 'All Capital Levels',    lower: null, upper: null },
+  starter: { label: 'Starter ($500–$2K)',    lower: 500,  upper: 2000 },
+  builder: { label: 'Builder ($2K–$10K)',    lower: 2000, upper: 10000 },
+  full:    { label: 'Full Wheel ($10K+)',    lower: 10000, upper: null },
+};
+
+function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock, onSetPage, capitalTier = 'all' }) {
+  const [starterWarningDismissed, setStarterWarningDismissed] = useState(() => {
+    try { return localStorage.getItem('starter-warning-dismissed') === '1'; } catch(e) { return false; }
+  });
+  const dismissStarterWarning = () => {
+    setStarterWarningDismissed(true);
+    try { localStorage.setItem('starter-warning-dismissed', '1'); } catch(e) {}
+  };
+
   const topStocks = useMemo(() => {
     return [...stocks]
       .filter(s => s.weeklyYield >= 0.01 && s.delta <= 0.35)
@@ -3162,15 +3540,36 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
 
   // NEW: Recommended puts — only SELL_PUT with HIGH or MEDIUM confidence
   const recommendedPuts = useMemo(() => {
+    const tier = CAPITAL_TIERS[capitalTier] || CAPITAL_TIERS.all;
     return [...stocks]
       .filter(s => s.recommendation && s.recommendation.type === 'SELL_PUT' && (s.recommendation.confidence === 'HIGH' || s.recommendation.confidence === 'MEDIUM'))
+      // Exclude sub-$5 stocks/strikes (defense in depth — universe should already filter)
+      .filter(s => (s.price || 0) >= 5 && (s.strikePrice || 0) >= 5)
+      // Apply capital tier filter based on cash required (strike * 100)
+      .filter(s => {
+        if (!tier.upper && !tier.lower) return true; // "all"
+        const cashReq = (s.strikePrice || 0) * 100;
+        if (tier.upper != null && cashReq > tier.upper) return false;
+        if (tier.lower != null && capitalTier === 'full' && cashReq <= tier.lower) return false;
+        if (tier.lower != null && capitalTier === 'builder' && cashReq <= tier.lower) return false;
+        return true;
+      })
       .sort((a, b) => {
         // HIGH confidence first, then by score
         if (a.recommendation.confidence === 'HIGH' && b.recommendation.confidence !== 'HIGH') return -1;
         if (b.recommendation.confidence === 'HIGH' && a.recommendation.confidence !== 'HIGH') return 1;
         return b.wheelScore - a.wheelScore;
       });
-  }, [stocks]);
+  }, [stocks, capitalTier]);
+
+  // Per-stock concentration check: cashReq as % of tier upper cap
+  const tierUpper = CAPITAL_TIERS[capitalTier]?.upper || null;
+  const getConcentrationPct = (stock) => {
+    if (!tierUpper) return 0;
+    const cashReq = (stock.strikePrice || 0) * 100;
+    return (cashReq / tierUpper) * 100;
+  };
+  const isHighConcentration = (stock) => getConcentrationPct(stock) >= 60;
 
   const avgScore = useMemo(() => {
     if (topStocks.length === 0) return 0;
@@ -3194,6 +3593,9 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
   // Split-table refs for frozen Symbol columns
   const recSplit = useSplitTable([recommendedPuts]);
   const candSplit = useSplitTable([topStocks]);
+
+  // Responsive: swap main Recommended Puts table for stacked cards on narrow/portrait
+  const layout = useResponsiveLayout();
 
   return (
     <div>
@@ -3224,6 +3626,29 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
         </div>
       </div>
 
+      {/* Capital tier: Starter concentration advisory (dismissible) */}
+      {capitalTier === 'starter' && !starterWarningDismissed && (
+        <div style={{
+          display:'flex', alignItems:'center', justifyContent:'space-between', gap:12,
+          padding:'10px 14px', marginBottom:'16px',
+          background:'rgba(245,158,11,0.08)',
+          border:'1px solid rgba(245,158,11,0.25)',
+          borderRadius:'var(--radius-sm)',
+          boxShadow:'0 0 12px var(--accent-amber-glow, rgba(245,158,11,0.12))',
+          fontSize:'12px', color:'var(--accent-amber)'
+        }}>
+          <div style={{display:'flex', alignItems:'center', gap:8}}>
+            <span style={{fontSize:14}}>⚠</span>
+            <span><strong>Starter Tier:</strong> Single-trade concentration increases risk. Consider spreading capital across multiple trades as your account grows.</span>
+          </div>
+          <button
+            onClick={dismissStarterWarning}
+            style={{background:'none', border:'none', color:'var(--accent-amber)', cursor:'pointer', fontSize:'14px', lineHeight:1, padding:'2px 6px', opacity:0.75}}
+            title="Dismiss"
+          >✕</button>
+        </div>
+      )}
+
       {/* ===== RECOMMENDED TRADES PANEL ===== */}
       {recommendedPuts.length > 0 && (
         <div className="data-table-container" style={{marginBottom:'24px', border:'1px solid rgba(30,166,81,0.15)', background:'var(--bg-card)'}}>
@@ -3238,7 +3663,35 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
               {recommendedPuts.length} Active Signal{recommendedPuts.length !== 1 ? 's' : ''}
             </span>
           </div>
-          <div className="split-table-wrapper">
+          {layout === 'cards' ? (
+            <div className="stock-card-list responsive-layout-fade" key="rec-cards">
+              {recommendedPuts.map(stock => {
+                const highConc = isHighConcentration(stock);
+                const pct = Math.round(getConcentrationPct(stock));
+                const tierLabel = CAPITAL_TIERS[capitalTier]?.label?.split(' (')[0] || '';
+                return (
+                  <div key={stock.symbol} style={{position:'relative'}}>
+                    {highConc && (
+                      <div style={{
+                        display:'flex', alignItems:'center', gap:6,
+                        padding:'6px 10px', marginBottom:6,
+                        background:'rgba(245,158,11,0.1)',
+                        border:'1px solid rgba(245,158,11,0.3)',
+                        borderRadius:'var(--radius-sm)',
+                        boxShadow:'0 0 8px var(--accent-amber-glow, rgba(245,158,11,0.15))',
+                        fontSize:'11px', color:'var(--accent-amber)', fontWeight:600
+                      }}>
+                        <span>⚠</span>
+                        <span>Uses ~{pct}% of your {tierLabel} capital — consider position size</span>
+                      </div>
+                    )}
+                    <StockCard stock={stock} onClick={onSelectStock} />
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+          <div className="split-table-wrapper responsive-layout-fade" key="rec-table">
             {/* FIXED: Symbol column */}
             <div className="split-table-fixed" ref={recSplit.fixedRef}>
               <table className="data-table">
@@ -3246,14 +3699,20 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
                   <tr><th>Symbol</th></tr>
                 </thead>
                 <tbody>
-                  {recommendedPuts.map((stock, i) => (
-                    <tr key={stock.symbol} style={{animation: `slideIn 0.3s ease-out ${i * 0.04}s both`, background: stock.recommendation.confidence === 'HIGH' ? 'rgba(16,185,129,0.03)' : 'transparent'}}>
-                      <td style={{background: stock.recommendation.confidence === 'HIGH' ? '#0e1a2e' : '#0d1526'}}>
-                        <div className="ticker" style={{cursor:'pointer'}} onClick={() => onSelectStock && onSelectStock(stock)}>{stock.symbol}</div>
+                  {recommendedPuts.map((stock, i) => {
+                    const highConc = isHighConcentration(stock);
+                    return (
+                    <tr key={stock.symbol} style={{animation: `slideIn 0.3s ease-out ${i * 0.04}s both`, background: highConc ? 'rgba(245,158,11,0.06)' : (stock.recommendation.confidence === 'HIGH' ? 'rgba(16,185,129,0.03)' : 'transparent')}}>
+                      <td style={{background: highConc ? 'rgba(245,158,11,0.08)' : (stock.recommendation.confidence === 'HIGH' ? '#0e1a2e' : '#0d1526'), borderLeft: highConc ? '2px solid var(--accent-amber)' : undefined}}>
+                        <div className="ticker" style={{cursor:'pointer'}} onClick={() => onSelectStock && onSelectStock(stock)}>
+                          {highConc && <span title={`Uses ~${Math.round(getConcentrationPct(stock))}% of your ${CAPITAL_TIERS[capitalTier]?.label || ''} capital`} style={{color:'var(--accent-amber)', marginRight:4}}>⚠</span>}
+                          {stock.symbol}
+                        </div>
                         <div className="fixed-col-subtext" style={{fontSize:'10px', color:'var(--text-muted)'}}>{stock.name}</div>
                       </td>
                     </tr>
-                  ))}
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -3291,8 +3750,9 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
                     const pop = stock.probOfProfit || WheelScoring.getProbOfProfit(stock.delta);
                     const cashReq = stock.cashRequired || WheelScoring.getCashRequired(stock.strikePrice);
                     const maxLoss = stock.maxLoss || Math.round((stock.strikePrice - stock.premium) * 100);
+                    const highConc = isHighConcentration(stock);
                     return (
-                      <tr key={stock.symbol} style={{animation: `slideIn 0.3s ease-out ${i * 0.04}s both`, background: stock.recommendation.confidence === 'HIGH' ? 'rgba(16,185,129,0.03)' : 'transparent'}}>
+                      <tr key={stock.symbol} style={{animation: `slideIn 0.3s ease-out ${i * 0.04}s both`, background: highConc ? 'rgba(245,158,11,0.06)' : (stock.recommendation.confidence === 'HIGH' ? 'rgba(16,185,129,0.03)' : 'transparent')}}>
                         <td>
                           <span style={{padding:'2px 7px', borderRadius:'3px', fontSize:'10px', fontWeight:600, background:confStyle.bg, color:confStyle.color, border:confStyle.border, letterSpacing:'0.5px', fontFamily:'var(--font-mono)'}}>
                             {stock.recommendation.confidence}
@@ -3360,14 +3820,14 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
                           </span>
                         </td>
                         <td>
-                          {stock.earningsIn <= 14 && stock.earningsConfirmed !== false ? (
+                          {stock.earningsIn != null && stock.earningsIn <= 14 && stock.earningsConfirmed !== false ? (
                             <span style={{fontSize:'11px', padding:'2px 6px', borderRadius:'4px', background:'rgba(239,68,68,0.15)', color:'var(--accent-red)'}}>
-                              ⚠ {stock.earningsDateStr || stock.earningsIn+'d'}
+                              ⚠ {stock.earningsDateStr || (stock.earningsIn + 'd')}
                             </span>
                           ) : stock.earningsConfirmed === false ? (
-                            <span style={{fontFamily:'var(--font-mono)', fontSize:'11px', color:'var(--text-muted)'}}>~{stock.earningsDateStr || stock.earningsIn+'d'}</span>
+                            <span style={{fontFamily:'var(--font-mono)', fontSize:'11px', color:'var(--text-muted)'}}>{stock.earningsIn == null ? '—' : '~' + (stock.earningsDateStr || (stock.earningsIn + 'd'))}</span>
                           ) : (
-                            <span style={{fontFamily:'var(--font-mono)', fontSize:'11px', color:'var(--text-muted)'}}>{stock.earningsDateStr || stock.earningsIn+'d'}</span>
+                            <span style={{fontFamily:'var(--font-mono)', fontSize:'11px', color:'var(--text-muted)'}}>{stock.earningsIn == null ? '—' : (stock.earningsDateStr || (stock.earningsIn + 'd'))}</span>
                           )}
                         </td>
                         <td>
@@ -3388,7 +3848,7 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
                           </span>
                           </Tip>
                         </td>
-                        <td style={{fontSize:'11px', color:'var(--text-muted)', maxWidth:'140px'}}>{stock.recommendation.reason}</td>
+                        <td style={{fontSize:'12px', color:'var(--text-secondary)', maxWidth:'160px', lineHeight:1.4}}>{stock.recommendation.reason}</td>
                       </tr>
                     );
                   })}
@@ -3396,6 +3856,7 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
               </table>
             </div>
           </div>
+          )}
         </div>
       )}
 
@@ -3403,9 +3864,13 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
         <div className="data-table-container" style={{marginBottom:'24px', border:'1px solid rgba(100,116,139,0.2)'}}>
           <div style={{padding:'32px 24px', textAlign:'center'}}>
             <div style={{fontSize:'28px', marginBottom:'12px'}}>🌙</div>
-            <div style={{fontWeight:600, fontSize:'15px', color:'var(--text-primary)', marginBottom:'8px'}}>No active put signals right now</div>
-            <div style={{fontSize:'13px', color:'var(--text-muted)', maxWidth:420, margin:'0 auto', lineHeight:1.6}}>
-              Market may be closed or no options currently meet all screening criteria. Showing last available screening data — signals will refresh on the next market session.
+            <div style={{fontWeight:600, fontSize:'15px', color:'var(--text-primary)', marginBottom:'8px'}}>
+              {capitalTier !== 'all' ? 'No recommendations match this capital tier' : 'No active put signals right now'}
+            </div>
+            <div style={{fontSize:'13px', color:'var(--text-muted)', maxWidth:460, margin:'0 auto', lineHeight:1.6}}>
+              {capitalTier !== 'all'
+                ? <>No recommendations match the <strong>{CAPITAL_TIERS[capitalTier]?.label}</strong> tier right now. Try <em>All Capital Levels</em> to see every trade, or check back after the next market data refresh.</>
+                : 'Market may be closed or no options currently meet all screening criteria. Showing last available screening data — signals will refresh on the next market session.'}
             </div>
           </div>
         </div>
@@ -3510,6 +3975,13 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
             <span style={{fontSize:'12px', color:'var(--text-muted)'}}>Sorted by Wheel Score · {topStocks.length} stocks</span>
           </div>
         </div>
+        {layout === 'cards' ? (
+          <div className="stock-card-list responsive-layout-fade" key="cand-cards">
+            {topStocks.map(stock => (
+              <StockCard key={stock.symbol} stock={stock} onClick={onSelectStock} />
+            ))}
+          </div>
+        ) : (
         <div className="split-table-wrapper">
           {/* FIXED: # + Symbol columns */}
           <div className="split-table-fixed" ref={candSplit.fixedRef}>
@@ -3671,14 +4143,14 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
                     </td>
                     <td>
                       <Tip text={TipText.earnings(stock)}>
-                      {stock.earningsIn <= 14 && stock.earningsConfirmed !== false ? (
+                      {stock.earningsIn != null && stock.earningsIn <= 14 && stock.earningsConfirmed !== false ? (
                         <span style={{fontSize:'11px', padding:'2px 6px', borderRadius:'4px', background:'rgba(239,68,68,0.15)', color:'var(--accent-red)'}}>
-                          ⚠ {stock.earningsDateStr || stock.earningsIn+'d'}
+                          ⚠ {stock.earningsDateStr || (stock.earningsIn + 'd')}
                         </span>
                       ) : stock.earningsConfirmed === false ? (
-                        <span style={{fontFamily:'var(--font-mono)', fontSize:'11px', color:'var(--text-muted)'}}>~{stock.earningsDateStr || stock.earningsIn+'d'}</span>
+                        <span style={{fontFamily:'var(--font-mono)', fontSize:'11px', color:'var(--text-muted)'}}>{stock.earningsIn == null ? '—' : '~' + (stock.earningsDateStr || (stock.earningsIn + 'd'))}</span>
                       ) : (
-                        <span style={{fontFamily:'var(--font-mono)', fontSize:'11px', color:'var(--text-muted)'}}>{stock.earningsDateStr || stock.earningsIn+'d'}</span>
+                        <span style={{fontFamily:'var(--font-mono)', fontSize:'11px', color:'var(--text-muted)'}}>{stock.earningsIn == null ? '—' : (stock.earningsDateStr || (stock.earningsIn + 'd'))}</span>
                       )}
                       </Tip>
                     </td>
@@ -3711,6 +4183,7 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
             </table>
           </div>
         </div>
+        )}
       </div>
     </div>
   );
@@ -3814,6 +4287,9 @@ function ScreenerPage({ stocks, user, subscriptionTier, onSelectStock, onExport 
   // Split-table refs for frozen Symbol column
   const scrSplit = useSplitTable([filteredStocks]);
 
+  // Responsive: swap table for stacked cards on narrow/portrait screens
+  const layout = useResponsiveLayout();
+
   const handleSort = (field) => {
     setFilters(f => ({
       ...f,
@@ -3889,6 +4365,17 @@ function ScreenerPage({ stocks, user, subscriptionTier, onSelectStock, onExport 
       </div>
 
       <div className="data-table-container">
+        {layout === 'cards' ? (
+          <div className="stock-card-list responsive-layout-fade" key="scr-cards">
+            {filteredStocks.length === 0 ? (
+              <div style={{padding:'40px 20px', color:'var(--text-muted)', fontSize:'14px', textAlign:'center'}}>
+                No stocks match your filters. Try adjusting the search term or filter values above.
+              </div>
+            ) : filteredStocks.map(stock => (
+              <StockCard key={stock.symbol} stock={stock} onClick={onSelectStock} />
+            ))}
+          </div>
+        ) : (
         <div className="split-table-wrapper">
           {/* FIXED: Symbol column */}
           <div className="split-table-fixed" ref={scrSplit.fixedRef}>
@@ -3984,8 +4471,8 @@ function ScreenerPage({ stocks, user, subscriptionTier, onSelectStock, onExport 
                     <td style={{fontFamily:'var(--font-mono)', fontSize:'12px'}}>{stock.optionVolume.toLocaleString()}</td>
                     <td>
                       <Tip text={TipText.earnings(stock)}>
-                      <span className={`indicator-pill ${stock.earningsConfirmed === false ? 'pill-amber' : stock.earningsIn <= 7 ? 'pill-red' : stock.earningsIn <= 14 ? 'pill-amber' : 'pill-green'}`}>
-                        {stock.earningsConfirmed === false ? '~' : ''}{stock.earningsDateStr || stock.earningsIn+'d'}
+                      <span className={`indicator-pill ${stock.earningsConfirmed === false ? 'pill-amber' : stock.earningsIn == null ? 'pill-green' : stock.earningsIn <= 7 ? 'pill-red' : stock.earningsIn <= 14 ? 'pill-amber' : 'pill-green'}`}>
+                        {stock.earningsConfirmed === false ? '~' : ''}{stock.earningsIn == null && !stock.earningsDateStr ? '—' : (stock.earningsDateStr || (stock.earningsIn + 'd'))}
                       </span>
                       </Tip>
                     </td>
@@ -3996,6 +4483,7 @@ function ScreenerPage({ stocks, user, subscriptionTier, onSelectStock, onExport 
             </table>
           </div>
         </div>
+        )}
       </div>
     </div>
   );
@@ -4649,15 +5137,205 @@ function TradeJournalPage({ user, subscriptionTier }) {
   );
 }
 
-function SettingsPage({ settings, setSettings }) {
+function AdvancedGateThresholdsCard({ user }) {
+  const [open, setOpen] = useState(false);
+  const [vals, setVals] = useState(() => {
+    try {
+      const cached = localStorage.getItem('gateThresholds');
+      if (cached) return { ...DEFAULT_GATE_THRESHOLDS, ...JSON.parse(cached) };
+    } catch(e) {}
+    return { ...DEFAULT_GATE_THRESHOLDS };
+  });
+  const [toast, setToast] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  // Load from Firestore on mount (if logged in)
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      if (!user || !user.uid || typeof firebaseDb === 'undefined') return;
+      try {
+        const doc = await firebaseDb.collection('users').doc(user.uid)
+          .collection('settings').doc('gateThresholds').get();
+        if (cancelled) return;
+        if (doc.exists) {
+          const data = doc.data() || {};
+          const next = { ...DEFAULT_GATE_THRESHOLDS };
+          for (const k of Object.keys(DEFAULT_GATE_THRESHOLDS)) {
+            if (typeof data[k] === 'number') next[k] = data[k];
+          }
+          setVals(next);
+          setUserGateThresholds(next);
+        }
+      } catch (e) { console.warn('[gateThresholds] load failed', e); }
+    }
+    load();
+    return () => { cancelled = true; };
+  }, [user && user.uid]);
+
+  const showToast = (msg) => {
+    setToast(msg);
+    setTimeout(() => setToast(''), 2500);
+  };
+
+  const updateVal = (key, v, min, max) => {
+    let n = typeof v === 'string' ? parseFloat(v) : v;
+    if (Number.isNaN(n)) return;
+    if (typeof min === 'number') n = Math.max(min, n);
+    if (typeof max === 'number') n = Math.min(max, n);
+    setVals(prev => ({ ...prev, [key]: n }));
+  };
+
+  const resetOne = (key) => {
+    setVals(prev => ({ ...prev, [key]: DEFAULT_GATE_THRESHOLDS[key] }));
+  };
+
+  const saveAll = async () => {
+    setSaving(true);
+    setUserGateThresholds(vals);
+    try {
+      if (user && user.uid && typeof firebaseDb !== 'undefined') {
+        await firebaseDb.collection('users').doc(user.uid)
+          .collection('settings').doc('gateThresholds')
+          .set({ ...vals, updatedAt: new Date().toISOString() });
+        try { window.dispatchEvent(new CustomEvent('rescore-stocks')); } catch(e) {}
+        showToast('Settings saved. Recommendations updated.');
+      } else {
+        try { window.dispatchEvent(new CustomEvent('rescore-stocks')); } catch(e) {}
+        showToast('Saved locally. Sign in to sync to cloud.');
+      }
+    } catch (e) {
+      console.error('[gateThresholds] save failed', e);
+      showToast('Save failed — cached locally.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const resetAll = async () => {
+    if (!window.confirm('Reset all gate thresholds to defaults? This overwrites your saved values.')) return;
+    const defaults = { ...DEFAULT_GATE_THRESHOLDS };
+    setVals(defaults);
+    setUserGateThresholds(defaults);
+    try {
+      if (user && user.uid && typeof firebaseDb !== 'undefined') {
+        await firebaseDb.collection('users').doc(user.uid)
+          .collection('settings').doc('gateThresholds')
+          .set({ ...defaults, updatedAt: new Date().toISOString() });
+      }
+      try { window.dispatchEvent(new CustomEvent('rescore-stocks')); } catch(e) {}
+      showToast('Reset to defaults. Recommendations updated.');
+    } catch (e) { showToast('Reset locally. Cloud sync failed.'); }
+  };
+
+  const renderRow = ({ key, label, desc, min, max, step, unit }) => (
+    <div className="advanced-gates-row" key={key}>
+      <div>
+        <div className="label-main">{label}</div>
+      </div>
+      <input type="number" className="advanced-gates-input"
+        min={min} max={max} step={step || 1}
+        value={vals[key]}
+        onChange={e => updateVal(key, e.target.value, min, max)} />
+      <button className="advanced-gates-reset-link" onClick={() => resetOne(key)}
+        title={`Reset to default (${DEFAULT_GATE_THRESHOLDS[key]}${unit || ''})`}>Reset</button>
+      <div className="label-desc">{desc}</div>
+    </div>
+  );
+
+  const renderDualRow = ({ keyHigh, keyMed, label, desc, min, max }) => (
+    <div className="advanced-gates-row">
+      <div>
+        <div className="label-main">{label}</div>
+      </div>
+      <div className="advanced-gates-dual">
+        <span className="dual-label">HIGH</span>
+        <input type="number" className="advanced-gates-input" style={{width:64}}
+          min={min} max={max} step={1}
+          value={vals[keyHigh]}
+          onChange={e => updateVal(keyHigh, e.target.value, min, max)} />
+        <span className="dual-label">MED</span>
+        <input type="number" className="advanced-gates-input" style={{width:64}}
+          min={min} max={max} step={1}
+          value={vals[keyMed]}
+          onChange={e => updateVal(keyMed, e.target.value, min, max)} />
+      </div>
+      <button className="advanced-gates-reset-link"
+        onClick={() => { resetOne(keyHigh); resetOne(keyMed); }}
+        title={`Reset to defaults (${DEFAULT_GATE_THRESHOLDS[keyHigh]}% / ${DEFAULT_GATE_THRESHOLDS[keyMed]}%)`}>Reset</button>
+      <div className="label-desc">{desc}</div>
+    </div>
+  );
+
+  return (
+    <div className="settings-card advanced-gates-card" style={{gridColumn:'1 / -1'}}>
+      <div className="advanced-gates-header" onClick={() => setOpen(o => !o)}>
+        <h3>Advanced — Gate Thresholds</h3>
+        <span className={`advanced-gates-chevron ${open ? 'open' : ''}`}>▶</span>
+      </div>
+      {open && (
+        <>
+          <div className="advanced-gates-warning">
+            ⚠ These settings affect which trades pass WheelPro's safety gates. Only adjust if you understand the implications. Each option has a plain-English description below.
+          </div>
+          {toast && <div className="advanced-gates-toast">{toast}</div>}
+
+          {renderRow({
+            key: 'rsiDailyMax', label: 'Daily RSI Maximum',
+            desc: "Stocks with a daily RSI above this value are flagged as overbought and may fail Gate 1. Lower this number for a more conservative approach (fewer trades pass). Raise it to allow more aggressive setups through. Most experienced traders use 70-80.",
+            min: 50, max: 95,
+          })}
+          {renderRow({
+            key: 'rsiWeeklyMax', label: 'Weekly RSI Maximum',
+            desc: "The weekly RSI ceiling for Gate 1. Weekly RSI above this suggests the broader trend is overextended. Lower = more conservative. Default 72 matches standard technical analysis thresholds.",
+            min: 50, max: 95,
+          })}
+          {renderRow({
+            key: 'earningsBufferDays', label: 'Earnings Buffer Days',
+            desc: "Gate 3 skips any trade where confirmed earnings fall within this many days of the option expiry. Earnings events can cause sharp moves that disrupt wheel trades. 14 days is a safe buffer; reduce if you want more trades (at the cost of earnings-risk exposure).",
+            min: 0, max: 30,
+          })}
+          {renderDualRow({
+            keyHigh: 'yieldHighStandard', keyMed: 'yieldMediumStandard',
+            label: 'Minimum Yield — Standard Stocks (% annualized)',
+            desc: "Annualized yield floors for HIGH-confidence and MEDIUM-confidence SELL PUT recommendations on standard stocks. Higher yields filter out low-premium trades but may eliminate safer large-caps. Default floors prioritize trades that earn meaningfully above risk-free rate.",
+            min: 1, max: 30,
+          })}
+          {renderDualRow({
+            keyHigh: 'yieldHighTopLiquid', keyMed: 'yieldMediumTopLiquid',
+            label: 'Minimum Yield — Top Liquid Names (% annualized)',
+            desc: "Relaxed yield floors for ETFs (SPY, QQQ) and mega-caps (AAPL, MSFT). These names have tighter spreads and lower IV, so naturally yield less. Lower floors here prevent filtering out the most liquid (and often safest) trades.",
+            min: 1, max: 30,
+          })}
+          {renderRow({
+            key: 'deltaHighMax', label: 'Delta Ceiling for HIGH Confidence',
+            desc: "Maximum put delta for HIGH-confidence trades. Lower delta = further out-of-the-money = safer but lower premium. 0.20-0.25 is conservative; 0.30-0.35 is standard; above 0.40 is aggressive. This setting dramatically affects your win rate.",
+            min: 0.15, max: 0.50, step: 0.05,
+          })}
+
+          <div className="advanced-gates-actions">
+            <button className="btn btn-secondary" onClick={resetAll} title="Reset all values to defaults">
+              ⚠ Reset All to Defaults
+            </button>
+            <button className="btn btn-primary" onClick={saveAll} disabled={saving}>
+              {saving ? 'Saving…' : 'Save Advanced Settings'}
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+function SettingsPage({ settings, setSettings, user }) {
   return (
     <div className="settings-grid">
       <div className="settings-card">
         <h3>⚙️ Risk Parameters</h3>
         <div className="settings-row">
           <div className="label-group">
-            <div className="label-main">Minimum Weekly Yield</div>
-            <div className="label-desc">Only show candidates above this yield</div>
+            <div className="label-main">Display Filter: Min Yield</div>
+            <div className="label-desc">Filters the display of recommendations — doesn't affect the underlying scoring or gates. Use this to narrow what you see; use Advanced Gate Thresholds to change what qualifies.</div>
           </div>
           <div style={{display:'flex', alignItems:'center', gap:'12px'}}>
             <input type="range" className="range-slider" min="0" max="5" step="0.25" value={settings.minYield}
@@ -4667,8 +5345,8 @@ function SettingsPage({ settings, setSettings }) {
         </div>
         <div className="settings-row">
           <div className="label-group">
-            <div className="label-main">Maximum Delta</div>
-            <div className="label-desc">Lower delta = less chance of assignment</div>
+            <div className="label-main">Display Filter: Max Delta</div>
+            <div className="label-desc">Filters the display of recommendations — doesn't affect the underlying scoring or gates. Use this to narrow what you see; use Advanced Gate Thresholds to change what qualifies.</div>
           </div>
           <div style={{display:'flex', alignItems:'center', gap:'12px'}}>
             <input type="range" className="range-slider" min="0.05" max="0.50" step="0.05" value={settings.maxDelta}
@@ -4678,8 +5356,8 @@ function SettingsPage({ settings, setSettings }) {
         </div>
         <div className="settings-row">
           <div className="label-group">
-            <div className="label-main">Minimum Wheel Score</div>
-            <div className="label-desc">Only show stocks scoring above this threshold</div>
+            <div className="label-main">Display Filter: Min Score</div>
+            <div className="label-desc">Filters the display of recommendations — doesn't affect the underlying scoring or gates. Use this to narrow what you see; use Advanced Gate Thresholds to change what qualifies.</div>
           </div>
           <div style={{display:'flex', alignItems:'center', gap:'12px'}}>
             <input type="range" className="range-slider" min="0" max="90" step="5" value={settings.minScore}
@@ -4774,6 +5452,8 @@ function SettingsPage({ settings, setSettings }) {
           </label>
         </div>
       </div>
+
+      <AdvancedGateThresholdsCard user={user} />
     </div>
   );
 }
@@ -5209,8 +5889,8 @@ function AdminPage({ user }) {
   const totalRevenue = subscribers.reduce((sum, s) => sum + s.revenue, 0);
   const activeCount = subscribers.filter(s => s.status === 'active').length;
 
-  // Check if current user is the owner
-  const isOwner = user?.email === 'holland@example.com' || user?.isOwner;
+  // Check if current user is the owner (set on signup via email-contains-"holland" logic)
+  const isOwner = user?.isOwner === true;
 
   if (!isOwner) {
     return (
@@ -5359,7 +6039,7 @@ const TipText = {
                r.type === 'SELL_CALL' ? 'SELL CALL — Bearish setup\n' : 'WAIT — Not recommended now\n';
     text += r.reason || '';
     if (r.type === 'SELL_PUT' && r.confidence === 'HIGH') text += '\n✅ Meets all criteria: score, yield, delta';
-    if (stock.earningsIn <= 14 && stock.earningsConfirmed) text += '\n🚫 Blocked: earnings within 14 days';
+    if (stock.earningsIn != null && stock.earningsIn <= 14 && stock.earningsConfirmed) text += '\n🚫 Blocked: earnings within 14 days';
     return text;
   },
   delta(stock) {
@@ -5434,7 +6114,7 @@ const TipText = {
     return text;
   },
   earnings(stock) {
-    if (stock.earningsIn <= 14 && stock.earningsConfirmed) {
+    if (stock.earningsIn != null && stock.earningsIn <= 14 && stock.earningsConfirmed) {
       return `EARNINGS IN ${stock.earningsIn} DAYS (${stock.earningsDateStr})\n` +
         `Confirmed date from Yahoo Finance.\n` +
         `🚫 DO NOT sell puts through earnings!\n` +
@@ -5641,8 +6321,27 @@ function App() {
   const [selectedStock, setSelectedStock] = useState(null); // For detail modal
   const [showTour, setShowTour] = useState(false); // Onboarding tour
   const [dteFilter, setDteFilter] = useState('monthly'); // DTE preference: weekly | biweekly | monthly | all
+  const [capitalTier, setCapitalTier] = useState(() => {
+    try { return localStorage.getItem('capitalTier') || 'all'; } catch(e) { return 'all'; }
+  });
+  useEffect(() => {
+    try { localStorage.setItem('capitalTier', capitalTier); } catch(e) {}
+  }, [capitalTier]);
   useEffect(() => { Storage.set('watchlist', watchlist); }, [watchlist]);
   const toggleWatchlist = (symbol) => setWatchlist(prev => prev.includes(symbol) ? prev.filter(s => s !== symbol) : [...prev, symbol]);
+
+  // Re-score all stocks when gate thresholds change (dispatched from AdvancedGateThresholdsCard)
+  useEffect(() => {
+    const handler = () => {
+      setStocks(prev => prev.map(s => {
+        const next = { ...s };
+        next.recommendation = WheelScoring.getRecommendation(next);
+        return next;
+      }));
+    };
+    window.addEventListener('rescore-stocks', handler);
+    return () => window.removeEventListener('rescore-stocks', handler);
+  }, []);
   const [settings, setSettings] = useState(Storage.get('settings', {
     minYield: 1.5,
     maxDelta: 0.30,
@@ -5722,13 +6421,18 @@ function App() {
             if (stock.earningsConfirmed === undefined || stock.earningsConfirmed === null) {
               stock.earningsConfirmed = false;
             }
-            if (!stock.earningsDateStr && stock.earningsIn && stock.earningsIn < 900) {
-              const eDate = new Date(Date.now() + stock.earningsIn * 86400000);
-              stock.earningsDateStr = `${(eDate.getMonth()+1).toString().padStart(2,'0')}/${eDate.getDate().toString().padStart(2,'0')}`;
-            }
-            if (!stock.earningsIn || stock.earningsIn >= 900) {
-              stock.earningsIn = stock.earningsIn || 999;
-              if (!stock.earningsConfirmed) stock.earningsDateStr = stock.earningsDateStr || '—';
+            // v3.3.0: Backend now sends null for unknown earnings (was 999 sentinel)
+            // Normalize: treat null/undefined/>=900 as "no known earnings" (null)
+            if (stock.earningsIn != null && stock.earningsIn < 900) {
+              // Have a real day count — derive display string if missing
+              if (!stock.earningsDateStr) {
+                const eDate = new Date(Date.now() + stock.earningsIn * 86400000);
+                stock.earningsDateStr = `${(eDate.getMonth()+1).toString().padStart(2,'0')}/${eDate.getDate().toString().padStart(2,'0')}`;
+              }
+            } else {
+              // null, undefined, or legacy 999 → no known earnings
+              stock.earningsIn = null;
+              if (!stock.earningsConfirmed && !stock.earningsDateStr) stock.earningsDateStr = '—';
             }
             // v2.4.0: Put/Call ratio — backend now sends real ratio
             if (!stock.putCallRatio && stock.putCallRatio !== 0) stock.putCallRatio = 1.0;
@@ -6001,12 +6705,12 @@ function App() {
 
   // Logged in - show dashboard
   const pages = {
-    dashboard: { title: 'Dashboard', icon: Icons.dashboard, component: <DashboardPage stocks={stocks} watchlist={watchlist} toggleWatchlist={toggleWatchlist} onSelectStock={setSelectedStock} onSetPage={setPage} /> },
+    dashboard: { title: 'Dashboard', icon: Icons.dashboard, component: <DashboardPage stocks={stocks} watchlist={watchlist} toggleWatchlist={toggleWatchlist} onSelectStock={setSelectedStock} onSetPage={setPage} capitalTier={capitalTier} /> },
     screener: { title: 'Screener', icon: Icons.screener, component: <ScreenerPage stocks={stocks} user={user} subscriptionTier={subscriptionTier} onSelectStock={setSelectedStock} onExport={(s) => exportCSV(s, `wheelpro-screener-${new Date().toISOString().slice(0,10)}.csv`)} /> },
     portfolio: { title: 'Portfolio', icon: Icons.portfolio, component: <PortfolioPage key={user?.uid || 'guest'} stocks={stocks} /> },
     journal: { title: 'Trade Journal', icon: Icons.journal, component: <TradeJournalPage key={user?.uid || 'guest'} user={user} subscriptionTier={subscriptionTier} /> },
     backtest: { title: 'Backtest', icon: Icons.chart, component: <ErrorBoundary><BacktestPage user={user} subscriptionTier={subscriptionTier} /></ErrorBoundary> },
-    settings: { title: 'Settings', icon: Icons.settings, component: <SettingsPage settings={settings} setSettings={setSettings} /> },
+    settings: { title: 'Settings', icon: Icons.settings, component: <SettingsPage settings={settings} setSettings={setSettings} user={user} /> },
     admin: { title: 'Admin', icon: Icons.admin, component: <AdminPage user={user} /> },
   };
 
@@ -6107,6 +6811,21 @@ function App() {
                   <option value="biweekly">2 Weeks (8–14)</option>
                   <option value="monthly">Monthly (25–45)</option>
                   <option value="all">All Expirations</option>
+                </select>
+              </div>
+              <div style={{display:'flex', alignItems:'center', gap:'6px', borderRight:'1px solid var(--border)', paddingRight:12}}>
+                <span style={{fontSize:'10px', color:'var(--text-muted)', textTransform:'uppercase', letterSpacing:'0.8px', whiteSpace:'nowrap'}}>Capital</span>
+                <select
+                  className="dte-filter-select"
+                  value={capitalTier}
+                  onChange={e => setCapitalTier(e.target.value)}
+                  title="Filter by account capital tier (cash required to sell the put)"
+                  style={{minWidth:170}}
+                >
+                  <option value="all">All Capital Levels</option>
+                  <option value="starter">Starter ($500–$2K)</option>
+                  <option value="builder">Builder ($2K–$10K)</option>
+                  <option value="full">Full Wheel ($10K+)</option>
                 </select>
               </div>
               <button className="btn btn-sm btn-secondary" onClick={loadData} disabled={loading}
