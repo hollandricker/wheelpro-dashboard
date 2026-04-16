@@ -73,7 +73,7 @@ const firebaseDb = firebase.firestore();
   --border-focus: #b89a3e;
   --text-primary: #e2e7ef;
   --text-secondary: #b8c3d1;  /* v3.3: bumped from #7d8da0 for readability */
-  --text-muted: #8896a8;      /* v3.3: bumped from #4a5a6e for readability */
+  --text-muted: #7a8698;      /* v3.3.2: dialed back from #8896a8 for proper hierarchy */
   --text-subtle: #6b7686;     /* v3.3: new — for truly tertiary info (timestamps, captions) */
   --accent-blue: #4a8fd4;
   --accent-blue-glow: rgba(74, 143, 212, 0.08);
@@ -1003,7 +1003,7 @@ body.protected img { pointer-events: none; }
 }
 .stock-card-name {
   font-size: 11px;
-  color: var(--text-muted);
+  color: var(--text-secondary);  /* v3.3.2: bumped from muted — company name is identifier, not subtle */
   margin-top: 2px;
   line-height: 1.3;
   white-space: nowrap;
@@ -2332,6 +2332,11 @@ const TechnicalAnalysis = {
 // ===== USER GATE THRESHOLDS (configurable via Settings → Advanced) =====
 // Top-liquid names get relaxed yield floors (ETFs + mega-caps)
 const TOP_LIQUID_SYMBOLS = new Set(['SPY','QQQ','IWM','DIA','VTI','AAPL','MSFT','GOOGL','GOOG','AMZN','NVDA','META']);
+// NOTE: These defaults MUST match server.js env var defaults.
+// If you change them here, update .env.example AND server.js constants.
+// Source of truth: wheelpro/api/server.js (RSI_DAILY_MAX, RSI_WEEKLY_MAX, YIELD_*).
+// earningsBufferDays (14) and deltaHighMax (0.35) are currently hardcoded in server.js
+// — keep in sync manually until those are promoted to env vars.
 const DEFAULT_GATE_THRESHOLDS = {
   rsiDailyMax: 78,
   rsiWeeklyMax: 72,
@@ -2464,12 +2469,21 @@ const WheelScoring = {
       ? `Gate 2 ✓ Momentum OK${macd ? ` · MACD ${macd.histogram > 0 ? 'bullish' : 'neutral'}` : ''}`
       : `Gate 2 ✗ RSI + MACD both bearish — high reversal risk`);
 
-    // GATE 3: Earnings Safety — Confirmed earnings ≥ user buffer days away (hard floor)
-    const gate3 = !earningsConfirmed || earningsIn >= thr.earningsBufferDays;
+    // GATE 3: Earnings Safety
+    //   - Unknown earnings date (earningsIn === null) → pass (treat as safe)
+    //   - Confirmed earnings → require full buffer (earningsBufferDays)
+    //   - Unconfirmed/estimated earnings → require half the buffer (estimates can shift by a few days,
+    //     so still be cautious but not as strict as confirmed dates)
+    const gate3 =
+      earningsIn === null ||
+      (earningsConfirmed && earningsIn >= thr.earningsBufferDays) ||
+      (!earningsConfirmed && earningsIn >= (thr.earningsBufferDays / 2));
     gates.push(gate3);
     gateDetails.push(gate3
-      ? `Gate 3 ✓ Earnings ${earningsConfirmed ? earningsIn + 'd out' : 'unconfirmed'} — safe`
-      : `Gate 3 ✗ Earnings in ${earningsIn}d < ${thr.earningsBufferDays}d buffer`);
+      ? `Gate 3 ✓ Earnings ${earningsIn === null ? 'unknown' : (earningsConfirmed ? earningsIn + 'd out' : '~' + earningsIn + 'd (est)')} — safe`
+      : (earningsConfirmed
+          ? `Gate 3 ✗ Earnings in ${earningsIn}d — too close (confirmed)`
+          : `Gate 3 ✗ Earnings ~${earningsIn}d — unconfirmed estimate too close`));
 
     const gatesPassed = gates.filter(g => g).length;
     const allGatesPassed = gatesPassed === 3;
@@ -3504,13 +3518,40 @@ const CAPITAL_TIERS = {
   full:    { label: 'Full Wheel ($10K+)',    lower: 10000, upper: null },
 };
 
+// Concentration helpers — exposed at module scope so all tables (Recommended Puts,
+// Top Candidates, Screener) can reuse them. A stock is "high concentration" when
+// its cash-at-risk (strike × 100) consumes ≥60% of the selected tier's upper cap.
+function getConcentrationPctFor(stock, capitalTier) {
+  const tierUpper = CAPITAL_TIERS[capitalTier]?.upper || null;
+  if (!tierUpper) return 0;
+  const cashReq = (stock?.strikePrice || 0) * 100;
+  return (cashReq / tierUpper) * 100;
+}
+function isHighConcentrationFor(stock, capitalTier) {
+  return getConcentrationPctFor(stock, capitalTier) >= 60;
+}
+
 function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock, onSetPage, capitalTier = 'all' }) {
-  const [starterWarningDismissed, setStarterWarningDismissed] = useState(() => {
-    try { return localStorage.getItem('starter-warning-dismissed') === '1'; } catch(e) { return false; }
+  const DISMISSAL_COOLDOWN_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+  const [dismissedAt, setDismissedAt] = useState(() => {
+    try {
+      const ts = localStorage.getItem('starter-warning-dismissed-at');
+      return ts ? parseInt(ts, 10) : 0;
+    } catch(e) { return 0; }
   });
+  // Migrate old boolean key -> timestamp key (one-time cleanup)
+  useEffect(() => {
+    try {
+      if (localStorage.getItem('starter-warning-dismissed')) {
+        localStorage.removeItem('starter-warning-dismissed');
+      }
+    } catch(e) {}
+  }, []);
+  const starterWarningDismissed = dismissedAt && (Date.now() - dismissedAt < DISMISSAL_COOLDOWN_MS);
   const dismissStarterWarning = () => {
-    setStarterWarningDismissed(true);
-    try { localStorage.setItem('starter-warning-dismissed', '1'); } catch(e) {}
+    const now = Date.now();
+    setDismissedAt(now);
+    try { localStorage.setItem('starter-warning-dismissed-at', String(now)); } catch(e) {}
   };
 
   const topStocks = useMemo(() => {
@@ -3563,13 +3604,9 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
   }, [stocks, capitalTier]);
 
   // Per-stock concentration check: cashReq as % of tier upper cap
-  const tierUpper = CAPITAL_TIERS[capitalTier]?.upper || null;
-  const getConcentrationPct = (stock) => {
-    if (!tierUpper) return 0;
-    const cashReq = (stock.strikePrice || 0) * 100;
-    return (cashReq / tierUpper) * 100;
-  };
-  const isHighConcentration = (stock) => getConcentrationPct(stock) >= 60;
+  // Delegates to module-level helpers so Top Candidates / Screener share the logic.
+  const getConcentrationPct = (stock) => getConcentrationPctFor(stock, capitalTier);
+  const isHighConcentration = (stock) => isHighConcentrationFor(stock, capitalTier);
 
   const avgScore = useMemo(() => {
     if (topStocks.length === 0) return 0;
@@ -3977,9 +4014,30 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
         </div>
         {layout === 'cards' ? (
           <div className="stock-card-list responsive-layout-fade" key="cand-cards">
-            {topStocks.map(stock => (
-              <StockCard key={stock.symbol} stock={stock} onClick={onSelectStock} />
-            ))}
+            {topStocks.map(stock => {
+              const highConc = isHighConcentration(stock);
+              const pct = Math.round(getConcentrationPct(stock));
+              const tierLabel = CAPITAL_TIERS[capitalTier]?.label?.split(' (')[0] || '';
+              return (
+                <div key={stock.symbol} style={{position:'relative'}}>
+                  {highConc && (
+                    <div style={{
+                      display:'flex', alignItems:'center', gap:6,
+                      padding:'6px 10px', marginBottom:6,
+                      background:'rgba(245,158,11,0.1)',
+                      border:'1px solid rgba(245,158,11,0.3)',
+                      borderRadius:'var(--radius-sm)',
+                      boxShadow:'0 0 8px var(--accent-amber-glow, rgba(245,158,11,0.15))',
+                      fontSize:'11px', color:'var(--accent-amber)', fontWeight:600
+                    }}>
+                      <span>⚠</span>
+                      <span>Uses ~{pct}% of your {tierLabel} capital — consider position size</span>
+                    </div>
+                  )}
+                  <StockCard stock={stock} onClick={onSelectStock} />
+                </div>
+              );
+            })}
           </div>
         ) : (
         <div className="split-table-wrapper">
@@ -3992,13 +4050,17 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
               <tbody>
                 {topStocks.map((stock, i) => {
                   const isRecommended = stock.recommendation && stock.recommendation.type === 'SELL_PUT' && (stock.recommendation.confidence === 'HIGH' || stock.recommendation.confidence === 'MEDIUM');
+                  const highConc = isHighConcentration(stock);
                   return (
-                  <tr key={stock.symbol} style={{animation: `slideIn 0.3s ease-out ${i * 0.03}s both`, borderLeft: isRecommended ? '3px solid var(--accent-green)' : '3px solid transparent'}}>
-                    <td style={{color:'var(--text-muted)', fontFamily:'var(--font-mono)', fontSize:'12px'}}>{i + 1}</td>
-                    <td>
+                  <tr key={stock.symbol} style={{animation: `slideIn 0.3s ease-out ${i * 0.03}s both`, borderLeft: highConc ? '3px solid var(--accent-amber)' : (isRecommended ? '3px solid var(--accent-green)' : '3px solid transparent'), background: highConc ? 'rgba(245,158,11,0.06)' : 'transparent'}}>
+                    <td style={{color:'var(--text-muted)', fontFamily:'var(--font-mono)', fontSize:'12px', background: highConc ? 'rgba(245,158,11,0.08)' : undefined}}>{i + 1}</td>
+                    <td style={{background: highConc ? 'rgba(245,158,11,0.08)' : undefined}}>
                       <div style={{display:'flex', alignItems:'center', gap:'10px'}}>
                         <div>
-                          <div className="ticker" style={{cursor:'pointer'}} onClick={() => onSelectStock && onSelectStock(stock)}>{stock.symbol}</div>
+                          <div className="ticker" style={{cursor:'pointer'}} onClick={() => onSelectStock && onSelectStock(stock)}>
+                            {highConc && <span title={`Uses ~${Math.round(getConcentrationPct(stock))}% of your ${CAPITAL_TIERS[capitalTier]?.label || ''} capital`} style={{color:'var(--accent-amber)', marginRight:4}}>⚠</span>}
+                            {stock.symbol}
+                          </div>
                           <div className="fixed-col-subtext" style={{fontSize:'11px', color:'var(--text-muted)'}}>{stock.sector}</div>
                         </div>
                       </div>
@@ -4044,8 +4106,9 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
                   const pop = stock.probOfProfit || WheelScoring.getProbOfProfit(stock.delta);
                   const cashReq = stock.cashRequired || WheelScoring.getCashRequired(stock.strikePrice);
                   const maxLoss = stock.maxLoss || Math.round((stock.strikePrice - stock.premium) * 100);
+                  const highConc = isHighConcentration(stock);
                   return (
-                  <tr key={stock.symbol} style={{animation: `slideIn 0.3s ease-out ${i * 0.03}s both`, borderLeft: isRecommended ? '3px solid var(--accent-green)' : '3px solid transparent'}}>
+                  <tr key={stock.symbol} style={{animation: `slideIn 0.3s ease-out ${i * 0.03}s both`, borderLeft: highConc ? '3px solid var(--accent-amber)' : (isRecommended ? '3px solid var(--accent-green)' : '3px solid transparent'), background: highConc ? 'rgba(245,158,11,0.06)' : 'transparent'}}>
                     <td>
                       <div style={{fontFamily:'var(--font-mono)', fontWeight:600}}>${stock.price.toFixed(2)}</div>
                       <div style={{fontSize:'11px', color: stock.change >= 0 ? 'var(--accent-green)' : 'var(--accent-red)'}}>{stock.change >= 0 ? '+' : ''}{stock.changePct}%</div>
@@ -4190,7 +4253,11 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
 }
 
 // ===== SCREENER PAGE =====
-function ScreenerPage({ stocks, user, subscriptionTier, onSelectStock, onExport }) {
+function ScreenerPage({ stocks, user, subscriptionTier, capitalTier = 'all', onSelectStock, onExport }) {
+  // Shared concentration helpers (module-level) — highlight stocks whose
+  // cash-at-risk is ≥60% of the selected tier's upper cap.
+  const getConcentrationPct = (stock) => getConcentrationPctFor(stock, capitalTier);
+  const isHighConcentration = (stock) => isHighConcentrationFor(stock, capitalTier);
   const [filters, setFilters] = useState({
     sector: 'All',
     minYield: 0,
@@ -4371,9 +4438,30 @@ function ScreenerPage({ stocks, user, subscriptionTier, onSelectStock, onExport 
               <div style={{padding:'40px 20px', color:'var(--text-muted)', fontSize:'14px', textAlign:'center'}}>
                 No stocks match your filters. Try adjusting the search term or filter values above.
               </div>
-            ) : filteredStocks.map(stock => (
-              <StockCard key={stock.symbol} stock={stock} onClick={onSelectStock} />
-            ))}
+            ) : filteredStocks.map(stock => {
+              const highConc = isHighConcentration(stock);
+              const pct = Math.round(getConcentrationPct(stock));
+              const tierLabel = CAPITAL_TIERS[capitalTier]?.label?.split(' (')[0] || '';
+              return (
+                <div key={stock.symbol} style={{position:'relative'}}>
+                  {highConc && (
+                    <div style={{
+                      display:'flex', alignItems:'center', gap:6,
+                      padding:'6px 10px', marginBottom:6,
+                      background:'rgba(245,158,11,0.1)',
+                      border:'1px solid rgba(245,158,11,0.3)',
+                      borderRadius:'var(--radius-sm)',
+                      boxShadow:'0 0 8px var(--accent-amber-glow, rgba(245,158,11,0.15))',
+                      fontSize:'11px', color:'var(--accent-amber)', fontWeight:600
+                    }}>
+                      <span>⚠</span>
+                      <span>Uses ~{pct}% of your {tierLabel} capital — consider position size</span>
+                    </div>
+                  )}
+                  <StockCard stock={stock} onClick={onSelectStock} />
+                </div>
+              );
+            })}
           </div>
         ) : (
         <div className="split-table-wrapper">
@@ -4389,11 +4477,17 @@ function ScreenerPage({ stocks, user, subscriptionTier, onSelectStock, onExport 
                 {filteredStocks.length === 0 && (
                   <tr><td style={{padding:'40px 20px', color:'var(--text-muted)', fontSize:'14px', whiteSpace:'normal'}}>No match</td></tr>
                 )}
-                {filteredStocks.map((stock, i) => (
-                  <tr key={stock.symbol} style={{cursor:'pointer'}} onClick={() => onSelectStock && onSelectStock(stock)}>
-                    <td><span className="ticker">{stock.symbol}</span></td>
+                {filteredStocks.map((stock, i) => {
+                  const highConc = isHighConcentration(stock);
+                  return (
+                  <tr key={stock.symbol} style={{cursor:'pointer', background: highConc ? 'rgba(245,158,11,0.06)' : 'transparent', borderLeft: highConc ? '2px solid var(--accent-amber)' : undefined}} onClick={() => onSelectStock && onSelectStock(stock)}>
+                    <td style={{background: highConc ? 'rgba(245,158,11,0.08)' : undefined}}>
+                      {highConc && <span title={`Uses ~${Math.round(getConcentrationPct(stock))}% of your ${CAPITAL_TIERS[capitalTier]?.label || ''} capital`} style={{color:'var(--accent-amber)', marginRight:4}}>⚠</span>}
+                      <span className="ticker">{stock.symbol}</span>
+                    </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -4428,8 +4522,10 @@ function ScreenerPage({ stocks, user, subscriptionTier, onSelectStock, onExport 
                     </td>
                   </tr>
                 )}
-                {filteredStocks.map((stock, i) => (
-                  <tr key={stock.symbol} style={{cursor:'pointer'}} onClick={() => onSelectStock && onSelectStock(stock)}>
+                {filteredStocks.map((stock, i) => {
+                  const highConc = isHighConcentration(stock);
+                  return (
+                  <tr key={stock.symbol} style={{cursor:'pointer', background: highConc ? 'rgba(245,158,11,0.06)' : 'transparent'}} onClick={() => onSelectStock && onSelectStock(stock)}>
                     <td style={{fontSize:'12px', color:'var(--text-secondary)', maxWidth:140, overflow:'hidden', textOverflow:'ellipsis'}}>{stock.name}</td>
                     <td>
                       <span style={{fontFamily:'var(--font-mono)', fontWeight:600}}>${stock.price.toFixed(2)}</span>
@@ -4478,7 +4574,8 @@ function ScreenerPage({ stocks, user, subscriptionTier, onSelectStock, onExport 
                     </td>
                     <td><Sparkline data={stock.closes.slice(-15)} width={60} height={24} color={stock.technicalSignal > 0 ? '#10b981' : '#ef4444'} /></td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -5880,7 +5977,7 @@ function exportCSV(stocks, filename) {
 }
 
 // ===== ADMIN PAGE (Owner Only) =====
-function AdminPage({ user }) {
+function AdminPage({ user, authLoading }) {
   const [subscribers, setSubscribers] = useState([
     { id: 1, name: 'Demo User', email: 'demo@example.com', plan: 'Professional', status: 'active', joined: '2026-01-15', revenue: 99 },
     { id: 2, name: 'Trial User', email: 'trial@example.com', plan: 'Starter', status: 'trial', joined: '2026-02-01', revenue: 0 },
@@ -5888,6 +5985,17 @@ function AdminPage({ user }) {
 
   const totalRevenue = subscribers.reduce((sum, s) => sum + s.revenue, 0);
   const activeCount = subscribers.filter(s => s.status === 'active').length;
+
+  // While Firebase auth is still resolving, show a loading state to avoid flashing the
+  // "restricted" lock screen before we know whether the user is the owner.
+  if (authLoading) {
+    return (
+      <div className="loading-state">
+        <div className="spinner" />
+        <p>Loading...</p>
+      </div>
+    );
+  }
 
   // Check if current user is the owner (set on signup via email-contains-"holland" logic)
   const isOwner = user?.isOwner === true;
@@ -6333,9 +6441,19 @@ function App() {
   const [capitalTier, setCapitalTier] = useState(() => {
     try { return localStorage.getItem('capitalTier') || 'all'; } catch(e) { return 'all'; }
   });
+  // Guard flag so hydration from Firestore doesn't immediately trigger a write-back
+  const capitalTierHydratedRef = useRef(false);
   useEffect(() => {
+    // Always write to localStorage (fallback when signed out, and for fast initial render)
     try { localStorage.setItem('capitalTier', capitalTier); } catch(e) {}
-  }, [capitalTier]);
+    // Sync to Firestore when signed in, but skip the first run that follows hydration
+    if (!capitalTierHydratedRef.current) return;
+    if (!user || !user.uid || typeof firebaseDb === 'undefined') return;
+    firebaseDb.collection('users').doc(user.uid)
+      .collection('settings').doc('preferences')
+      .set({ capitalTier, updatedAt: new Date().toISOString() }, { merge: true })
+      .catch(e => console.warn('[preferences] save failed', e));
+  }, [capitalTier, user && user.uid]);
   useEffect(() => { Storage.set('watchlist', watchlist); }, [watchlist]);
   const toggleWatchlist = (symbol) => setWatchlist(prev => prev.includes(symbol) ? prev.filter(s => s !== symbol) : [...prev, symbol]);
 
@@ -6537,6 +6655,20 @@ function App() {
             if (cloudWatchlist) { Storage.set('watchlist', cloudWatchlist); setWatchlist(cloudWatchlist); }
             const cloudSettings = await FirebaseHelper.loadData(fbUser.uid, 'settings');
             if (cloudSettings) { Storage.set('settings', cloudSettings); setSettings(s => ({...s, ...cloudSettings})); }
+            // Load user preferences (capitalTier, etc.) from Firestore — silently fall back to localStorage on failure
+            try {
+              const prefsDoc = await firebaseDb.collection('users').doc(fbUser.uid)
+                .collection('settings').doc('preferences').get();
+              if (prefsDoc.exists) {
+                const prefs = prefsDoc.data() || {};
+                if (prefs.capitalTier && ['starter','builder','full','all'].includes(prefs.capitalTier)) {
+                  setCapitalTier(prefs.capitalTier);
+                  try { localStorage.setItem('capitalTier', prefs.capitalTier); } catch(e) {}
+                }
+              }
+            } catch (e) { console.warn('[preferences] load failed', e); }
+            // Enable Firestore write-back now that cloud hydration is complete
+            capitalTierHydratedRef.current = true;
             // Now set user state — PortfolioPage/Journal will remount reading correct localStorage
             setUser(profile);
             Storage.set('user', profile);
@@ -6623,6 +6755,9 @@ function App() {
     Storage.remove('user');
     Storage.remove('positions');
     Storage.remove('journal');
+    // Preserve capitalTier in localStorage so next sign-in starts with the last setting.
+    // Reset hydration flag so the next sign-in rehydrates from Firestore without triggering a stale write.
+    capitalTierHydratedRef.current = false;
     setUser(null);
     setPage('dashboard');
     setStocks([]);
@@ -6715,12 +6850,12 @@ function App() {
   // Logged in - show dashboard
   const pages = {
     dashboard: { title: 'Dashboard', icon: Icons.dashboard, component: <DashboardPage stocks={stocks} watchlist={watchlist} toggleWatchlist={toggleWatchlist} onSelectStock={setSelectedStock} onSetPage={setPage} capitalTier={capitalTier} /> },
-    screener: { title: 'Screener', icon: Icons.screener, component: <ScreenerPage stocks={stocks} user={user} subscriptionTier={subscriptionTier} onSelectStock={setSelectedStock} onExport={(s) => exportCSV(s, `wheelpro-screener-${new Date().toISOString().slice(0,10)}.csv`)} /> },
+    screener: { title: 'Screener', icon: Icons.screener, component: <ScreenerPage stocks={stocks} user={user} subscriptionTier={subscriptionTier} capitalTier={capitalTier} onSelectStock={setSelectedStock} onExport={(s) => exportCSV(s, `wheelpro-screener-${new Date().toISOString().slice(0,10)}.csv`)} /> },
     portfolio: { title: 'Portfolio', icon: Icons.portfolio, component: <PortfolioPage key={user?.uid || 'guest'} stocks={stocks} /> },
     journal: { title: 'Trade Journal', icon: Icons.journal, component: <TradeJournalPage key={user?.uid || 'guest'} user={user} subscriptionTier={subscriptionTier} /> },
     backtest: { title: 'Backtest', icon: Icons.chart, component: <ErrorBoundary><BacktestPage user={user} subscriptionTier={subscriptionTier} /></ErrorBoundary> },
     settings: { title: 'Settings', icon: Icons.settings, component: <SettingsPage settings={settings} setSettings={setSettings} user={user} /> },
-    admin: { title: 'Admin', icon: Icons.admin, component: <AdminPage user={user} /> },
+    admin: { title: 'Admin', icon: Icons.admin, component: <AdminPage user={user} authLoading={authLoading} /> },
   };
 
   return (
