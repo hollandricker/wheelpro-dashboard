@@ -1092,7 +1092,7 @@ body.protected img { pointer-events: none; }
   display: inline-flex;
   cursor: help;
 }
-.tip-wrap .tip-box {
+.tip-box {
   position: fixed;
   background: #1a1f2e;
   color: #e2e8f0;
@@ -1109,7 +1109,7 @@ body.protected img { pointer-events: none; }
   pointer-events: none;
   box-shadow: 0 8px 24px rgba(0,0,0,0.4);
 }
-.tip-wrap .tip-box::after {
+.tip-box::after {
   content: '';
   position: absolute;
   top: 100%;
@@ -1118,7 +1118,7 @@ body.protected img { pointer-events: none; }
   border: 6px solid transparent;
   border-top-color: #1a1f2e;
 }
-.tip-wrap .tip-box.tip-below::after {
+.tip-box.tip-below::after {
   top: auto;
   bottom: 100%;
   border-top-color: transparent;
@@ -5997,6 +5997,18 @@ function Tip({ children, text }) {
     setShow(true);
   };
 
+  // Portal the tooltip to document.body so it escapes any ancestor stacking
+  // context (e.g. the sticky/frozen Symbol column's z-index:10 panel) and any
+  // ancestor overflow clipping. Without this, tooltips inside the scrollable
+  // split-table panel render below the frozen panel.
+  const tipNode = show && ReactDOM.createPortal(
+    React.createElement('span', {
+      className: 'tip-box tip-portal' + (below ? ' tip-below' : ''),
+      style: tipStyle,
+    }, text),
+    document.body
+  );
+
   return React.createElement('span', {
     className: 'tip-wrap',
     ref,
@@ -6004,10 +6016,7 @@ function Tip({ children, text }) {
     onMouseLeave: () => setShow(false),
   },
     children,
-    show && React.createElement('span', {
-      className: 'tip-box' + (below ? ' tip-below' : ''),
-      style: tipStyle,
-    }, text)
+    tipNode
   );
 }
 
@@ -6773,14 +6782,18 @@ function App() {
               <div className="topbar-title">{pages[page]?.title}</div>
             </div>
             <div className="topbar-actions">
-              {lastRefresh && (
-                <span style={{fontSize:'12px', color:'var(--text-muted)'}}>
-                  Updated {lastRefresh.toLocaleTimeString()}
-                  {stocks.length > 0 && stocks[0].dataSource === 'yahoo-finance'
-                    ? ' · ● Live Data'
-                    : ' · ● Demo Data'}
-                </span>
-              )}
+              {lastRefresh && (() => {
+                // v3.3.1: Recognize all real data sources from server.js (tradier primary, yahoo-fallback secondary)
+                const src = stocks.length > 0 ? stocks[0].dataSource : null;
+                const isLive = src === 'tradier' || src === 'yahoo-fallback' || src === 'yahoo-finance';
+                const isWarming = stocks.length === 0 || src === 'warming';
+                return (
+                  <span style={{fontSize:'12px', color: isLive ? 'var(--accent-green)' : (isWarming ? 'var(--accent-amber)' : 'var(--text-muted)')}}>
+                    Updated {lastRefresh.toLocaleTimeString()}
+                    {isLive ? ' · ● Live Data' : (isWarming ? ' · ● Loading market data…' : ' · ● Demo Data')}
+                  </span>
+                );
+              })()}
               {(() => {
                 const now = new Date();
                 const et = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
