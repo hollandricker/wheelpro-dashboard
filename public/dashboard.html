@@ -100,6 +100,57 @@ const firebaseDb = firebase.firestore();
   --shadow-glow: 0 0 20px rgba(184,154,62,0.04);
 }
 
+/* =================================================================
+   a11y utilities — skip link, sr-only, and keyboard-focus fallback
+   ================================================================= */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+.skip-link {
+  position: absolute;
+  top: -60px;
+  left: 8px;
+  background: var(--accent-gold);
+  color: var(--bg-primary);
+  padding: 10px 18px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+  z-index: 10000;
+  transition: top 0.15s ease;
+}
+.skip-link:focus {
+  top: 8px;
+  outline: 2px solid var(--accent-gold);
+  outline-offset: 2px;
+}
+/* Keyboard-focus fallback: ensures a visible gold outline on any
+   interactive element focused via keyboard. Individual components
+   may override with their own :focus-visible style. */
+:focus-visible {
+  outline: 2px solid var(--accent-gold);
+  outline-offset: 2px;
+}
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[role="button"]:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--accent-gold);
+  outline-offset: 2px;
+}
+
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 html { scroll-behavior: smooth; }
@@ -1908,6 +1959,7 @@ body.protected img { pointer-events: none; }
 </head>
 <body class="protected">
 
+<a href="#main-content" class="skip-link">Skip to main content</a>
 <div id="root"></div>
 
 <script type="text/babel">
@@ -2613,7 +2665,7 @@ function LandingPage({ onLogin, onSignup, onSubscribe }) {
           <a href="#features">Features</a>
           <a href="#pricing">Pricing</a>
           <a href="/blog.html">Blog</a>
-          <a onClick={onLogin} style={{cursor:'pointer'}}>Log In</a>
+          <a role="button" tabIndex={0} onClick={onLogin} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onLogin(); } }} style={{cursor:'pointer'}}>Log In</a>
           <button className="btn btn-primary btn-sm" onClick={onSignup}>Start Free Trial</button>
         </div>
       </nav>
@@ -2777,6 +2829,13 @@ function AuthModal({ mode, onClose, onSubmit, onToggle, notice }) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // a11y: Esc-to-close
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -2825,11 +2884,11 @@ function AuthModal({ mode, onClose, onSubmit, onToggle, notice }) {
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
+    <div className="modal-overlay" onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
       <div className="modal" onClick={e => e.stopPropagation()}>
         <div style={{display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:'4px'}}>
-          <h2>{mode === 'login' ? 'Welcome Back' : 'Start Your Free Trial'}</h2>
-          <button onClick={onClose} style={{background:'none',border:'none',color:'var(--text-muted)',cursor:'pointer',padding:'4px'}}>{Icons.close}</button>
+          <h2 id="auth-modal-title">{mode === 'login' ? 'Welcome Back' : 'Start Your Free Trial'}</h2>
+          <button onClick={onClose} aria-label="Close sign in dialog" style={{background:'none',border:'none',color:'var(--text-muted)',cursor:'pointer',padding:'4px'}}>{Icons.close}</button>
         </div>
         <p>{mode === 'login' ? 'Sign in to access your dashboard' : '7 days free. Cancel anytime.'}</p>
 
@@ -2854,17 +2913,17 @@ function AuthModal({ mode, onClose, onSubmit, onToggle, notice }) {
         <form onSubmit={handleSubmit}>
           {mode === 'signup' && (
             <div className="form-group">
-              <label className="form-label">Full Name</label>
-              <input className="form-input" type="text" placeholder="Your Name" value={name} onChange={e => setName(e.target.value)} />
+              <label className="form-label" htmlFor="auth-name">Full Name</label>
+              <input id="auth-name" className="form-input" type="text" placeholder="Your Name" value={name} onChange={e => setName(e.target.value)} autoComplete="name" />
             </div>
           )}
           <div className="form-group">
-            <label className="form-label">Email Address</label>
-            <input className="form-input" type="email" placeholder="you@example.com" value={email} onChange={e => setEmail(e.target.value)} />
+            <label className="form-label" htmlFor="auth-email">Email Address</label>
+            <input id="auth-email" className="form-input" type="email" placeholder="you@example.com" value={email} onChange={e => setEmail(e.target.value)} autoComplete="email" />
           </div>
           <div className="form-group">
-            <label className="form-label">Password</label>
-            <input className="form-input" type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} />
+            <label className="form-label" htmlFor="auth-password">Password</label>
+            <input id="auth-password" className="form-input" type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} autoComplete={mode === 'signup' ? 'new-password' : 'current-password'} />
           </div>
           {error && <div className="form-error">{error}</div>}
           <button className="btn btn-primary" type="submit" style={{width:'100%',justifyContent:'center',marginTop:'8px'}} disabled={loading}>
@@ -2874,15 +2933,15 @@ function AuthModal({ mode, onClose, onSubmit, onToggle, notice }) {
 
         {mode === 'login' && (
           <div style={{textAlign:'center', marginTop:'12px'}}>
-            <a onClick={handleForgotPassword} style={{fontSize:'13px', color:'var(--accent-blue)', cursor:'pointer', textDecoration:'none'}}>Forgot password?</a>
+            <a role="button" tabIndex={0} onClick={handleForgotPassword} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleForgotPassword(); } }} style={{fontSize:'13px', color:'var(--accent-blue)', cursor:'pointer', textDecoration:'none'}}>Forgot password?</a>
           </div>
         )}
 
         <div className="form-footer">
           {mode === 'login' ? (
-            <>Don't have an account? <a onClick={onToggle}>Sign up</a></>
+            <>Don't have an account? <a role="button" tabIndex={0} onClick={onToggle} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onToggle(); } }}>Sign up</a></>
           ) : (
-            <>Already have an account? <a onClick={onToggle}>Sign in</a></>
+            <>Already have an account? <a role="button" tabIndex={0} onClick={onToggle} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onToggle(); } }}>Sign in</a></>
           )}
         </div>
       </div>
@@ -2989,6 +3048,13 @@ function CoveredCallModal({ position, stock, onClose, onMarkSelling }) {
   const [recs, setRecs] = useState(null);
   const [category, setCategory] = useState('conservative');
 
+  // a11y: Esc-to-close
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
   const costBasis = position.assignmentCostBasis || position.costBasis || position.strike;
   const currentPrice = stock?.price || position.currentPrice || costBasis;
   const shares = position.shares || position.contracts * 100;
@@ -3009,7 +3075,7 @@ function CoveredCallModal({ position, stock, onClose, onMarkSelling }) {
   const unrealizedPct = ((currentPrice - costBasis) / costBasis) * 100;
 
   return (
-    <div className="cc-modal-overlay" onClick={onClose}>
+    <div className="cc-modal-overlay" onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="cc-modal-title">
       <div className="cc-modal" onClick={e => e.stopPropagation()}>
 
         {/* ── Header ── */}
@@ -3017,12 +3083,12 @@ function CoveredCallModal({ position, stock, onClose, onMarkSelling }) {
           <div style={{display:'flex', alignItems:'flex-start', justifyContent:'space-between', marginBottom:16}}>
             <div>
               <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:6}}>
-                <span style={{fontFamily:'var(--font-mono)', fontSize:'26px', fontWeight:700, color:'var(--accent-gold)'}}>{position.symbol}</span>
+                <span id="cc-modal-title" style={{fontFamily:'var(--font-mono)', fontSize:'26px', fontWeight:700, color:'var(--accent-gold)'}}>{position.symbol}</span>
                 <span className={`wheel-stage-badge ${stageInfo.cls}`}>{stageInfo.icon} {stageInfo.label}</span>
               </div>
               <div style={{fontSize:'13px', color:'var(--text-secondary)'}}>Covered Call Recommendations · Full Wheel Analysis</div>
             </div>
-            <button onClick={onClose} style={{background:'none', border:'none', color:'var(--text-muted)', cursor:'pointer', fontSize:'22px', padding:'4px 8px', lineHeight:1, marginTop:-4}}>✕</button>
+            <button onClick={onClose} aria-label="Close covered call recommendations dialog" style={{background:'none', border:'none', color:'var(--text-muted)', cursor:'pointer', fontSize:'22px', padding:'4px 8px', lineHeight:1, marginTop:-4}}>✕</button>
           </div>
 
           {/* Wheel Cycle Progress */}
@@ -3109,15 +3175,15 @@ function CoveredCallModal({ position, stock, onClose, onMarkSelling }) {
               <table className="cc-rec-table">
                 <thead>
                   <tr>
-                    <th>Strike</th>
-                    <th>Bid / Ask</th>
-                    <th>Mid Premium</th>
-                    <th>DTE / Expiry</th>
-                    <th>Delta</th>
-                    <th>Theta / Day</th>
-                    <th>Ann. Yield</th>
-                    <th>vs Cost Basis</th>
-                    <th>Total Income</th>
+                    <th scope="col">Strike</th>
+                    <th scope="col">Bid / Ask</th>
+                    <th scope="col">Mid Premium</th>
+                    <th scope="col">DTE / Expiry</th>
+                    <th scope="col">Delta</th>
+                    <th scope="col">Theta / Day</th>
+                    <th scope="col">Ann. Yield</th>
+                    <th scope="col">vs Cost Basis</th>
+                    <th scope="col">Total Income</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -3255,7 +3321,7 @@ function StockCard({ stock, onClick }) {
   const monthlyYield = (stock.weeklyYield * (stock.daysToExpiry || 7) / 30 * 100).toFixed(2);
   const earnings = stock.earningsIn != null ? (stock.earningsDateStr || (stock.earningsIn + 'd')) : '—';
   return (
-    <div className="stock-card" onClick={() => onClick && onClick(stock)}>
+    <div className="stock-card" role="button" tabIndex={0} aria-label={`View ${stock.symbol} details`} onClick={() => onClick && onClick(stock)} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick && onClick(stock); } }}>
       <div className={`stock-card-tierbar ${tierClass}`}></div>
       <div className="stock-card-header">
         <div>
@@ -3532,6 +3598,7 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
           </div>
           <button
             onClick={dismissStarterWarning}
+            aria-label="Dismiss starter tier warning"
             style={{background:'none', border:'none', color:'var(--accent-amber)', cursor:'pointer', fontSize:'14px', lineHeight:1, padding:'2px 6px', opacity:0.75}}
             title="Dismiss"
           >✕</button>
@@ -3585,7 +3652,7 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
             <div className="split-table-fixed" ref={recSplit.fixedRef}>
               <table className="data-table">
                 <thead>
-                  <tr><th>Symbol</th></tr>
+                  <tr><th scope="col">Symbol</th></tr>
                 </thead>
                 <tbody>
                   {recommendedPuts.map((stock, i) => {
@@ -3593,7 +3660,7 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
                     return (
                     <tr key={stock.symbol} style={{animation: `slideIn 0.3s ease-out ${i * 0.04}s both`, background: highConc ? 'rgba(245,158,11,0.06)' : (stock.recommendation.confidence === 'HIGH' ? 'rgba(16,185,129,0.03)' : 'transparent')}}>
                       <td style={{background: highConc ? 'rgba(245,158,11,0.08)' : (stock.recommendation.confidence === 'HIGH' ? '#0e1a2e' : '#0d1526'), borderLeft: highConc ? '2px solid var(--accent-amber)' : undefined}}>
-                        <div className="ticker" style={{cursor:'pointer'}} onClick={() => onSelectStock && onSelectStock(stock)}>
+                        <div className="ticker" style={{cursor:'pointer'}} role="button" tabIndex={0} aria-label={`View ${stock.symbol} details`} onClick={() => onSelectStock && onSelectStock(stock)} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelectStock && onSelectStock(stock); } }}>
                           {highConc && <span title={`Uses ~${Math.round(getConcentrationPct(stock))}% of your ${CAPITAL_TIERS[capitalTier]?.label || ''} capital`} style={{color:'var(--accent-amber)', marginRight:4}}>⚠</span>}
                           {stock.symbol}
                         </div>
@@ -3610,27 +3677,27 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
               <table className="data-table">
                 <thead>
                   <tr>
-                    <th>Confidence</th>
-                    <th>Price</th>
-                    <th>Strike</th>
-                    <th>Support</th>
-                    <th>Resistance</th>
-                    <th>Exp Date</th>
-                    <th>Premium</th>
-                    <th>Wk Yield</th>
-                    <th>Mo. Yield</th>
-                    <th>Theta/Day</th>
-                    <th>Delta</th>
-                    <th>P.O.P.</th>
-                    <th>Cash Req.</th>
-                    <th>Max Loss</th>
-                    <th>IV %ile</th>
-                    <th>P/C Ratio</th>
-                    <th>Bid-Ask</th>
-                    <th>Earnings</th>
-                    <th>Ex-Div</th>
-                    <th>Score</th>
-                    <th>Reason</th>
+                    <th scope="col">Confidence</th>
+                    <th scope="col">Price</th>
+                    <th scope="col">Strike</th>
+                    <th scope="col">Support</th>
+                    <th scope="col">Resistance</th>
+                    <th scope="col">Exp Date</th>
+                    <th scope="col">Premium</th>
+                    <th scope="col">Wk Yield</th>
+                    <th scope="col">Mo. Yield</th>
+                    <th scope="col">Theta/Day</th>
+                    <th scope="col">Delta</th>
+                    <th scope="col">P.O.P.</th>
+                    <th scope="col">Cash Req.</th>
+                    <th scope="col">Max Loss</th>
+                    <th scope="col">IV %ile</th>
+                    <th scope="col">P/C Ratio</th>
+                    <th scope="col">Bid-Ask</th>
+                    <th scope="col">Earnings</th>
+                    <th scope="col">Ex-Div</th>
+                    <th scope="col">Score</th>
+                    <th scope="col">Reason</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -3897,7 +3964,7 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
           <div className="split-table-fixed" ref={candSplit.fixedRef}>
             <table className="data-table">
               <thead>
-                <tr><th>#</th><th>Symbol</th></tr>
+                <tr><th scope="col">#</th><th scope="col">Symbol</th></tr>
               </thead>
               <tbody>
                 {topStocks.map((stock, i) => {
@@ -3909,7 +3976,7 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
                     <td style={{background: highConc ? 'rgba(245,158,11,0.08)' : undefined}}>
                       <div style={{display:'flex', alignItems:'center', gap:'10px'}}>
                         <div>
-                          <div className="ticker" style={{cursor:'pointer'}} onClick={() => onSelectStock && onSelectStock(stock)}>
+                          <div className="ticker" style={{cursor:'pointer'}} role="button" tabIndex={0} aria-label={`View ${stock.symbol} details`} onClick={() => onSelectStock && onSelectStock(stock)} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelectStock && onSelectStock(stock); } }}>
                             {highConc && <span title={`Uses ~${Math.round(getConcentrationPct(stock))}% of your ${CAPITAL_TIERS[capitalTier]?.label || ''} capital`} style={{color:'var(--accent-amber)', marginRight:4}}>⚠</span>}
                             {stock.symbol}
                           </div>
@@ -3928,28 +3995,28 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>Price</th>
-                  <th>Score</th>
-                  <th>Action</th>
-                  <th>Strike</th>
-                  <th>Support</th>
-                  <th>Resist.</th>
-                  <th>Exp Date</th>
-                  <th>Premium</th>
-                  <th>Wk Yield</th>
-                  <th>Ann. Yield</th>
-                  <th>Delta</th>
-                  <th>P.O.P.</th>
-                  <th>Cash Req.</th>
-                  <th>Max Loss</th>
-                  <th>RSI</th>
-                  <th>Signal</th>
-                  <th>IV %ile</th>
-                  <th>P/C Ratio</th>
-                  <th>Earnings</th>
-                  <th>Ex-Div</th>
-                  <th>Trend</th>
-                  <th>IV Rank</th>
+                  <th scope="col">Price</th>
+                  <th scope="col">Score</th>
+                  <th scope="col">Action</th>
+                  <th scope="col">Strike</th>
+                  <th scope="col">Support</th>
+                  <th scope="col">Resist.</th>
+                  <th scope="col">Exp Date</th>
+                  <th scope="col">Premium</th>
+                  <th scope="col">Wk Yield</th>
+                  <th scope="col">Ann. Yield</th>
+                  <th scope="col">Delta</th>
+                  <th scope="col">P.O.P.</th>
+                  <th scope="col">Cash Req.</th>
+                  <th scope="col">Max Loss</th>
+                  <th scope="col">RSI</th>
+                  <th scope="col">Signal</th>
+                  <th scope="col">IV %ile</th>
+                  <th scope="col">P/C Ratio</th>
+                  <th scope="col">Earnings</th>
+                  <th scope="col">Ex-Div</th>
+                  <th scope="col">Trend</th>
+                  <th scope="col">IV Rank</th>
                 </tr>
               </thead>
               <tbody>
@@ -4239,30 +4306,30 @@ function ScreenerPage({ stocks, user, subscriptionTier, capitalTier = 'all', onS
     <div>
       <div className="screener-filters">
         <div className="filter-group">
-          <label className="filter-label">Search</label>
-          <input className="filter-input" placeholder="Symbol or name..." value={filters.search} onChange={e => setFilters(f => ({...f, search: e.target.value}))} style={{minWidth:180}} />
+          <label className="filter-label" htmlFor="screener-search">Search</label>
+          <input id="screener-search" className="filter-input" placeholder="Symbol or name..." value={filters.search} onChange={e => setFilters(f => ({...f, search: e.target.value}))} style={{minWidth:180}} type="search" />
         </div>
         <div className="filter-group">
-          <label className="filter-label">Sector</label>
-          <select className="filter-select" value={filters.sector} onChange={e => setFilters(f => ({...f, sector: e.target.value}))}>
+          <label className="filter-label" htmlFor="screener-sector">Sector</label>
+          <select id="screener-sector" className="filter-select" value={filters.sector} onChange={e => setFilters(f => ({...f, sector: e.target.value}))}>
             {sectors.map(s => <option key={s} value={s}>{s}</option>)}
           </select>
         </div>
         <div className="filter-group">
-          <label className="filter-label">Min Yield %</label>
-          <input className="filter-input" type="number" step="0.5" min="0" max="10" value={filters.minYield} onChange={e => setFilters(f => ({...f, minYield: +e.target.value}))} style={{minWidth:80}} />
+          <label className="filter-label" htmlFor="screener-min-yield">Min Yield %</label>
+          <input id="screener-min-yield" className="filter-input" type="number" step="0.5" min="0" max="10" value={filters.minYield} onChange={e => setFilters(f => ({...f, minYield: +e.target.value}))} style={{minWidth:80}} />
         </div>
         <div className="filter-group">
-          <label className="filter-label">Max Delta</label>
-          <input className="filter-input" type="number" step="0.05" min="0" max="1" value={filters.maxDelta} onChange={e => setFilters(f => ({...f, maxDelta: +e.target.value}))} style={{minWidth:80}} />
+          <label className="filter-label" htmlFor="screener-max-delta">Max Delta</label>
+          <input id="screener-max-delta" className="filter-input" type="number" step="0.05" min="0" max="1" value={filters.maxDelta} onChange={e => setFilters(f => ({...f, maxDelta: +e.target.value}))} style={{minWidth:80}} />
         </div>
         <div className="filter-group">
-          <label className="filter-label">Min Score</label>
-          <input className="filter-input" type="number" step="5" min="0" max="100" value={filters.minScore} onChange={e => setFilters(f => ({...f, minScore: +e.target.value}))} style={{minWidth:80}} />
+          <label className="filter-label" htmlFor="screener-min-score">Min Score</label>
+          <input id="screener-min-score" className="filter-input" type="number" step="5" min="0" max="100" value={filters.minScore} onChange={e => setFilters(f => ({...f, minScore: +e.target.value}))} style={{minWidth:80}} />
         </div>
         <div className="filter-group">
-          <label className="filter-label">Signal</label>
-          <select className="filter-select" value={filters.signal} onChange={e => setFilters(f => ({...f, signal: e.target.value}))}>
+          <label className="filter-label" htmlFor="screener-signal">Signal</label>
+          <select id="screener-signal" className="filter-select" value={filters.signal} onChange={e => setFilters(f => ({...f, signal: e.target.value}))}>
             <option>All</option>
             <option>Bullish</option>
             <option>Bearish</option>
@@ -4322,7 +4389,7 @@ function ScreenerPage({ stocks, user, subscriptionTier, capitalTier = 'all', onS
             <table className="data-table">
               <thead>
                 <tr>
-                  <th style={{cursor:'pointer'}} onClick={() => handleSort('symbol')}>Symbol <SortIcon field="symbol"/></th>
+                  <th scope="col" style={{cursor:'pointer'}} onClick={() => handleSort('symbol')}>Symbol <SortIcon field="symbol"/></th>
                 </tr>
               </thead>
               <tbody>
@@ -4348,22 +4415,22 @@ function ScreenerPage({ stocks, user, subscriptionTier, capitalTier = 'all', onS
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>Name</th>
-                  <th style={{cursor:'pointer'}} onClick={() => handleSort('price')}>Price <SortIcon field="price"/></th>
-                  <th style={{cursor:'pointer'}} onClick={() => handleSort('wheelScore')}>Score <SortIcon field="wheelScore"/></th>
-                  <th>Recommendation</th>
-                  <th>Strike</th>
-                  <th>Exp Date</th>
-                  <th style={{cursor:'pointer'}} onClick={() => handleSort('weeklyYield')}>Wk Yield <SortIcon field="weeklyYield"/></th>
-                  <th style={{cursor:'pointer'}} onClick={() => handleSort('annualizedYield')}>Ann Yield <SortIcon field="annualizedYield"/></th>
-                  <th style={{cursor:'pointer'}} onClick={() => handleSort('delta')}>Delta <SortIcon field="delta"/></th>
-                  <th style={{cursor:'pointer'}} onClick={() => handleSort('rsi')}>RSI <SortIcon field="rsi"/></th>
-                  <th>MACD</th>
-                  <th>BB %B</th>
-                  <th style={{cursor:'pointer'}} onClick={() => handleSort('iv')}>IV <SortIcon field="iv"/></th>
-                  <th style={{cursor:'pointer'}} onClick={() => handleSort('optionVolume')}>Opt Vol <SortIcon field="optionVolume"/></th>
-                  <th>Earnings</th>
-                  <th>Trend</th>
+                  <th scope="col">Name</th>
+                  <th scope="col" style={{cursor:'pointer'}} onClick={() => handleSort('price')}>Price <SortIcon field="price"/></th>
+                  <th scope="col" style={{cursor:'pointer'}} onClick={() => handleSort('wheelScore')}>Score <SortIcon field="wheelScore"/></th>
+                  <th scope="col">Recommendation</th>
+                  <th scope="col">Strike</th>
+                  <th scope="col">Exp Date</th>
+                  <th scope="col" style={{cursor:'pointer'}} onClick={() => handleSort('weeklyYield')}>Wk Yield <SortIcon field="weeklyYield"/></th>
+                  <th scope="col" style={{cursor:'pointer'}} onClick={() => handleSort('annualizedYield')}>Ann Yield <SortIcon field="annualizedYield"/></th>
+                  <th scope="col" style={{cursor:'pointer'}} onClick={() => handleSort('delta')}>Delta <SortIcon field="delta"/></th>
+                  <th scope="col" style={{cursor:'pointer'}} onClick={() => handleSort('rsi')}>RSI <SortIcon field="rsi"/></th>
+                  <th scope="col">MACD</th>
+                  <th scope="col">BB %B</th>
+                  <th scope="col" style={{cursor:'pointer'}} onClick={() => handleSort('iv')}>IV <SortIcon field="iv"/></th>
+                  <th scope="col" style={{cursor:'pointer'}} onClick={() => handleSort('optionVolume')}>Opt Vol <SortIcon field="optionVolume"/></th>
+                  <th scope="col">Earnings</th>
+                  <th scope="col">Trend</th>
                 </tr>
               </thead>
               <tbody>
@@ -4609,30 +4676,30 @@ function PortfolioPage({ stocks }) {
             <div style={{display:'flex', flexWrap:'wrap', gap:'10px', alignItems:'flex-end'}}>
               <div>
                 <div style={{fontSize:'11px', color:'var(--text-muted)', marginBottom:4}}>Symbol</div>
-                <input style={{...iStyle, width:82}} value={newPos.symbol} onChange={e => setNewPos(p => ({...p, symbol:e.target.value.toUpperCase()}))} placeholder="AAPL" />
+                <input aria-label="Position symbol" style={{...iStyle, width:82}} value={newPos.symbol} onChange={e => setNewPos(p => ({...p, symbol:e.target.value.toUpperCase()}))} placeholder="AAPL" />
               </div>
               <div>
                 <div style={{fontSize:'11px', color:'var(--text-muted)', marginBottom:4}}>Type</div>
-                <select style={{...iStyle}} value={newPos.type} onChange={e => setNewPos(p => ({...p, type:e.target.value, isAssigned:false}))}>
+                <select aria-label="Position type" style={{...iStyle}} value={newPos.type} onChange={e => setNewPos(p => ({...p, type:e.target.value, isAssigned:false}))}>
                   <option value="CSP">Cash-Secured Put</option>
                   <option value="CC">Covered Call</option>
                 </select>
               </div>
               <div>
                 <div style={{fontSize:'11px', color:'var(--text-muted)', marginBottom:4}}>Strike $</div>
-                <input type="number" style={{...iStyle, width:90}} value={newPos.strike} onChange={e => setNewPos(p => ({...p, strike:e.target.value}))} placeholder="150.00" />
+                <input aria-label="Strike price in dollars" type="number" style={{...iStyle, width:90}} value={newPos.strike} onChange={e => setNewPos(p => ({...p, strike:e.target.value}))} placeholder="150.00" />
               </div>
               <div>
                 <div style={{fontSize:'11px', color:'var(--text-muted)', marginBottom:4}}>Premium $</div>
-                <input type="number" style={{...iStyle, width:80}} value={newPos.premium} onChange={e => setNewPos(p => ({...p, premium:e.target.value}))} placeholder="2.50" />
+                <input aria-label="Premium in dollars" type="number" style={{...iStyle, width:80}} value={newPos.premium} onChange={e => setNewPos(p => ({...p, premium:e.target.value}))} placeholder="2.50" />
               </div>
               <div>
                 <div style={{fontSize:'11px', color:'var(--text-muted)', marginBottom:4}}>Contracts</div>
-                <input type="number" style={{...iStyle, width:64}} value={newPos.contracts} onChange={e => setNewPos(p => ({...p, contracts:e.target.value}))} min="1" />
+                <input aria-label="Number of contracts" type="number" style={{...iStyle, width:64}} value={newPos.contracts} onChange={e => setNewPos(p => ({...p, contracts:e.target.value}))} min="1" />
               </div>
               <div>
                 <div style={{fontSize:'11px', color:'var(--text-muted)', marginBottom:4}}>Exp Date</div>
-                <input type="date" style={{...iStyle}} value={newPos.expDate} onChange={e => setNewPos(p => ({...p, expDate:e.target.value}))} />
+                <input aria-label="Expiration date" type="date" style={{...iStyle}} value={newPos.expDate} onChange={e => setNewPos(p => ({...p, expDate:e.target.value}))} />
               </div>
               {newPos.type === 'CSP' && (
                 <label style={{display:'flex', alignItems:'center', gap:6, paddingBottom:2, cursor:'pointer'}}>
@@ -4649,15 +4716,15 @@ function PortfolioPage({ stocks }) {
                 <div style={{fontSize:'12px', color:'var(--accent-amber)', fontWeight:700, width:'100%', marginBottom:2}}>Assignment Details</div>
                 <div>
                   <div style={{fontSize:'11px', color:'var(--text-muted)', marginBottom:4}}>Assignment Date</div>
-                  <input type="date" style={{...iStyle}} value={newPos.assignedDate} onChange={e => setNewPos(p => ({...p, assignedDate:e.target.value}))} />
+                  <input aria-label="Assignment date" type="date" style={{...iStyle}} value={newPos.assignedDate} onChange={e => setNewPos(p => ({...p, assignedDate:e.target.value}))} />
                 </div>
                 <div>
                   <div style={{fontSize:'11px', color:'var(--text-muted)', marginBottom:4}}>Shares</div>
-                  <input type="number" style={{...iStyle, width:90}} placeholder={newPos.contracts * 100} value={newPos.shares} onChange={e => setNewPos(p => ({...p, shares:e.target.value}))} />
+                  <input aria-label="Number of shares" type="number" style={{...iStyle, width:90}} placeholder={newPos.contracts * 100} value={newPos.shares} onChange={e => setNewPos(p => ({...p, shares:e.target.value}))} />
                 </div>
                 <div>
                   <div style={{fontSize:'11px', color:'var(--text-muted)', marginBottom:4}}>Cost Basis $/sh <span style={{color:'var(--accent-gold)'}}>↳ auto: ${(+newPos.strike - +newPos.premium || 0).toFixed(2)}</span></div>
-                  <input type="number" style={{...iStyle, width:110}} placeholder={(+newPos.strike - +newPos.premium || 0).toFixed(2)} value={newPos.assignmentCostBasis} onChange={e => setNewPos(p => ({...p, assignmentCostBasis:e.target.value}))} />
+                  <input aria-label="Cost basis per share" type="number" style={{...iStyle, width:110}} placeholder={(+newPos.strike - +newPos.premium || 0).toFixed(2)} value={newPos.assignmentCostBasis} onChange={e => setNewPos(p => ({...p, assignmentCostBasis:e.target.value}))} />
                 </div>
               </div>
             )}
@@ -4675,20 +4742,20 @@ function PortfolioPage({ stocks }) {
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>Symbol</th>
-                  <th>Wheel Stage</th>
-                  <th>Type</th>
-                  <th>Price</th>
-                  <th>Strike</th>
-                  <th>Status</th>
-                  <th>Cost Basis (DCA)</th>
-                  <th>Premium</th>
-                  <th>Cash / Shares</th>
-                  <th>Share P/L</th>
-                  <th>Days Left</th>
-                  <th>Opened</th>
-                  <th>Actions</th>
-                  <th></th>
+                  <th scope="col">Symbol</th>
+                  <th scope="col">Wheel Stage</th>
+                  <th scope="col">Type</th>
+                  <th scope="col">Price</th>
+                  <th scope="col">Strike</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Cost Basis (DCA)</th>
+                  <th scope="col">Premium</th>
+                  <th scope="col">Cash / Shares</th>
+                  <th scope="col">Share P/L</th>
+                  <th scope="col">Days Left</th>
+                  <th scope="col">Opened</th>
+                  <th scope="col">Actions</th>
+                  <th scope="col"></th>
                 </tr>
               </thead>
               <tbody>
@@ -4807,6 +4874,7 @@ function PortfolioPage({ stocks }) {
 
                         <td>
                           <button onClick={() => removePosition(p.id)}
+                            aria-label={`Remove ${p.symbol} position`}
                             style={{background:'none', border:'none', cursor:'pointer', color:'var(--accent-red)', fontSize:'14px', padding:'4px'}} title="Remove">✕</button>
                         </td>
                       </tr>
@@ -4821,17 +4889,17 @@ function PortfolioPage({ stocks }) {
                               </div>
                               <div>
                                 <div style={{fontSize:'11px', color:'var(--text-muted)', marginBottom:4}}>Assignment Date</div>
-                                <input type="date" style={{...iStyle}} value={assignData.assignedDate} onChange={e => setAssignData(d => ({...d, assignedDate:e.target.value}))} />
+                                <input aria-label="Assignment date" type="date" style={{...iStyle}} value={assignData.assignedDate} onChange={e => setAssignData(d => ({...d, assignedDate:e.target.value}))} />
                               </div>
                               <div>
                                 <div style={{fontSize:'11px', color:'var(--text-muted)', marginBottom:4}}>Shares</div>
-                                <input type="number" style={{...iStyle, width:90}} value={assignData.shares} onChange={e => setAssignData(d => ({...d, shares:e.target.value}))} placeholder={p.contracts * 100} />
+                                <input aria-label="Number of shares" type="number" style={{...iStyle, width:90}} value={assignData.shares} onChange={e => setAssignData(d => ({...d, shares:e.target.value}))} placeholder={p.contracts * 100} />
                               </div>
                               <div>
                                 <div style={{fontSize:'11px', color:'var(--text-muted)', marginBottom:4}}>
                                   Cost Basis $/sh <span style={{color:'var(--accent-gold)'}}>↳ ${(p.strike - p.premium).toFixed(2)} auto</span>
                                 </div>
-                                <input type="number" style={{...iStyle, width:110}} value={assignData.costBasis} onChange={e => setAssignData(d => ({...d, costBasis:e.target.value}))} placeholder={(p.strike - p.premium).toFixed(2)} />
+                                <input aria-label="Cost basis per share" type="number" style={{...iStyle, width:110}} value={assignData.costBasis} onChange={e => setAssignData(d => ({...d, costBasis:e.target.value}))} placeholder={(p.strike - p.premium).toFixed(2)} />
                               </div>
                               <button className="btn btn-sm btn-gold" onClick={() => markAssigned(p.id)} style={{fontSize:'11px'}}>Confirm Assignment</button>
                               <button className="btn btn-sm btn-secondary" onClick={() => setAssigningId(null)} style={{fontSize:'11px'}}>Cancel</button>
@@ -4968,12 +5036,12 @@ function TradeJournalPage({ user, subscriptionTier }) {
           <div style={{padding:'16px 20px', background:'var(--bg-elevated)', borderBottom:'1px solid var(--border)', display:'flex', flexWrap:'wrap', gap:'10px', alignItems:'flex-end'}}>
             <div>
               <div style={{fontSize:'11px', color:'var(--text-muted)', marginBottom:4}}>Symbol</div>
-              <input style={{background:'var(--bg-primary)', border:'1px solid var(--border)', borderRadius:'var(--radius-sm)', padding:'6px 10px', color:'var(--text-primary)', fontFamily:'var(--font-mono)', width:80, fontSize:'13px'}}
+              <input aria-label="Trade symbol" style={{background:'var(--bg-primary)', border:'1px solid var(--border)', borderRadius:'var(--radius-sm)', padding:'6px 10px', color:'var(--text-primary)', fontFamily:'var(--font-mono)', width:80, fontSize:'13px'}}
                 value={newTrade.symbol} onChange={e => setNewTrade(t => ({...t, symbol: e.target.value.toUpperCase()}))} placeholder="AAPL" />
             </div>
             <div>
               <div style={{fontSize:'11px', color:'var(--text-muted)', marginBottom:4}}>Type</div>
-              <select style={{background:'var(--bg-primary)', border:'1px solid var(--border)', borderRadius:'var(--radius-sm)', padding:'6px 10px', color:'var(--text-primary)', fontSize:'13px'}}
+              <select aria-label="Trade type" style={{background:'var(--bg-primary)', border:'1px solid var(--border)', borderRadius:'var(--radius-sm)', padding:'6px 10px', color:'var(--text-primary)', fontSize:'13px'}}
                 value={newTrade.type} onChange={e => setNewTrade(t => ({...t, type: e.target.value}))}>
                 <option value="CSP">Cash-Secured Put</option>
                 <option value="CC">Covered Call</option>
@@ -4981,22 +5049,22 @@ function TradeJournalPage({ user, subscriptionTier }) {
             </div>
             <div>
               <div style={{fontSize:'11px', color:'var(--text-muted)', marginBottom:4}}>Strike $</div>
-              <input type="number" style={{background:'var(--bg-primary)', border:'1px solid var(--border)', borderRadius:'var(--radius-sm)', padding:'6px 10px', color:'var(--text-primary)', fontFamily:'var(--font-mono)', width:90, fontSize:'13px'}}
+              <input aria-label="Strike price in dollars" type="number" style={{background:'var(--bg-primary)', border:'1px solid var(--border)', borderRadius:'var(--radius-sm)', padding:'6px 10px', color:'var(--text-primary)', fontFamily:'var(--font-mono)', width:90, fontSize:'13px'}}
                 value={newTrade.strike} onChange={e => setNewTrade(t => ({...t, strike: e.target.value}))} placeholder="150" />
             </div>
             <div>
               <div style={{fontSize:'11px', color:'var(--text-muted)', marginBottom:4}}>Premium $</div>
-              <input type="number" style={{background:'var(--bg-primary)', border:'1px solid var(--border)', borderRadius:'var(--radius-sm)', padding:'6px 10px', color:'var(--text-primary)', fontFamily:'var(--font-mono)', width:80, fontSize:'13px'}}
+              <input aria-label="Premium in dollars" type="number" style={{background:'var(--bg-primary)', border:'1px solid var(--border)', borderRadius:'var(--radius-sm)', padding:'6px 10px', color:'var(--text-primary)', fontFamily:'var(--font-mono)', width:80, fontSize:'13px'}}
                 value={newTrade.premium} onChange={e => setNewTrade(t => ({...t, premium: e.target.value}))} placeholder="2.50" />
             </div>
             <div>
               <div style={{fontSize:'11px', color:'var(--text-muted)', marginBottom:4}}>Contracts</div>
-              <input type="number" style={{background:'var(--bg-primary)', border:'1px solid var(--border)', borderRadius:'var(--radius-sm)', padding:'6px 10px', color:'var(--text-primary)', fontFamily:'var(--font-mono)', width:60, fontSize:'13px'}}
+              <input aria-label="Number of contracts" type="number" style={{background:'var(--bg-primary)', border:'1px solid var(--border)', borderRadius:'var(--radius-sm)', padding:'6px 10px', color:'var(--text-primary)', fontFamily:'var(--font-mono)', width:60, fontSize:'13px'}}
                 value={newTrade.contracts} onChange={e => setNewTrade(t => ({...t, contracts: e.target.value}))} min="1" />
             </div>
             <div>
               <div style={{fontSize:'11px', color:'var(--text-muted)', marginBottom:4}}>Outcome</div>
-              <select style={{background:'var(--bg-primary)', border:'1px solid var(--border)', borderRadius:'var(--radius-sm)', padding:'6px 10px', color:'var(--text-primary)', fontSize:'13px'}}
+              <select aria-label="Trade outcome" style={{background:'var(--bg-primary)', border:'1px solid var(--border)', borderRadius:'var(--radius-sm)', padding:'6px 10px', color:'var(--text-primary)', fontSize:'13px'}}
                 value={newTrade.outcome} onChange={e => setNewTrade(t => ({...t, outcome: e.target.value}))}>
                 <option value="expired">Expired Worthless</option>
                 <option value="assigned">Assigned</option>
@@ -5006,17 +5074,17 @@ function TradeJournalPage({ user, subscriptionTier }) {
             </div>
             <div>
               <div style={{fontSize:'11px', color:'var(--text-muted)', marginBottom:4}}>P&L $</div>
-              <input type="number" style={{background:'var(--bg-primary)', border:'1px solid var(--border)', borderRadius:'var(--radius-sm)', padding:'6px 10px', color:'var(--text-primary)', fontFamily:'var(--font-mono)', width:90, fontSize:'13px'}}
+              <input aria-label="Profit or loss in dollars" type="number" style={{background:'var(--bg-primary)', border:'1px solid var(--border)', borderRadius:'var(--radius-sm)', padding:'6px 10px', color:'var(--text-primary)', fontFamily:'var(--font-mono)', width:90, fontSize:'13px'}}
                 value={newTrade.pnl} onChange={e => setNewTrade(t => ({...t, pnl: e.target.value}))} placeholder="250" />
             </div>
             <div>
               <div style={{fontSize:'11px', color:'var(--text-muted)', marginBottom:4}}>Open Date</div>
-              <input type="date" style={{background:'var(--bg-primary)', border:'1px solid var(--border)', borderRadius:'var(--radius-sm)', padding:'6px 10px', color:'var(--text-primary)', fontSize:'13px'}}
+              <input aria-label="Open date" type="date" style={{background:'var(--bg-primary)', border:'1px solid var(--border)', borderRadius:'var(--radius-sm)', padding:'6px 10px', color:'var(--text-primary)', fontSize:'13px'}}
                 value={newTrade.openDate} onChange={e => setNewTrade(t => ({...t, openDate: e.target.value}))} />
             </div>
             <div>
               <div style={{fontSize:'11px', color:'var(--text-muted)', marginBottom:4}}>Close Date</div>
-              <input type="date" style={{background:'var(--bg-primary)', border:'1px solid var(--border)', borderRadius:'var(--radius-sm)', padding:'6px 10px', color:'var(--text-primary)', fontSize:'13px'}}
+              <input aria-label="Close date" type="date" style={{background:'var(--bg-primary)', border:'1px solid var(--border)', borderRadius:'var(--radius-sm)', padding:'6px 10px', color:'var(--text-primary)', fontSize:'13px'}}
                 value={newTrade.closeDate} onChange={e => setNewTrade(t => ({...t, closeDate: e.target.value}))} />
             </div>
             <button className="btn btn-sm btn-primary" onClick={addTrade}>Save</button>
@@ -5035,16 +5103,16 @@ function TradeJournalPage({ user, subscriptionTier }) {
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>Date</th>
-                  <th>Symbol</th>
-                  <th>Type</th>
-                  <th>Strike</th>
-                  <th>Premium</th>
-                  <th>Contracts</th>
-                  <th>Outcome</th>
-                  <th>P&L</th>
-                  <th>Return %</th>
-                  <th></th>
+                  <th scope="col">Date</th>
+                  <th scope="col">Symbol</th>
+                  <th scope="col">Type</th>
+                  <th scope="col">Strike</th>
+                  <th scope="col">Premium</th>
+                  <th scope="col">Contracts</th>
+                  <th scope="col">Outcome</th>
+                  <th scope="col">P&L</th>
+                  <th scope="col">Return %</th>
+                  <th scope="col"></th>
                 </tr>
               </thead>
               <tbody>
@@ -5072,7 +5140,7 @@ function TradeJournalPage({ user, subscriptionTier }) {
                         {+returnPct >= 0 ? '+' : ''}{returnPct}%
                       </td>
                       <td>
-                        <button onClick={() => removeTrade(t.id)} style={{background:'none', border:'none', cursor:'pointer', color:'var(--accent-red)', fontSize:'14px', padding:'4px'}} title="Remove trade">✕</button>
+                        <button onClick={() => removeTrade(t.id)} aria-label={`Remove ${t.symbol} trade from journal`} style={{background:'none', border:'none', cursor:'pointer', color:'var(--accent-red)', fontSize:'14px', padding:'4px'}} title="Remove trade">✕</button>
                       </td>
                     </tr>
                   );
@@ -5287,7 +5355,7 @@ function SettingsPage({ settings, setSettings, user }) {
             <div className="label-desc">Filters the display of recommendations — doesn't affect the underlying scoring or gates. Use this to narrow what you see; use Advanced Gate Thresholds to change what qualifies.</div>
           </div>
           <div style={{display:'flex', alignItems:'center', gap:'12px'}}>
-            <input type="range" className="range-slider" min="0" max="5" step="0.25" value={settings.minYield}
+            <input aria-label="Display filter minimum yield percent" type="range" className="range-slider" min="0" max="5" step="0.25" value={settings.minYield}
               onChange={e => setSettings(s => ({...s, minYield: +e.target.value}))} style={{width:120}} />
             <span style={{fontFamily:'var(--font-mono)', fontSize:'14px', minWidth:45}}>{settings.minYield}%</span>
           </div>
@@ -5298,7 +5366,7 @@ function SettingsPage({ settings, setSettings, user }) {
             <div className="label-desc">Filters the display of recommendations — doesn't affect the underlying scoring or gates. Use this to narrow what you see; use Advanced Gate Thresholds to change what qualifies.</div>
           </div>
           <div style={{display:'flex', alignItems:'center', gap:'12px'}}>
-            <input type="range" className="range-slider" min="0.05" max="0.50" step="0.05" value={settings.maxDelta}
+            <input aria-label="Display filter maximum delta" type="range" className="range-slider" min="0.05" max="0.50" step="0.05" value={settings.maxDelta}
               onChange={e => setSettings(s => ({...s, maxDelta: +e.target.value}))} style={{width:120}} />
             <span style={{fontFamily:'var(--font-mono)', fontSize:'14px', minWidth:45}}>{settings.maxDelta.toFixed(2)}</span>
           </div>
@@ -5309,7 +5377,7 @@ function SettingsPage({ settings, setSettings, user }) {
             <div className="label-desc">Filters the display of recommendations — doesn't affect the underlying scoring or gates. Use this to narrow what you see; use Advanced Gate Thresholds to change what qualifies.</div>
           </div>
           <div style={{display:'flex', alignItems:'center', gap:'12px'}}>
-            <input type="range" className="range-slider" min="0" max="90" step="5" value={settings.minScore}
+            <input aria-label="Display filter minimum score" type="range" className="range-slider" min="0" max="90" step="5" value={settings.minScore}
               onChange={e => setSettings(s => ({...s, minScore: +e.target.value}))} style={{width:120}} />
             <span style={{fontFamily:'var(--font-mono)', fontSize:'14px', minWidth:45}}>{settings.minScore}</span>
           </div>
@@ -5331,7 +5399,7 @@ function SettingsPage({ settings, setSettings, user }) {
               <div className="label-desc">{ind.desc}</div>
             </div>
             <label className="toggle">
-              <input type="checkbox" checked={settings[ind.key] !== false}
+              <input type="checkbox" aria-label={`Enable ${ind.label}`} checked={settings[ind.key] !== false}
                 onChange={e => setSettings(s => ({...s, [ind.key]: e.target.checked}))} />
               <span className="toggle-slider"></span>
             </label>
@@ -5347,7 +5415,7 @@ function SettingsPage({ settings, setSettings, user }) {
             <div className="label-desc">Notify when a stock scores above your threshold</div>
           </div>
           <label className="toggle">
-            <input type="checkbox" checked={settings.alertHighScore !== false}
+            <input type="checkbox" aria-label="Enable new high-score alerts" checked={settings.alertHighScore !== false}
               onChange={e => setSettings(s => ({...s, alertHighScore: e.target.checked}))} />
             <span className="toggle-slider"></span>
           </label>
@@ -5358,7 +5426,7 @@ function SettingsPage({ settings, setSettings, user }) {
             <div className="label-desc">Alert when a candidate has earnings within 7 days</div>
           </div>
           <label className="toggle">
-            <input type="checkbox" checked={settings.alertEarnings !== false}
+            <input type="checkbox" aria-label="Enable earnings warnings" checked={settings.alertEarnings !== false}
               onChange={e => setSettings(s => ({...s, alertEarnings: e.target.checked}))} />
             <span className="toggle-slider"></span>
           </label>
@@ -5369,7 +5437,7 @@ function SettingsPage({ settings, setSettings, user }) {
             <div className="label-desc">Notify when a stock's signal flips bullish/bearish</div>
           </div>
           <label className="toggle">
-            <input type="checkbox" checked={settings.alertSignal !== false}
+            <input type="checkbox" aria-label="Enable signal change alerts" checked={settings.alertSignal !== false}
               onChange={e => setSettings(s => ({...s, alertSignal: e.target.checked}))} />
             <span className="toggle-slider"></span>
           </label>
@@ -5384,7 +5452,7 @@ function SettingsPage({ settings, setSettings, user }) {
             <div className="label-desc">Automatically refresh market data every minute</div>
           </div>
           <label className="toggle">
-            <input type="checkbox" checked={settings.autoRefresh !== false}
+            <input type="checkbox" aria-label="Auto-refresh market data" checked={settings.autoRefresh !== false}
               onChange={e => setSettings(s => ({...s, autoRefresh: e.target.checked}))} />
             <span className="toggle-slider"></span>
           </label>
@@ -5395,7 +5463,7 @@ function SettingsPage({ settings, setSettings, user }) {
             <div className="label-desc">Display mini price charts in tables</div>
           </div>
           <label className="toggle">
-            <input type="checkbox" checked={settings.showSparklines !== false}
+            <input type="checkbox" aria-label="Show sparkline charts" checked={settings.showSparklines !== false}
               onChange={e => setSettings(s => ({...s, showSparklines: e.target.checked}))} />
             <span className="toggle-slider"></span>
           </label>
@@ -5549,8 +5617,9 @@ function BacktestPage({ user, subscriptionTier }) {
           <h3>⚙️ Backtest Parameters</h3>
           <div style={{display:'flex', alignItems:'center', gap:10}}>
             <div style={{display:'flex', flexDirection:'column', gap:4}}>
-              <span style={{fontSize:'11px', color:'var(--text-muted)', textTransform:'uppercase', letterSpacing:'1px'}}>Stock Symbol (optional)</span>
+              <label htmlFor="backtest-symbol" style={{fontSize:'11px', color:'var(--text-muted)', textTransform:'uppercase', letterSpacing:'1px'}}>Stock Symbol (optional)</label>
               <input
+                id="backtest-symbol"
                 className="filter-input"
                 placeholder="e.g. TSLA"
                 value={symbol}
@@ -5576,7 +5645,7 @@ function BacktestPage({ user, subscriptionTier }) {
             <div key={f.key} style={{minWidth:140}}>
               <div style={{fontSize:'11px', color:'var(--text-muted)', textTransform:'uppercase', letterSpacing:'1px', marginBottom:6}}>{f.label}</div>
               <div style={{display:'flex', alignItems:'center', gap:8}}>
-                <input type="range" className="range-slider" min={f.min} max={f.max} step={f.step} value={params[f.key]}
+                <input aria-label={f.label} type="range" className="range-slider" min={f.min} max={f.max} step={f.step} value={params[f.key]}
                   onChange={e => setParams(p => ({...p, [f.key]: +e.target.value}))} style={{width:100}} />
                 <span style={{fontFamily:'var(--font-mono)', fontSize:'14px', fontWeight:600, minWidth:50}}>
                   {f.key === 'capital' ? `$${(params[f.key]/1000).toFixed(0)}K` : f.key === 'maxPerStock' ? `${params[f.key]}%` : f.key === 'maxDelta' ? params[f.key].toFixed(2) : params[f.key]}
@@ -5641,7 +5710,7 @@ function BacktestPage({ user, subscriptionTier }) {
             <div className="table-scroll" style={{maxHeight:400, overflowY:'auto'}}>
               <table className="data-table">
                 <thead><tr>
-                  <th>Open</th><th>Close</th><th>Symbol</th><th>Outcome</th><th>P&L</th>
+                  <th scope="col">Open</th><th scope="col">Close</th><th scope="col">Symbol</th><th scope="col">Outcome</th><th scope="col">P&L</th>
                 </tr></thead>
                 <tbody>
                   {results.trades.slice().reverse().map((t, i) => (
@@ -5679,23 +5748,29 @@ function StockDetailModal({ stock, onClose }) {
   React.useEffect(() => {
     if (window.posthog) window.posthog.capture('stock_modal_open', { symbol: stock.symbol, sector: stock.sector, wheel_score: stock.wheelScore });
   }, [stock.symbol]);
+  // a11y: Esc-to-close
+  React.useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [onClose]);
   const pop = stock.probOfProfit || Math.round((1 - stock.delta) * 100);
   const cashReq = stock.cashRequired || Math.round(stock.strikePrice * 100);
   const maxLoss = stock.maxLoss || Math.round((stock.strikePrice - stock.premium) * 100);
   return (
-    <div className="modal-overlay" onClick={onClose}>
+    <div className="modal-overlay" onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="stock-detail-title">
       <div className="modal" onClick={e => e.stopPropagation()} style={{maxWidth:640, maxHeight:'90vh', overflowY:'auto'}}>
         <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20}}>
           <div>
             <div style={{display:'flex', alignItems:'center', gap:12}}>
-              <span className="ticker" style={{fontSize:24}}>{stock.symbol}</span>
+              <span id="stock-detail-title" className="ticker" style={{fontSize:24}}>{stock.symbol}</span>
               <span className={`signal-badge signal-${stock.recommendation?.color === 'green' ? 'bullish' : stock.recommendation?.color === 'amber' ? 'neutral' : 'bearish'}`}>
                 {stock.recommendation?.label}
               </span>
             </div>
             <div style={{fontSize:13, color:'var(--text-muted)', marginTop:4}}>{stock.name} · {stock.sector}</div>
           </div>
-          <button onClick={onClose} style={{background:'none',border:'none',color:'var(--text-muted)',cursor:'pointer'}}>{Icons.close}</button>
+          <button onClick={onClose} aria-label={`Close ${stock.symbol} details dialog`} style={{background:'none',border:'none',color:'var(--text-muted)',cursor:'pointer'}}>{Icons.close}</button>
         </div>
 
         <div style={{display:'flex', gap:16, marginBottom:20, flexWrap:'wrap'}}>
@@ -6231,19 +6306,19 @@ function PositionSizeCalculator() {
       <div className="calc-input-group">
         <div>
           <div style={{fontSize:11, color:'var(--text-muted)', textTransform:'uppercase', letterSpacing:1, marginBottom:6}}>Total Capital ($)</div>
-          <input type="number" className="form-input" value={capital} onChange={e => setCapital(+e.target.value)} style={{fontFamily:'var(--font-mono)'}} />
+          <input aria-label="Total capital in dollars" type="number" className="form-input" value={capital} onChange={e => setCapital(+e.target.value)} style={{fontFamily:'var(--font-mono)'}} />
         </div>
         <div>
           <div style={{fontSize:11, color:'var(--text-muted)', textTransform:'uppercase', letterSpacing:1, marginBottom:6}}>Max Per Stock (%)</div>
-          <input type="number" className="form-input" value={maxPerStock} onChange={e => setMaxPerStock(+e.target.value)} min="5" max="50" style={{fontFamily:'var(--font-mono)'}} />
+          <input aria-label="Maximum percent per stock" type="number" className="form-input" value={maxPerStock} onChange={e => setMaxPerStock(+e.target.value)} min="5" max="50" style={{fontFamily:'var(--font-mono)'}} />
         </div>
         <div>
           <div style={{fontSize:11, color:'var(--text-muted)', textTransform:'uppercase', letterSpacing:1, marginBottom:6}}>Stock Price ($)</div>
-          <input type="number" className="form-input" value={stockPrice} onChange={e => setStockPrice(+e.target.value)} style={{fontFamily:'var(--font-mono)'}} />
+          <input aria-label="Stock price in dollars" type="number" className="form-input" value={stockPrice} onChange={e => setStockPrice(+e.target.value)} style={{fontFamily:'var(--font-mono)'}} />
         </div>
         <div>
           <div style={{fontSize:11, color:'var(--text-muted)', textTransform:'uppercase', letterSpacing:1, marginBottom:6}}>Strike Price ($)</div>
-          <input type="number" className="form-input" value={strikePrice} onChange={e => setStrikePrice(+e.target.value)} style={{fontFamily:'var(--font-mono)'}} />
+          <input aria-label="Strike price in dollars" type="number" className="form-input" value={strikePrice} onChange={e => setStrikePrice(+e.target.value)} style={{fontFamily:'var(--font-mono)'}} />
         </div>
       </div>
       <div className="calc-result">
@@ -6796,24 +6871,33 @@ function App() {
             <div className="sidebar-logo">WheelPro™</div>
             <div className="sidebar-logo-sub">Options Dashboard</div>
           </div>
-          <nav className="sidebar-nav">
+          <nav className="sidebar-nav" aria-label="Primary">
             <div className="sidebar-section-label">Analysis</div>
             {['dashboard', 'screener', 'portfolio', 'journal', 'backtest'].map(key => (
               <a key={key} className={`sidebar-link ${page === key ? 'active' : ''}`}
-                onClick={() => { setPage(key); setSidebarOpen(false); }}>
+                role="button" tabIndex={0}
+                aria-current={page === key ? 'page' : undefined}
+                onClick={() => { setPage(key); setSidebarOpen(false); }}
+                onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setPage(key); setSidebarOpen(false); } }}>
                 <span className="icon">{pages[key].icon}</span>
                 {pages[key].title}
               </a>
             ))}
             <div className="sidebar-section-label">Account</div>
             <a className={`sidebar-link ${page === 'settings' ? 'active' : ''}`}
-              onClick={() => { setPage('settings'); setSidebarOpen(false); }}>
+              role="button" tabIndex={0}
+              aria-current={page === 'settings' ? 'page' : undefined}
+              onClick={() => { setPage('settings'); setSidebarOpen(false); }}
+              onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setPage('settings'); setSidebarOpen(false); } }}>
               <span className="icon">{Icons.settings}</span>
               Settings
             </a>
             {user.isOwner && (
               <a className={`sidebar-link ${page === 'admin' ? 'active' : ''}`}
-                onClick={() => { setPage('admin'); setSidebarOpen(false); }}>
+                role="button" tabIndex={0}
+                aria-current={page === 'admin' ? 'page' : undefined}
+                onClick={() => { setPage('admin'); setSidebarOpen(false); }}
+                onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setPage('admin'); setSidebarOpen(false); } }}>
                 <span className="icon">{Icons.admin}</span>
                 Admin Panel
               </a>
@@ -6827,7 +6911,9 @@ function App() {
                 <div className="sidebar-user-plan">{user.isOwner ? '👑 Owner' : subscriptionTier === 'elite' ? `⭐ Elite${subscriptionStatus === 'trialing' ? ' Trial' : ''}` : subscriptionTier === 'pro' ? `● Pro${subscriptionStatus === 'trialing' ? ' Trial' : ''}` : subscriptionTier === 'starter' ? `● Starter${subscriptionStatus === 'trialing' ? ' Trial' : ''}` : '○ Free'}</div>
               </div>
             </div>
-            <a className="sidebar-link" onClick={handleLogout} style={{marginTop:4, color:'var(--accent-red)'}}>
+            <a className="sidebar-link" role="button" tabIndex={0} onClick={handleLogout}
+              onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleLogout(); } }}
+              style={{marginTop:4, color:'var(--accent-red)'}}>
               <span className="icon">{Icons.logout}</span>
               Sign Out
             </a>
@@ -6835,15 +6921,17 @@ function App() {
         </aside>
 
         {/* Main */}
-        <main className="main-content">
+        <main className="main-content" id="main-content">
           <header className="topbar">
             <div style={{display:'flex', alignItems:'center', gap:'16px'}}>
               <button onClick={() => setSidebarOpen(!sidebarOpen)}
+                aria-label={sidebarOpen ? 'Close navigation menu' : 'Open navigation menu'}
+                aria-expanded={sidebarOpen}
                 style={{background:'none',border:'none',color:'var(--text-secondary)',cursor:'pointer', display:'none'}}
                 className="mobile-menu">
                 {Icons.menu}
               </button>
-              <div className="topbar-title">{pages[page]?.title}</div>
+              <h1 className="topbar-title">{pages[page]?.title}</h1>
             </div>
             <div className="topbar-actions">
               {(lastRefresh || loadingState.status !== 'idle') && (() => {
@@ -6877,12 +6965,14 @@ function App() {
                 );
               })()}
               <div style={{display:'flex', alignItems:'center', gap:'6px', borderRight:'1px solid var(--border)', paddingRight:12}}>
-                <span style={{fontSize:'10px', color:'var(--text-muted)', textTransform:'uppercase', letterSpacing:'0.8px', whiteSpace:'nowrap'}}>DTE</span>
+                <label htmlFor="dte-filter-select" style={{fontSize:'10px', color:'var(--text-muted)', textTransform:'uppercase', letterSpacing:'0.8px', whiteSpace:'nowrap'}}>DTE</label>
                 <select
+                  id="dte-filter-select"
                   className="dte-filter-select"
                   value={dteFilter}
                   onChange={e => setDteFilter(e.target.value)}
                   title="Filter by Days to Expiration"
+                  aria-label="Filter by days to expiration"
                 >
                   <option value="weekly">This Week (0–7)</option>
                   <option value="biweekly">2 Weeks (8–14)</option>
@@ -6891,12 +6981,14 @@ function App() {
                 </select>
               </div>
               <div style={{display:'flex', alignItems:'center', gap:'6px', borderRight:'1px solid var(--border)', paddingRight:12}}>
-                <span style={{fontSize:'10px', color:'var(--text-muted)', textTransform:'uppercase', letterSpacing:'0.8px', whiteSpace:'nowrap'}}>Capital</span>
+                <label htmlFor="capital-tier-select" style={{fontSize:'10px', color:'var(--text-muted)', textTransform:'uppercase', letterSpacing:'0.8px', whiteSpace:'nowrap'}}>Capital</label>
                 <select
+                  id="capital-tier-select"
                   className="dte-filter-select"
                   value={capitalTier}
                   onChange={e => setCapitalTier(e.target.value)}
                   title="Filter by account capital tier (cash required to sell the put)"
+                  aria-label="Filter by capital tier"
                   style={{minWidth:170}}
                 >
                   <option value="all">All Capital Levels</option>
@@ -6916,7 +7008,7 @@ function App() {
           {paymentSuccess && (
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:'12px',padding:'12px 24px',background:'rgba(34,197,94,0.1)',borderBottom:'1px solid rgba(34,197,94,0.2)',color:'var(--accent-green)',fontSize:'14px',fontWeight:500}}>
               <span>🎉 Payment successful! Your subscription is now active. Welcome to WheelPro™.</span>
-              <button onClick={() => setPaymentSuccess(false)} style={{background:'none',border:'none',color:'var(--accent-green)',cursor:'pointer',padding:'2px 6px',fontSize:'16px',lineHeight:1,opacity:0.7}}>✕</button>
+              <button onClick={() => setPaymentSuccess(false)} aria-label="Dismiss payment success notification" style={{background:'none',border:'none',color:'var(--accent-green)',cursor:'pointer',padding:'2px 6px',fontSize:'16px',lineHeight:1,opacity:0.7}}>✕</button>
             </div>
           )}
 
