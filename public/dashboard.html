@@ -6375,6 +6375,10 @@ function App() {
   const [loadingState, setLoadingState] = useState({ status: 'idle' });
   // Holds the pending warming-retry timer so a manual refresh / unmount can cancel it.
   const warmingRetryRef = useRef(null);
+  // Tracks API-side data-source caveats (e.g. when the backend serves monthly
+  // priority data because the requested DTE bucket isn't warm yet). Drives the
+  // amber banner above the recommended-puts table.
+  const [dataSourceInfo, setDataSourceInfo] = useState(null);
   const [lastRefresh, setLastRefresh] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   // v2.5: New features
@@ -6599,7 +6603,16 @@ function App() {
     setLastRefresh(new Date());
     setLoading(false);
     setLoadingState({ status: 'ready' });
-    console.log(`[WheelPro] Loaded ${enrichedData.length} stocks from API (cached: ${result.cached})`);
+    // Capture data-source caveats so the UI can show an amber banner when
+    // the backend served monthly priority data for a non-monthly DTE filter
+    // (i.e. requested DTE bucket isn't warm yet). Always real Tradier data —
+    // the banner is purely informational.
+    setDataSourceInfo(result.dataLimitedToMonthly ? {
+      dataLimitedToMonthly: true,
+      requestedDte: result.requestedDte,
+      dteRange: result.dteRange,
+    } : null);
+    console.log(`[WheelPro] Loaded ${enrichedData.length} stocks from API (cached: ${result.cached}${result.dataLimitedToMonthly ? `, dataLimitedToMonthly for ${result.requestedDte}` : ''})`);
   }, [dteFilter]);
 
   // Cancel any pending warming-retry timer when this component unmounts.
@@ -7074,7 +7087,34 @@ function App() {
             ) : (
               // ready, idle, or empty — render the page. Empty case shows stats with 0 + an inline
               // "no recommendations" copy already handled inside the dashboard component.
-              pages[page]?.component
+              <>
+                {dataSourceInfo?.dataLimitedToMonthly && (
+                  <div style={{
+                    margin: '0 0 16px',
+                    padding: '10px 14px',
+                    background: 'rgba(245,158,11,0.08)',
+                    border: '1px solid rgba(245,158,11,0.25)',
+                    borderRadius: 'var(--radius-sm, 6px)',
+                    color: 'var(--accent-amber)',
+                    fontSize: '13px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 10,
+                  }}>
+                    <span style={{fontSize:'14px'}}>●</span>
+                    <span>
+                      Showing <strong>monthly</strong> options recommendations while {' '}
+                      <strong>{
+                        dataSourceInfo.requestedDte === 'weekly' ? 'This Week' :
+                        dataSourceInfo.requestedDte === 'biweekly' ? '2 Weeks' :
+                        dataSourceInfo.requestedDte === 'all' ? 'All Expirations' :
+                        dataSourceInfo.requestedDte
+                      }</strong> data finishes loading. All prices are real Tradier data.
+                    </span>
+                  </div>
+                )}
+                {pages[page]?.component}
+              </>
             )}
           </div>
         </main>
