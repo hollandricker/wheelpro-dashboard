@@ -2542,154 +2542,6 @@ const WheelScoring = {
   }
 };
 
-// ===== MOCK DATA GENERATOR (Replace with real API) =====
-const generateStockData = () => {
-  const stocks = [
-    { symbol: 'AAPL', name: 'Apple Inc.', sector: 'Technology', basePrice: 228 },
-    { symbol: 'MSFT', name: 'Microsoft Corp.', sector: 'Technology', basePrice: 415 },
-    { symbol: 'NVDA', name: 'NVIDIA Corp.', sector: 'Technology', basePrice: 138 },
-    { symbol: 'AMZN', name: 'Amazon.com Inc.', sector: 'Consumer Cyclical', basePrice: 225 },
-    { symbol: 'GOOGL', name: 'Alphabet Inc.', sector: 'Technology', basePrice: 195 },
-    { symbol: 'META', name: 'Meta Platforms', sector: 'Technology', basePrice: 610 },
-    { symbol: 'TSLA', name: 'Tesla Inc.', sector: 'Consumer Cyclical', basePrice: 390 },
-    { symbol: 'AMD', name: 'Advanced Micro Devices', sector: 'Technology', basePrice: 120 },
-    { symbol: 'JPM', name: 'JPMorgan Chase', sector: 'Financial Services', basePrice: 255 },
-    { symbol: 'V', name: 'Visa Inc.', sector: 'Financial Services', basePrice: 320 },
-    { symbol: 'JNJ', name: 'Johnson & Johnson', sector: 'Healthcare', basePrice: 148 },
-    { symbol: 'WMT', name: 'Walmart Inc.', sector: 'Consumer Defensive', basePrice: 96 },
-    { symbol: 'PG', name: 'Procter & Gamble', sector: 'Consumer Defensive', basePrice: 165 },
-    { symbol: 'MA', name: 'Mastercard Inc.', sector: 'Financial Services', basePrice: 530 },
-    { symbol: 'HD', name: 'Home Depot Inc.', sector: 'Consumer Cyclical', basePrice: 405 },
-    { symbol: 'XOM', name: 'Exxon Mobil', sector: 'Energy', basePrice: 108 },
-    { symbol: 'BAC', name: 'Bank of America', sector: 'Financial Services', basePrice: 45 },
-    { symbol: 'COST', name: 'Costco Wholesale', sector: 'Consumer Defensive', basePrice: 950 },
-    { symbol: 'DIS', name: 'Walt Disney Co.', sector: 'Communication', basePrice: 112 },
-    { symbol: 'CRM', name: 'Salesforce Inc.', sector: 'Technology', basePrice: 330 },
-    { symbol: 'NFLX', name: 'Netflix Inc.', sector: 'Communication', basePrice: 950 },
-    { symbol: 'INTC', name: 'Intel Corp.', sector: 'Technology', basePrice: 22 },
-    { symbol: 'PFE', name: 'Pfizer Inc.', sector: 'Healthcare', basePrice: 26 },
-    { symbol: 'KO', name: 'Coca-Cola Co.', sector: 'Consumer Defensive', basePrice: 62 },
-    { symbol: 'T', name: 'AT&T Inc.', sector: 'Communication', basePrice: 23 },
-    { symbol: 'PLTR', name: 'Palantir Technologies', sector: 'Technology', basePrice: 80 },
-    { symbol: 'SOFI', name: 'SoFi Technologies', sector: 'Financial Services', basePrice: 16 },
-    { symbol: 'F', name: 'Ford Motor Co.', sector: 'Consumer Cyclical', basePrice: 10 },
-    { symbol: 'RIVN', name: 'Rivian Automotive', sector: 'Consumer Cyclical', basePrice: 14 },
-    { symbol: 'COIN', name: 'Coinbase Global', sector: 'Financial Services', basePrice: 280 },
-    { symbol: 'SQ', name: 'Block Inc.', sector: 'Technology', basePrice: 82 },
-    { symbol: 'UBER', name: 'Uber Technologies', sector: 'Technology', basePrice: 72 },
-    { symbol: 'SHOP', name: 'Shopify Inc.', sector: 'Technology', basePrice: 115 },
-    { symbol: 'ABNB', name: 'Airbnb Inc.', sector: 'Consumer Cyclical', basePrice: 140 },
-    { symbol: 'SNAP', name: 'Snap Inc.', sector: 'Communication', basePrice: 12 },
-    { symbol: 'MARA', name: 'Marathon Digital', sector: 'Technology', basePrice: 22 },
-    { symbol: 'NIO', name: 'NIO Inc.', sector: 'Consumer Cyclical', basePrice: 4.5 },
-    { symbol: 'PYPL', name: 'PayPal Holdings', sector: 'Financial Services', basePrice: 82 },
-    { symbol: 'MU', name: 'Micron Technology', sector: 'Technology', basePrice: 98 },
-    { symbol: 'QCOM', name: 'Qualcomm Inc.', sector: 'Technology', basePrice: 168 },
-    { symbol: 'SPY', name: 'SPDR S&P 500 ETF Trust', sector: 'ETF', basePrice: 510 },
-    { symbol: 'QQQ', name: 'Invesco QQQ Trust (Nasdaq-100)', sector: 'ETF', basePrice: 440 },
-    { symbol: 'IWM', name: 'iShares Russell 2000 ETF', sector: 'ETF', basePrice: 195 },
-    { symbol: 'GLD', name: 'SPDR Gold Shares ETF', sector: 'ETF', basePrice: 245 },
-  ];
-
-  return stocks.map(s => {
-    const priceVar = (Math.random() - 0.5) * s.basePrice * 0.05;
-    const price = +(s.basePrice + priceVar).toFixed(2);
-    const change = +priceVar.toFixed(2);
-    const changePct = +((change / s.basePrice) * 100).toFixed(2);
-    
-    // Generate fake historical closes for indicator calculation
-    const closes = Array.from({ length: 60 }, (_, i) => {
-      return s.basePrice * (1 + (Math.random() - 0.48) * 0.03 * (60 - i) / 60);
-    });
-    closes.push(price);
-
-    const highs = closes.map(c => c * (1 + Math.random() * 0.015));
-    const lows = closes.map(c => c * (1 - Math.random() * 0.015));
-    const volumes = closes.map(() => Math.floor(Math.random() * 50000000) + 1000000);
-
-    // Calculate indicators
-    const rsi = TechnicalAnalysis.RSI(closes) || 50;
-    const macd = TechnicalAnalysis.MACD(closes);
-    const bb = TechnicalAnalysis.BollingerBands(closes);
-    const ema9 = TechnicalAnalysis.EMA(closes, 9);
-    const ema21 = TechnicalAnalysis.EMA(closes, 21);
-    const sma50 = TechnicalAnalysis.SMA(closes, 50);
-    const technicalSignal = TechnicalAnalysis.getCompositeSignal(closes, highs, lows, volumes);
-    
-    // NEW: Support & Resistance levels from price data
-    const supportLevel = TechnicalAnalysis.SupportLevel(lows, closes);
-    const resistanceLevel = TechnicalAnalysis.ResistanceLevel(highs, closes);
-    
-    // Options data
-    const iv = +(20 + Math.random() * 60).toFixed(1);
-    const ivRank = +(Math.random() * 100).toFixed(0);
-    // NEW: IV Percentile from historical vol comparison
-    const ivPercentile = TechnicalAnalysis.IVPercentile(closes, iv);
-    const delta = +(0.10 + Math.random() * 0.25).toFixed(2);
-    // FIX: Strike selection within 3-15% OTM range (prevents deep OTM like Ford $8 on $14)
-    const otmPercent = +(0.03 + Math.random() * 0.12).toFixed(4); // 3% to 15% OTM
-    const strikePrice = +(price * (1 - otmPercent)).toFixed(2);
-    const premium = +(price * (0.005 + Math.random() * 0.025)).toFixed(2);
-    const weeklyYield = +(premium / strikePrice).toFixed(4);
-    const annualizedYield = +(weeklyYield * 52 * 100).toFixed(1);
-    const optionVolume = Math.floor(Math.random() * 20000) + 100;
-    const openInterest = Math.floor(optionVolume * (2 + Math.random() * 5));
-    const bidAskSpread = +(0.01 + Math.random() * 0.15).toFixed(2);
-    const daysToExpiry = [7, 14, 21, 30, 45][Math.floor(Math.random() * 5)];
-    // NEW: Calculate actual expiration date from today + DTE
-    const today = new Date();
-    const expirationDate = new Date(today.getTime() + daysToExpiry * 86400000);
-    const expDateStr = `${(expirationDate.getMonth()+1).toString().padStart(2,'0')}/${expirationDate.getDate().toString().padStart(2,'0')}/${expirationDate.getFullYear().toString().slice(-2)}`;
-    // FIXED: Realistic earnings dates — most companies report quarterly (60-90 days out)
-    // Only ~15% of stocks should have earnings within 30 days at any given time
-    const earningsRoll = Math.random();
-    const earningsIn = earningsRoll < 0.05 ? Math.floor(Math.random() * 7) + 1 :    // 5% imminent (1-7d)
-                        earningsRoll < 0.15 ? Math.floor(Math.random() * 23) + 8 :   // 10% soon (8-30d)
-                        Math.floor(Math.random() * 60) + 31;                          // 85% typical (31-90d)
-    const earningsConfirmed = earningsIn <= 30; // Only "confirmed" when close enough to be real
-    // NEW: Actual earnings date
-    const earningsDate = new Date(today.getTime() + earningsIn * 86400000);
-    const earningsDateStr = `${(earningsDate.getMonth()+1).toString().padStart(2,'0')}/${earningsDate.getDate().toString().padStart(2,'0')}`;
-    const marketCap = +(price * (Math.random() * 3000 + 50)).toFixed(0);
-    // NEW: Cash required, probability of profit
-    const cashRequired = Math.round(strikePrice * 100);
-    const probOfProfit = Math.round((1 - delta) * 100);
-    // NEW: Max loss per contract = (Strike - Premium) × 100
-    const maxLoss = Math.round((strikePrice - premium) * 100);
-    // NEW: Put/Call OI ratio — values > 1 = more puts (bearish sentiment), < 1 = more calls (bullish)
-    const callOpenInterest = Math.floor(openInterest * (0.5 + Math.random() * 1.5));
-    const putCallRatio = callOpenInterest > 0 ? +(openInterest / callOpenInterest).toFixed(2) : 1;
-    // NEW: Ex-dividend data
-    const hasDividend = ['AAPL','MSFT','JPM','V','JNJ','WMT','PG','MA','HD','XOM','BAC','COST','KO','T','QCOM','PFE','DIS','INTC','F'].includes(s.symbol);
-    const exDivDaysOut = hasDividend ? Math.floor(Math.random() * 90) + 1 : null;
-    const exDivDate = hasDividend ? new Date(today.getTime() + exDivDaysOut * 86400000) : null;
-    const exDivDateStr = exDivDate ? `${(exDivDate.getMonth()+1).toString().padStart(2,'0')}/${exDivDate.getDate().toString().padStart(2,'0')}` : null;
-    const exDivBeforeExpiry = hasDividend && exDivDaysOut <= daysToExpiry;
-
-    const stockData = {
-      ...s, price, change, changePct, closes, highs, lows, volumes,
-      rsi: +rsi.toFixed(1),
-      weeklyRsi: +(TechnicalAnalysis.weeklyRSI(closes) || 50).toFixed(1),
-      macd, bb, ema9, ema21, sma50,
-      technicalSignal: +technicalSignal.toFixed(3),
-      supportLevel, resistanceLevel,
-      iv, ivRank: +ivRank, ivPercentile,
-      delta, strikePrice, premium,
-      weeklyYield, annualizedYield, optionVolume, openInterest,
-      bidAskSpread, daysToExpiry, expDateStr,
-      earningsIn, earningsDateStr, earningsConfirmed, marketCap,
-      otmPercent, cashRequired, probOfProfit, maxLoss,
-      putCallRatio, callOpenInterest,
-      hasDividend, exDivDaysOut, exDivDateStr, exDivBeforeExpiry
-    };
-
-    stockData.wheelScore = WheelScoring.calculateScore(stockData);
-    stockData.recommendation = WheelScoring.getRecommendation(stockData);
-
-    return stockData;
-  });
-};
-
 // ===== AUTH CONTEXT =====
 const AuthContext = createContext(null);
 
@@ -6431,6 +6283,12 @@ function App() {
   const [page, setPage] = useState('dashboard');
   const [stocks, setStocks] = useState([]);
   const [loading, setLoading] = useState(false);
+  // Explicit loading state machine — replaces silent demo-data fallback.
+  // status: 'idle' | 'loading' | 'warming' | 'error' | 'empty' | 'ready'
+  // We never substitute fake prices; users always see a clear status card instead.
+  const [loadingState, setLoadingState] = useState({ status: 'idle' });
+  // Holds the pending warming-retry timer so a manual refresh / unmount can cancel it.
+  const warmingRetryRef = useRef(null);
   const [lastRefresh, setLastRefresh] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   // v2.5: New features
@@ -6488,112 +6346,183 @@ function App() {
   // Save settings
   useEffect(() => { Storage.set('settings', settings); }, [settings]);
 
-  // Load/refresh data from Railway backend API
+  // Load/refresh data from Railway backend API.
+  // CRITICAL: This dashboard surfaces real-money options trades. We never substitute
+  // synthesized prices when the API hiccups — a fake price shown as live is a credibility
+  // violation. On any failure we set an explicit `loadingState` and the UI shows a status
+  // card; we never call any kind of fixture/mock generator.
   const loadData = useCallback(async () => {
     setLoading(true);
-    
-    // Check if API URL is configured
-    const apiConfigured = CONFIG.API_BASE_URL && !CONFIG.API_BASE_URL.includes('YOUR-RAILWAY-URL');
-    
-    if (apiConfigured) {
-      try {
-        const response = await fetch(`${CONFIG.API_BASE_URL}/api/stocks?dte=${dteFilter}`, {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' },
-        });
-        
-        if (!response.ok) throw new Error(`API returned ${response.status}`);
-        
-        const result = await response.json();
-        
-        if (result.success && result.data && result.data.length > 0) {
-          // Post-process API data: ensure all v2.4 fields exist
-          const enrichedData = result.data.map(stock => {
-            // Tag as live data (backend confirmed)
-            stock.dataSource = 'yahoo-finance';
-            // Calculate OTM percent if not provided
-            if (!stock.otmPercent && stock.price && stock.strikePrice) {
-              stock.otmPercent = Math.max(0, (stock.price - stock.strikePrice) / stock.price);
-            }
-            // Calculate expiration date string if not provided
-            if (!stock.expDateStr && stock.daysToExpiry) {
-              const expDate = new Date(Date.now() + stock.daysToExpiry * 86400000);
-              stock.expDateStr = `${(expDate.getMonth()+1).toString().padStart(2,'0')}/${expDate.getDate().toString().padStart(2,'0')}/${expDate.getFullYear().toString().slice(-2)}`;
-            }
-            // Cash required
-            if (!stock.cashRequired && stock.strikePrice) {
-              stock.cashRequired = Math.round(stock.strikePrice * 100);
-            }
-            // Probability of profit
-            if (!stock.probOfProfit && stock.delta) {
-              stock.probOfProfit = Math.round((1 - stock.delta) * 100);
-            }
-            // Max loss per contract
-            if (!stock.maxLoss && stock.strikePrice && stock.premium) {
-              stock.maxLoss = Math.round((stock.strikePrice - stock.premium) * 100);
-            }
-            // Support & Resistance from historical data
-            if (!stock.supportLevel && stock.lows) {
-              stock.supportLevel = TechnicalAnalysis.SupportLevel(stock.lows, stock.closes);
-            }
-            if (!stock.resistanceLevel && stock.highs) {
-              stock.resistanceLevel = TechnicalAnalysis.ResistanceLevel(stock.highs, stock.closes);
-            }
-            // IV Percentile
-            if (!stock.ivPercentile && stock.closes && stock.iv) {
-              stock.ivPercentile = TechnicalAnalysis.IVPercentile(stock.closes, stock.iv);
-            }
-            // v2.4.0: Earnings — backend now sends earningsConfirmed: true when real
-            // If backend didn't send the field at all, default to NOT confirmed
-            if (stock.earningsConfirmed === undefined || stock.earningsConfirmed === null) {
-              stock.earningsConfirmed = false;
-            }
-            // v3.3.0: Backend now sends null for unknown earnings (was 999 sentinel)
-            // Normalize: treat null/undefined/>=900 as "no known earnings" (null)
-            if (stock.earningsIn != null && stock.earningsIn < 900) {
-              // Have a real day count — derive display string if missing
-              if (!stock.earningsDateStr) {
-                const eDate = new Date(Date.now() + stock.earningsIn * 86400000);
-                stock.earningsDateStr = `${(eDate.getMonth()+1).toString().padStart(2,'0')}/${eDate.getDate().toString().padStart(2,'0')}`;
-              }
-            } else {
-              // null, undefined, or legacy 999 → no known earnings
-              stock.earningsIn = null;
-              if (!stock.earningsConfirmed && !stock.earningsDateStr) stock.earningsDateStr = '—';
-            }
-            // v2.4.0: Put/Call ratio — backend now sends real ratio
-            if (!stock.putCallRatio && stock.putCallRatio !== 0) stock.putCallRatio = 1.0;
-            // v2.4.0: Ex-dividend — backend now sends real data
-            if (stock.exDivBeforeExpiry === undefined) stock.exDivBeforeExpiry = false;
-            if (stock.hasDividend === undefined) stock.hasDividend = false;
-            // Use server-side scoring if available (IP protection — algorithm runs on backend)
-            // Only fall back to client-side if server didn't send scores
-            if (!stock.wheelScore) stock.wheelScore = WheelScoring.calculateScore(stock);
-            if (!stock.recommendation) stock.recommendation = WheelScoring.getRecommendation(stock);
-            return stock;
-          });
-          setStocks(enrichedData);
-          setLastRefresh(new Date());
-          setLoading(false);
-          console.log(`[WheelPro] Loaded ${enrichedData.length} stocks from API (cached: ${result.cached})`);
-          return;
-        }
-        throw new Error('API returned empty data');
-      } catch (err) {
-        console.warn('[WheelPro] API fetch failed, using mock data:', err.message);
-      }
-    } else {
-      console.info('[WheelPro] API not configured — using demo data. Set CONFIG.API_BASE_URL to your Railway URL.');
+
+    // Cancel any pending warming auto-retry — a fresh load supersedes it.
+    if (warmingRetryRef.current) {
+      clearTimeout(warmingRetryRef.current);
+      warmingRetryRef.current = null;
     }
-    
-    // Fallback to mock data if API is not configured or fails
-    setTimeout(() => {
-      const data = generateStockData();
-      setStocks(data);
+
+    // Surface progress immediately so the UI flips off any stale state.
+    setLoadingState({ status: 'loading' });
+
+    // API URL is required. If unset (dev misconfig), surface as an error — never fall back to fake data.
+    const apiConfigured = CONFIG.API_BASE_URL && !CONFIG.API_BASE_URL.includes('YOUR-RAILWAY-URL');
+    if (!apiConfigured) {
+      console.error('[WheelPro] CONFIG.API_BASE_URL is not configured.');
+      setStocks([]);
+      setLoading(false);
+      setLoadingState({ status: 'error', message: 'Market data API is not configured. Please contact support.' });
+      return;
+    }
+
+    let response;
+    try {
+      response = await fetch(`${CONFIG.API_BASE_URL}/api/stocks?dte=${dteFilter}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      });
+    } catch (err) {
+      // Network error / fetch reject — surface, do NOT show fake prices.
+      console.warn('[WheelPro] Network error fetching market data:', err.message);
+      setStocks([]);
+      setLoading(false);
+      setLoadingState({ status: 'error', message: err.message || 'Network error reaching market data.' });
+      return;
+    }
+
+    // 202 = backend warming (cold-start cache fill). Parse progress + retry hint, schedule auto-retry.
+    if (response.status === 202) {
+      let payload = {};
+      try { payload = await response.json(); } catch(e) {}
+      const progress = payload.progress || null;
+      const retryAfterSeconds = Math.max(2, Number(payload.retryAfterSeconds) || 30);
+      const message = payload.message || 'Tradier feed warming up — refreshing automatically';
+      setStocks([]);
+      setLoading(false);
+      setLoadingState({ status: 'warming', progress, retryAfterSeconds, message });
+      warmingRetryRef.current = setTimeout(() => {
+        warmingRetryRef.current = null;
+        loadData();
+      }, retryAfterSeconds * 1000);
+      return;
+    }
+
+    if (!response.ok) {
+      // 4xx/5xx — surface, do NOT show fake prices.
+      let detail = '';
+      try { const j = await response.json(); detail = j.message || j.error || ''; } catch(e) {}
+      const message = `Market data API returned ${response.status}${detail ? ` — ${detail}` : ''}.`;
+      console.warn('[WheelPro]', message);
+      setStocks([]);
+      setLoading(false);
+      setLoadingState({ status: 'error', message });
+      return;
+    }
+
+    let result;
+    try {
+      result = await response.json();
+    } catch (err) {
+      setStocks([]);
+      setLoading(false);
+      setLoadingState({ status: 'error', message: 'Market data response was not valid JSON.' });
+      return;
+    }
+
+    // Some shapes still arrive with success:false even at 200 (legacy warming). Treat as error.
+    if (!result.success || !Array.isArray(result.data)) {
+      const message = result.message || 'Market data API returned an unexpected response.';
+      setStocks([]);
+      setLoading(false);
+      setLoadingState({ status: 'error', message });
+      return;
+    }
+
+    if (result.data.length === 0) {
+      setStocks([]);
       setLastRefresh(new Date());
       setLoading(false);
-    }, 600);
+      setLoadingState({ status: 'empty' });
+      return;
+    }
+
+    // Happy path: enrich and render. (Identical to prior post-processing — preserved verbatim.)
+    const enrichedData = result.data.map(stock => {
+      // Tag as live data (backend confirmed)
+      stock.dataSource = 'yahoo-finance';
+      // Calculate OTM percent if not provided
+      if (!stock.otmPercent && stock.price && stock.strikePrice) {
+        stock.otmPercent = Math.max(0, (stock.price - stock.strikePrice) / stock.price);
+      }
+      // Calculate expiration date string if not provided
+      if (!stock.expDateStr && stock.daysToExpiry) {
+        const expDate = new Date(Date.now() + stock.daysToExpiry * 86400000);
+        stock.expDateStr = `${(expDate.getMonth()+1).toString().padStart(2,'0')}/${expDate.getDate().toString().padStart(2,'0')}/${expDate.getFullYear().toString().slice(-2)}`;
+      }
+      // Cash required
+      if (!stock.cashRequired && stock.strikePrice) {
+        stock.cashRequired = Math.round(stock.strikePrice * 100);
+      }
+      // Probability of profit
+      if (!stock.probOfProfit && stock.delta) {
+        stock.probOfProfit = Math.round((1 - stock.delta) * 100);
+      }
+      // Max loss per contract
+      if (!stock.maxLoss && stock.strikePrice && stock.premium) {
+        stock.maxLoss = Math.round((stock.strikePrice - stock.premium) * 100);
+      }
+      // Support & Resistance from historical data
+      if (!stock.supportLevel && stock.lows) {
+        stock.supportLevel = TechnicalAnalysis.SupportLevel(stock.lows, stock.closes);
+      }
+      if (!stock.resistanceLevel && stock.highs) {
+        stock.resistanceLevel = TechnicalAnalysis.ResistanceLevel(stock.highs, stock.closes);
+      }
+      // IV Percentile
+      if (!stock.ivPercentile && stock.closes && stock.iv) {
+        stock.ivPercentile = TechnicalAnalysis.IVPercentile(stock.closes, stock.iv);
+      }
+      // v2.4.0: Earnings — backend now sends earningsConfirmed: true when real
+      // If backend didn't send the field at all, default to NOT confirmed
+      if (stock.earningsConfirmed === undefined || stock.earningsConfirmed === null) {
+        stock.earningsConfirmed = false;
+      }
+      // v3.3.0: Backend now sends null for unknown earnings (was 999 sentinel)
+      // Normalize: treat null/undefined/>=900 as "no known earnings" (null)
+      if (stock.earningsIn != null && stock.earningsIn < 900) {
+        // Have a real day count — derive display string if missing
+        if (!stock.earningsDateStr) {
+          const eDate = new Date(Date.now() + stock.earningsIn * 86400000);
+          stock.earningsDateStr = `${(eDate.getMonth()+1).toString().padStart(2,'0')}/${eDate.getDate().toString().padStart(2,'0')}`;
+        }
+      } else {
+        // null, undefined, or legacy 999 → no known earnings
+        stock.earningsIn = null;
+        if (!stock.earningsConfirmed && !stock.earningsDateStr) stock.earningsDateStr = '—';
+      }
+      // v2.4.0: Put/Call ratio — backend now sends real ratio
+      if (!stock.putCallRatio && stock.putCallRatio !== 0) stock.putCallRatio = 1.0;
+      // v2.4.0: Ex-dividend — backend now sends real data
+      if (stock.exDivBeforeExpiry === undefined) stock.exDivBeforeExpiry = false;
+      if (stock.hasDividend === undefined) stock.hasDividend = false;
+      // Use server-side scoring if available (IP protection — algorithm runs on backend)
+      // Only fall back to client-side if server didn't send scores
+      if (!stock.wheelScore) stock.wheelScore = WheelScoring.calculateScore(stock);
+      if (!stock.recommendation) stock.recommendation = WheelScoring.getRecommendation(stock);
+      return stock;
+    });
+    setStocks(enrichedData);
+    setLastRefresh(new Date());
+    setLoading(false);
+    setLoadingState({ status: 'ready' });
+    console.log(`[WheelPro] Loaded ${enrichedData.length} stocks from API (cached: ${result.cached})`);
   }, [dteFilter]);
+
+  // Cancel any pending warming-retry timer when this component unmounts.
+  useEffect(() => () => {
+    if (warmingRetryRef.current) {
+      clearTimeout(warmingRetryRef.current);
+      warmingRetryRef.current = null;
+    }
+  }, []);
 
   // Fetch Stripe subscription tier and update state
   const fetchSubscriptionTier = useCallback(async (email, isOwner) => {
@@ -6917,15 +6846,15 @@ function App() {
               <div className="topbar-title">{pages[page]?.title}</div>
             </div>
             <div className="topbar-actions">
-              {lastRefresh && (() => {
-                // v3.3.1: Recognize all real data sources from server.js (tradier primary, yahoo-fallback secondary)
-                const src = stocks.length > 0 ? stocks[0].dataSource : null;
-                const isLive = src === 'tradier' || src === 'yahoo-fallback' || src === 'yahoo-finance';
-                const isWarming = stocks.length === 0 || src === 'warming';
+              {(lastRefresh || loadingState.status !== 'idle') && (() => {
+                // Demo-data fallback was permanently removed — only two badge states remain:
+                // - 'ready' → green Live Data
+                // - everything else (loading / warming / error / empty) → amber Loading market data…
+                const isLive = loadingState.status === 'ready';
                 return (
-                  <span style={{fontSize:'12px', color: isLive ? 'var(--accent-green)' : (isWarming ? 'var(--accent-amber)' : 'var(--text-muted)')}}>
-                    Updated {lastRefresh.toLocaleTimeString()}
-                    {isLive ? ' · ● Live Data' : (isWarming ? ' · ● Loading market data…' : ' · ● Demo Data')}
+                  <span style={{fontSize:'12px', color: isLive ? 'var(--accent-green)' : 'var(--accent-amber)'}}>
+                    {lastRefresh ? `Updated ${lastRefresh.toLocaleTimeString()}` : 'Awaiting market data'}
+                    {isLive ? ' · ● Live Data' : ' · ● Loading market data…'}
                   </span>
                 );
               })()}
@@ -6992,7 +6921,40 @@ function App() {
           )}
 
           <div className="page-content">
-            {loading && stocks.length === 0 ? (
+            {loadingState.status === 'warming' ? (
+              // Cold-start cache fill from the API (HTTP 202). We auto-retry; the user sees progress.
+              // Critical: NEVER render the data table while warming — no fake prices may sneak through.
+              <div className="loading-state" style={{minHeight:'60vh'}}>
+                <div style={{maxWidth:480, width:'100%', padding:'32px 28px', background:'var(--gradient-card)', border:'1px solid var(--border)', borderRadius:'var(--radius-md)', display:'flex', flexDirection:'column', alignItems:'center', gap:16, textAlign:'center'}}>
+                  <div className="spinner" style={{borderTopColor:'var(--accent-amber)'}}></div>
+                  <h3 style={{margin:0, fontSize:'18px', color:'var(--text-primary)', fontWeight:600}}>Loading live market data</h3>
+                  <p style={{margin:0, fontSize:'13px', color:'var(--text-muted)', lineHeight:1.5}}>
+                    {loadingState.message || 'Tradier feed warming up — refreshing automatically'}
+                  </p>
+                  {loadingState.progress && (
+                    <div style={{fontSize:'12px', color:'var(--accent-amber)', fontFamily:'var(--font-mono, monospace)', padding:'6px 12px', background:'rgba(245,158,11,0.08)', border:'1px solid rgba(245,158,11,0.2)', borderRadius:'var(--radius-sm, 6px)'}}>
+                      {loadingState.progress} symbols ready
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : loadingState.status === 'error' ? (
+              // Hard failure (network or non-2xx). NEVER substitute fake prices; show retry.
+              <div className="loading-state" style={{minHeight:'60vh'}}>
+                <div style={{maxWidth:480, width:'100%', padding:'32px 28px', background:'var(--gradient-card)', border:'1px solid rgba(239,68,68,0.3)', borderRadius:'var(--radius-md)', display:'flex', flexDirection:'column', alignItems:'center', gap:16, textAlign:'center'}}>
+                  <h3 style={{margin:0, fontSize:'18px', color:'var(--text-primary)', fontWeight:600}}>Couldn't reach market data</h3>
+                  <p style={{margin:0, fontSize:'13px', color:'var(--text-muted)', lineHeight:1.5}}>
+                    {loadingState.message || 'Network error reaching market data.'}
+                  </p>
+                  <p style={{margin:0, fontSize:'12px', color:'var(--text-muted)'}}>
+                    No prices are shown until live data is restored.
+                  </p>
+                  <button className="btn btn-sm btn-primary" onClick={loadData} style={{minWidth:120}}>
+                    Retry
+                  </button>
+                </div>
+              </div>
+            ) : (loading && stocks.length === 0 && loadingState.status !== 'empty') ? (
               <div className="loading-state">
                 <div className="spinner"></div>
                 <p>Loading market data...</p>
@@ -7007,6 +6969,8 @@ function App() {
                 </div>
               </div>
             ) : (
+              // ready, idle, or empty — render the page. Empty case shows stats with 0 + an inline
+              // "no recommendations" copy already handled inside the dashboard component.
               pages[page]?.component
             )}
           </div>
