@@ -6380,10 +6380,29 @@ function App() {
   // amber banner above the recommended-puts table.
   const [dataSourceInfo, setDataSourceInfo] = useState(null);
   const [lastRefresh, setLastRefresh] = useState(null);
+  // Auto-refresh: live countdown to next poll. null = paused (tab hidden / autoRefresh off).
+  // Updated every second by the countdown ticker; reset to interval after each fetch.
+  const [refreshCountdown, setRefreshCountdown] = useState(null);
+  // Tracks last user scroll within the data table area. We skip the next auto-refresh tick
+  // if the user scrolled within the last 8s, so reading isn't disrupted by a row reflow.
+  const lastScrollAtRef = useRef(0);
+  // Mirrors `selectedStock` so the auto-refresh tick (which intentionally doesn't depend
+  // on it) can read the live value without re-creating the polling cycle every modal open.
+  const selectedStockRef = useRef(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   // v2.5: New features
   const [watchlist, setWatchlist] = useState(() => Storage.get('watchlist', []));
   const [selectedStock, setSelectedStock] = useState(null); // For detail modal
+  // Keep the ref in sync so the auto-refresh tick can check "is a modal open?" without
+  // re-subscribing the polling cycle every time the user opens/closes a row detail.
+  useEffect(() => { selectedStockRef.current = selectedStock; }, [selectedStock]);
+  // Global scroll listener: any user scroll updates lastScrollAtRef so the next auto-refresh
+  // tick within 8s skips itself (passive listener — zero scroll-perf cost).
+  useEffect(() => {
+    const onScroll = () => { lastScrollAtRef.current = Date.now(); };
+    window.addEventListener('scroll', onScroll, { passive: true, capture: true });
+    return () => window.removeEventListener('scroll', onScroll, { capture: true });
+  }, []);
   const [showTour, setShowTour] = useState(false); // Onboarding tour
   const [dteFilter, setDteFilter] = useState('monthly'); // DTE preference: weekly | biweekly | monthly | all
   const [capitalTier, setCapitalTier] = useState(() => {
@@ -6441,8 +6460,13 @@ function App() {
   // synthesized prices when the API hiccups — a fake price shown as live is a credibility
   // violation. On any failure we set an explicit `loadingState` and the UI shows a status
   // card; we never call any kind of fixture/mock generator.
-  const loadData = useCallback(async () => {
-    setLoading(true);
+  const loadData = useCallback(async (opts) => {
+    // `silent: true` is used by the auto-refresh tick. On transient failures we keep the
+    // existing rendered data + loadingState intact rather than swapping the table for a
+    // warming/error card. The owner saw the dashboard looking "broken" mid-session because
+    // a single 202 from the backend nuked good live data — never again on a routine poll.
+    const silent = !!(opts && opts.silent);
+    if (!silent) setLoading(true);
 
     // Cancel any pending warming auto-retry — a fresh load supersedes it.
     if (warmingRetryRef.current) {
@@ -6451,15 +6475,17 @@ function App() {
     }
 
     // Surface progress immediately so the UI flips off any stale state.
-    setLoadingState({ status: 'loading' });
+    if (!silent) setLoadingState({ status: 'loading' });
 
     // API URL is required. If unset (dev misconfig), surface as an error — never fall back to fake data.
     const apiConfigured = CONFIG.API_BASE_URL && !CONFIG.API_BASE_URL.includes('YOUR-RAILWAY-URL');
     if (!apiConfigured) {
       console.error('[WheelPro] CONFIG.API_BASE_URL is not configured.');
-      setStocks([]);
-      setLoading(false);
-      setLoadingState({ status: 'error', message: 'Market data API is not configured. Please contact support.' });
+      if (!silent) {
+        setStocks([]);
+        setLoading(false);
+        setLoadingState({ status: 'error', message: 'Market data API is not configured. Please contact support.' });
+      }
       return;
     }
 
@@ -6472,9 +6498,11 @@ function App() {
     } catch (err) {
       // Network error / fetch reject — surface, do NOT show fake prices.
       console.warn('[WheelPro] Network error fetching market data:', err.message);
-      setStocks([]);
-      setLoading(false);
-      setLoadingState({ status: 'error', message: err.message || 'Network error reaching market data.' });
+      if (!silent) {
+        setStocks([]);
+        setLoading(false);
+        setLoadingState({ status: 'error', message: err.message || 'Network error reaching market data.' });
+      }
       return;
     }
 
@@ -6485,13 +6513,15 @@ function App() {
       const progress = payload.progress || null;
       const retryAfterSeconds = Math.max(2, Number(payload.retryAfterSeconds) || 30);
       const message = payload.message || 'Tradier feed warming up — refreshing automatically';
-      setStocks([]);
-      setLoading(false);
-      setLoadingState({ status: 'warming', progress, retryAfterSeconds, message });
-      warmingRetryRef.current = setTimeout(() => {
-        warmingRetryRef.current = null;
-        loadData();
-      }, retryAfterSeconds * 1000);
+      if (!silent) {
+        setStocks([]);
+        setLoading(false);
+        setLoadingState({ status: 'warming', progress, retryAfterSeconds, message });
+        warmingRetryRef.current = setTimeout(() => {
+          warmingRetryRef.current = null;
+          loadData();
+        }, retryAfterSeconds * 1000);
+      }
       return;
     }
 
@@ -6501,9 +6531,11 @@ function App() {
       try { const j = await response.json(); detail = j.message || j.error || ''; } catch(e) {}
       const message = `Market data API returned ${response.status}${detail ? ` — ${detail}` : ''}.`;
       console.warn('[WheelPro]', message);
-      setStocks([]);
-      setLoading(false);
-      setLoadingState({ status: 'error', message });
+      if (!silent) {
+        setStocks([]);
+        setLoading(false);
+        setLoadingState({ status: 'error', message });
+      }
       return;
     }
 
@@ -6511,26 +6543,32 @@ function App() {
     try {
       result = await response.json();
     } catch (err) {
-      setStocks([]);
-      setLoading(false);
-      setLoadingState({ status: 'error', message: 'Market data response was not valid JSON.' });
+      if (!silent) {
+        setStocks([]);
+        setLoading(false);
+        setLoadingState({ status: 'error', message: 'Market data response was not valid JSON.' });
+      }
       return;
     }
 
     // Some shapes still arrive with success:false even at 200 (legacy warming). Treat as error.
     if (!result.success || !Array.isArray(result.data)) {
       const message = result.message || 'Market data API returned an unexpected response.';
-      setStocks([]);
-      setLoading(false);
-      setLoadingState({ status: 'error', message });
+      if (!silent) {
+        setStocks([]);
+        setLoading(false);
+        setLoadingState({ status: 'error', message });
+      }
       return;
     }
 
     if (result.data.length === 0) {
-      setStocks([]);
-      setLastRefresh(new Date());
-      setLoading(false);
-      setLoadingState({ status: 'empty' });
+      if (!silent) {
+        setStocks([]);
+        setLastRefresh(new Date());
+        setLoading(false);
+        setLoadingState({ status: 'empty' });
+      }
       return;
     }
 
@@ -6599,9 +6637,11 @@ function App() {
       if (!stock.recommendation) stock.recommendation = WheelScoring.getRecommendation(stock);
       return stock;
     });
+    // Successful render — both manual and silent refreshes always update the table.
+    // Silent success also flips state to 'ready' so a previous error/warming card clears.
     setStocks(enrichedData);
     setLastRefresh(new Date());
-    setLoading(false);
+    if (!silent) setLoading(false);
     setLoadingState({ status: 'ready' });
     // Capture data-source caveats so the UI can show an amber banner when
     // the backend served monthly priority data for a non-monthly DTE filter
@@ -6612,7 +6652,7 @@ function App() {
       requestedDte: result.requestedDte,
       dteRange: result.dteRange,
     } : null);
-    console.log(`[WheelPro] Loaded ${enrichedData.length} stocks from API (cached: ${result.cached}${result.dataLimitedToMonthly ? `, dataLimitedToMonthly for ${result.requestedDte}` : ''})`);
+    console.log(`[WheelPro] Loaded ${enrichedData.length} stocks from API (cached: ${result.cached}${result.dataLimitedToMonthly ? `, dataLimitedToMonthly for ${result.requestedDte}` : ''}${silent ? ', silent' : ''})`);
   }, [dteFilter]);
 
   // Cancel any pending warming-retry timer when this component unmounts.
@@ -6645,14 +6685,108 @@ function App() {
     }
   }, []);
 
+  // Auto-refresh orchestrator.
+  // - Initial load on sign-in.
+  // - Polls at 30s during market hours (9:30–16:00 ET, M–F), 5min outside.
+  // - Pauses entirely while document.hidden; resumes + immediately fetches on visibility-restore.
+  // - Skips a tick if user scrolled within the last 8s OR a detail modal is open.
+  // - Silent fetches: transient failures don't blow away rendered data / loadingState.
+  // - Countdown text in topbar updates every 1s and resets after each successful fetch.
   useEffect(() => {
-    if (user) {
-      loadData();
-      if (settings.autoRefresh) {
-        const interval = setInterval(loadData, CONFIG.REFRESH_INTERVAL);
-        return () => clearInterval(interval);
-      }
+    if (!user) return;
+    // Initial load is NOT silent — first paint should be allowed to show warming/error UI.
+    loadData();
+    if (!settings.autoRefresh) {
+      setRefreshCountdown(null);
+      return;
     }
+
+    // Compute the polling interval based on US equity market hours.
+    const computeIntervalMs = () => {
+      const now = new Date();
+      const et = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+      const day = et.getDay();
+      const mins = et.getHours() * 60 + et.getMinutes();
+      const isWeekday = day >= 1 && day <= 5;
+      const isOpen = isWeekday && mins >= 570 && mins < 960; // 9:30 AM – 4:00 PM ET
+      return isOpen ? 30_000 : 300_000;
+    };
+
+    let pollTimer = null;
+    let countdownTimer = null;
+    let nextAt = Date.now() + computeIntervalMs();
+
+    // Update the visible countdown every second.
+    const tickCountdown = () => {
+      if (document.hidden) {
+        setRefreshCountdown(null);
+        return;
+      }
+      const remaining = Math.max(0, Math.ceil((nextAt - Date.now()) / 1000));
+      setRefreshCountdown(remaining);
+    };
+
+    // One refresh tick. Reschedules itself; never throws.
+    const tick = async () => {
+      if (document.hidden) return; // visibilitychange handler will resume
+      // Skip while user is reading: recent scroll OR open detail modal.
+      const recentlyScrolled = (Date.now() - lastScrollAtRef.current) < 8_000;
+      const modalOpen = !!selectedStockRef.current;
+      if (recentlyScrolled || modalOpen) {
+        // Skip this tick — reschedule one more interval out, leave countdown running.
+        nextAt = Date.now() + computeIntervalMs();
+        scheduleNext();
+        return;
+      }
+      try {
+        await loadData({ silent: true });
+      } catch (e) {
+        console.warn('[WheelPro] Silent refresh failed:', e && e.message);
+      }
+      nextAt = Date.now() + computeIntervalMs();
+      scheduleNext();
+    };
+
+    const scheduleNext = () => {
+      if (pollTimer) clearTimeout(pollTimer);
+      pollTimer = setTimeout(tick, Math.max(1000, nextAt - Date.now()));
+    };
+
+    const onVisibilityChange = () => {
+      if (document.hidden) {
+        // Pause: clear timers, blank countdown.
+        if (pollTimer) { clearTimeout(pollTimer); pollTimer = null; }
+        setRefreshCountdown(null);
+      } else {
+        // Resume + immediately fetch (silent — page already has data) and reset cycle.
+        loadData({ silent: true }).catch(() => {});
+        nextAt = Date.now() + computeIntervalMs();
+        scheduleNext();
+        tickCountdown();
+      }
+    };
+
+    // Manual refresh (button or 'r' key) dispatches this — reset the cycle so the
+    // countdown immediately reflects the user's action instead of stale "Next refresh in 12s".
+    const onManualReset = () => {
+      nextAt = Date.now() + computeIntervalMs();
+      scheduleNext();
+      tickCountdown();
+    };
+
+    countdownTimer = setInterval(tickCountdown, 1000);
+    scheduleNext();
+    tickCountdown();
+    document.addEventListener('visibilitychange', onVisibilityChange);
+    window.addEventListener('wheelpro-refresh-reset', onManualReset);
+
+    return () => {
+      if (pollTimer) clearTimeout(pollTimer);
+      if (countdownTimer) clearInterval(countdownTimer);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+      window.removeEventListener('wheelpro-refresh-reset', onManualReset);
+      setRefreshCountdown(null);
+    };
   }, [user, loadData, settings.autoRefresh]);
 
   // Firebase auth state listener — auto-login returning users
@@ -6806,7 +6940,7 @@ function App() {
         e.preventDefault(); return;
       }
       // v2.5: Keyboard shortcuts
-      if (e.key === 'r' || e.key === 'R') { loadData(); }
+      if (e.key === 'r' || e.key === 'R') { loadData(); window.dispatchEvent(new CustomEvent('wheelpro-refresh-reset')); }
       if (e.key === '1') setPage('dashboard');
       if (e.key === '2') setPage('screener');
       if (e.key === '3') setPage('portfolio');
@@ -6963,10 +7097,26 @@ function App() {
                 // - 'ready' → green Live Data
                 // - everything else (loading / warming / error / empty) → amber Loading market data…
                 const isLive = loadingState.status === 'ready';
+                // Format countdown as "23s" or "4m 12s". null = paused (tab hidden / off).
+                let countdownText = null;
+                if (settings.autoRefresh && refreshCountdown !== null && isLive) {
+                  const s = refreshCountdown;
+                  countdownText = s >= 60 ? `${Math.floor(s/60)}m ${String(s%60).padStart(2,'0')}s` : `${s}s`;
+                }
                 return (
-                  <span style={{fontSize:'12px', color: isLive ? 'var(--accent-green)' : 'var(--accent-amber)'}}>
-                    {lastRefresh ? `Updated ${lastRefresh.toLocaleTimeString()}` : 'Awaiting market data'}
-                    {isLive ? ' · ● Live Data' : ' · ● Loading market data…'}
+                  <span style={{fontSize:'12px', color: isLive ? 'var(--accent-green)' : 'var(--accent-amber)', display:'inline-flex', alignItems:'center', gap:'8px'}}>
+                    <span>
+                      {lastRefresh ? `Updated ${lastRefresh.toLocaleTimeString()}` : 'Awaiting market data'}
+                      {isLive ? ' · ● Live Data' : ' · ● Loading market data…'}
+                    </span>
+                    {countdownText && (
+                      <span
+                        title="Time until next automatic refresh"
+                        style={{fontFamily:'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace', fontSize:'11px', color:'var(--text-muted)', opacity:0.85, whiteSpace:'nowrap'}}
+                      >
+                        Next refresh in {countdownText}
+                      </span>
+                    )}
                   </span>
                 );
               })()}
@@ -7021,7 +7171,9 @@ function App() {
                   <option value="full">Full Wheel ($10K+)</option>
                 </select>
               </div>
-              <button className="btn btn-sm btn-secondary" onClick={loadData} disabled={loading}
+              <button className="btn btn-sm btn-secondary"
+                onClick={() => { loadData(); window.dispatchEvent(new CustomEvent('wheelpro-refresh-reset')); }}
+                disabled={loading}
                 style={{display:'flex', alignItems:'center', gap:'6px'}}>
                 {loading ? <span className="spinner" style={{width:14,height:14,borderWidth:2}}></span> : Icons.refresh}
                 Refresh
