@@ -100,19 +100,25 @@
 
 <style>
 :root {
+  /* ============================================================
+     WCAG AAA contrast palette (v1.1 blog).
+     All ratios computed against --bg-primary #0b1120 (L=0.0058).
+     AAA body = 7:1 ; AAA large = 4.5:1.
+     ============================================================ */
   --bg-primary: #0b1120;
   --bg-secondary: #0f1729;
   --bg-card: #131c2f;
   --bg-card-hover: #182236;
   --bg-elevated: #1a2540;
   --border: #1e2d45;
-  --text-primary: #e8ecf1;
-  --text-secondary: #8899ad;
-  --text-muted: #5a6b7f;
-  --accent-gold: #c9a84c;
+  --text-primary: #e8ecf1;       /* 15.4:1 — primary body */
+  --text-secondary: #c5cfde;     /* v1.1: 11.7:1 (was #8899ad, ~5.0:1 — failed AAA body) */
+  --text-muted: #a3afc2;         /* v1.1: 8.3:1 AAA body (was #5a6b7f, ~3.0:1 — failed AA body) */
+  --accent-gold: #c9a84c;        /* 7.7:1 — kept for headings/buttons */
+  --accent-gold-text: #d4b86a;   /* v1.1: 9.4:1 AAA body — for body-size gold text */
   --accent-gold-glow: rgba(201, 168, 76, 0.12);
   --accent-blue: #4a90d9;
-  --gradient-accent: linear-gradient(135deg, #c9a84c, #d4a843);
+  --gradient-accent: linear-gradient(135deg, #d4b86a, #f0d68a);  /* v1.1: brightened — both stops 9.4:1+ AAA */
   --font-body: 'DM Sans', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
   --font-display: 'Playfair Display', serif;
@@ -120,6 +126,19 @@
   --radius-md: 10px;
   --radius-lg: 16px;
   --shadow-card: 0 4px 24px rgba(0,0,0,0.4);
+}
+
+/* =================================================================
+   prefers-contrast: more — bump muted/secondary tokens to full white
+   when the OS-level high-contrast setting is on. Cheap a11y win.
+   ================================================================= */
+@media (prefers-contrast: more) {
+  :root {
+    --text-secondary: #e8ecf1;
+    --text-muted: #e8ecf1;
+    --accent-gold-text: #f0d68a;
+    --border: #2e3f5d;
+  }
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -175,7 +194,7 @@ body {
 }
 
 .nav-links a:hover { color: var(--text-primary); }
-.nav-links a.active { color: var(--accent-gold); }
+.nav-links a.active { color: var(--accent-gold-text); }  /* v1.1: 14px nav body — 9.4:1 */
 
 .btn {
   display: inline-flex;
@@ -217,7 +236,7 @@ body {
   border-radius: 100px;
   font-size: 12px;
   font-weight: 600;
-  color: var(--accent-gold);
+  color: var(--accent-gold-text);  /* v1.1: 12px body — 9.4:1 AAA */
   letter-spacing: 1px;
   text-transform: uppercase;
   margin-bottom: 20px;
@@ -258,7 +277,7 @@ body {
   font-weight: 700;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: var(--accent-gold);
+  color: var(--accent-gold-text);  /* v1.1: 11px body — 9.4:1 AAA */
   margin-bottom: 40px;
 }
 
@@ -291,7 +310,7 @@ body {
   letter-spacing: 0.8px;
   text-transform: uppercase;
   background: var(--accent-gold-glow);
-  color: var(--accent-gold);
+  color: var(--accent-gold-text);  /* v1.1: 11px body — brighter gold for 9.4:1 AAA */
   border: 1px solid rgba(201,168,76,0.2);
 }
 
@@ -318,7 +337,7 @@ body {
 
 .article p {
   font-size: 15.5px;
-  color: var(--text-secondary);
+  color: var(--text-primary);  /* v1.1: was --text-secondary; primary article body should use full text color (15.4:1) */
   margin-bottom: 14px;
   line-height: 1.75;
 }
@@ -330,7 +349,7 @@ body {
 
 .article li {
   font-size: 15.5px;
-  color: var(--text-secondary);
+  color: var(--text-primary);  /* v1.1: was --text-secondary; article list items are primary content */
   line-height: 1.75;
   margin-bottom: 6px;
 }
@@ -453,7 +472,7 @@ body {
   }
 
   .toc-sticky a:last-child { border-bottom: none; }
-  .toc-sticky a:hover { color: var(--accent-gold); }
+  .toc-sticky a:hover { color: var(--accent-gold-text); }  /* v1.1: 13px body — 9.4:1 */
 }
 
 /* ===== FOOTER ===== */

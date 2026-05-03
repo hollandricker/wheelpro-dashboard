@@ -77,17 +77,22 @@ const firebaseDb = firebase.firestore();
    ============================================================ */
 
 :root {
+  /* ============================================================
+     WCAG AAA contrast palette (v3.4)
+     All ratios computed against --bg-primary #080d19 (L=0.0045).
+     AAA body = 7:1 ; AAA large = 4.5:1.
+     ============================================================ */
   --bg-primary: #080d19;
   --bg-secondary: #0c1220;
   --bg-card: #101827;
   --bg-card-hover: #151f30;
   --bg-elevated: #162032;
   --border: #1a2740;
-  --border-focus: #b89a3e;
-  --text-primary: #e2e7ef;
-  --text-secondary: #b8c3d1;  /* v3.3: bumped from #7d8da0 for readability */
-  --text-muted: #7a8698;      /* v3.3.2: dialed back from #8896a8 for proper hierarchy */
-  --text-subtle: #6b7686;     /* v3.3: new — for truly tertiary info (timestamps, captions) */
+  --border-focus: #d4b86a;
+  --text-primary: #e2e7ef;       /* 15.5:1 — primary body text */
+  --text-secondary: #c5cfde;     /* v3.4: 12.5:1 (was #b8c3d1, 10.3:1) — secondary body */
+  --text-muted: #a3afc2;         /* v3.4: 8.8:1 AAA body (was #7a8698, 4.7:1 AA-only) */
+  --text-subtle: #959fb3;        /* v3.4: 7.6:1 AAA body (was #6b7686, 3.7:1 fail) — timestamps, captions */
   --accent-blue: #4a8fd4;
   --accent-blue-glow: rgba(74, 143, 212, 0.08);
   --accent-green: #1ea651;
@@ -97,11 +102,12 @@ const firebaseDb = firebase.firestore();
   --accent-amber: #c49a38;
   --accent-amber-glow: rgba(196, 154, 56, 0.08);
   --accent-purple: #7265b8;
-  --accent-gold: #b89a3e;
+  --accent-gold: #b89a3e;        /* 7.2:1 — kept for buttons + large headings (AAA-large) */
+  --accent-gold-text: #d4b86a;   /* v3.4: 9.9:1 AAA body — use for body-size gold text */
   --accent-gold-glow: rgba(184, 154, 62, 0.08);
   --gradient-hero: linear-gradient(135deg, #080d19 0%, #0c1528 40%, #080d19 100%);
   --gradient-card: linear-gradient(145deg, #101827 0%, #0c1220 100%);
-  --gradient-accent: linear-gradient(135deg, #b89a3e, #c49a38);
+  --gradient-accent: linear-gradient(135deg, #d4b86a, #f0d68a);  /* v3.4: brightened — both stops 9.9:1+ AAA */
   --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: 'JetBrains Mono', 'IBM Plex Mono', 'SF Mono', monospace;
   --font-display: 'Playfair Display', Georgia, serif;
@@ -111,6 +117,20 @@ const firebaseDb = firebase.firestore();
   --radius-xl: 16px;
   --shadow-card: 0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
   --shadow-glow: 0 0 20px rgba(184,154,62,0.04);
+}
+
+/* =================================================================
+   prefers-contrast: more — bump muted/secondary tokens to full white
+   when the OS-level high-contrast setting is on. Cheap a11y win.
+   ================================================================= */
+@media (prefers-contrast: more) {
+  :root {
+    --text-secondary: #e2e7ef;     /* match --text-primary, 15.5:1 */
+    --text-muted: #e2e7ef;         /* match --text-primary, 15.5:1 */
+    --text-subtle: #c5cfde;        /* still slight hierarchy, 12.5:1 */
+    --accent-gold-text: #f0d68a;   /* brightest gold stop, ~14:1 */
+    --border: #2e3f5d;             /* brighter border for visibility */
+  }
 }
 
 /* =================================================================
@@ -790,7 +810,7 @@ body.protected img { pointer-events: none; }
 }
 .sidebar-user-plan {
   font-size: 10px;
-  color: var(--accent-gold);
+  color: var(--accent-gold-text);  /* v3.4: brighter gold for body-size text (9.9:1 AAA) */
   font-weight: 500;
   font-family: var(--font-mono);
   letter-spacing: 0.5px;
@@ -1188,7 +1208,7 @@ body.protected img { pointer-events: none; }
   border-top-color: transparent;
   border-bottom-color: #1a1f2e;
 }
-.tip-label { color: var(--accent-gold); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.tip-label { color: var(--accent-gold-text); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }  /* v3.4: 9.9:1 AAA on dark */
 .tip-val { color: #10b981; font-weight: 700; font-family: var(--font-mono); }
 .tip-dim { color: #94a3b8; }
 .tip-warn { color: #f59e0b; }
@@ -1888,11 +1908,11 @@ body.protected img { pointer-events: none; }
   transition: all 0.2s;
 }
 .cc-tab.active {
-  background: linear-gradient(135deg, #c9a84c, #d4a843);
+  background: linear-gradient(135deg, #d4b86a, #f0d68a);  /* v3.4: brightened — both stops 9.9:1+ on dark bg */
   color: #0b1120;
   border-color: transparent;
 }
-.cc-tab:not(.active):hover { border-color: var(--accent-gold); color: var(--accent-gold); }
+.cc-tab:not(.active):hover { border-color: var(--accent-gold-text); color: var(--accent-gold-text); }  /* v3.4: brighter gold for 13px body text */
 .cc-rec-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; }
 .cc-rec-table th {
   padding: 9px 12px;
@@ -1962,7 +1982,7 @@ body.protected img { pointer-events: none; }
 }
 .wheel-cycle-step.active {
   background: rgba(201,168,76,0.12);
-  color: var(--accent-gold);
+  color: var(--accent-gold-text);  /* v3.4: 11px body-size — needs 7:1, brighter gold gives 9.9:1 */
 }
 .wheel-cycle-step.completed {
   background: rgba(34,197,94,0.08);
@@ -2922,7 +2942,7 @@ function AuthModal({ mode, onClose, onSubmit, onToggle, notice }) {
         <p>{mode === 'login' ? 'Sign in to access your dashboard' : '7 days free. Cancel anytime.'}</p>
 
         {notice && (
-          <div style={{padding:'10px 14px',marginBottom:'16px',background:'rgba(201,168,76,0.1)',border:'1px solid rgba(201,168,76,0.3)',borderRadius:'var(--radius-md)',color:'var(--accent-gold)',fontSize:'13px',lineHeight:1.5}}>
+          <div style={{padding:'10px 14px',marginBottom:'16px',background:'rgba(201,168,76,0.1)',border:'1px solid rgba(201,168,76,0.3)',borderRadius:'var(--radius-md)',color:'var(--accent-gold-text)',fontSize:'13px',lineHeight:1.5}}>
             {notice}
           </div>
         )}
@@ -3167,7 +3187,7 @@ function CoveredCallModal({ position, stock, onClose, onMarkSelling }) {
             <div className="cc-plain-english">
               <span style={{fontSize:'20px', flexShrink:0}}>💡</span>
               <div>
-                <div style={{fontSize:'11px', color:'var(--accent-gold)', fontWeight:700, marginBottom:5, textTransform:'uppercase', letterSpacing:'0.6px'}}>
+                <div style={{fontSize:'11px', color:'var(--accent-gold-text)', fontWeight:700, marginBottom:5, textTransform:'uppercase', letterSpacing:'0.6px'}}>
                   {category === 'conservative' ? 'Conservative Recommendation' : 'Aggressive Recommendation'}
                 </div>
                 <div style={{fontSize:'13px', color:'var(--text-primary)', lineHeight:1.7}}>{recText}</div>
@@ -3225,7 +3245,7 @@ function CoveredCallModal({ position, stock, onClose, onMarkSelling }) {
                           <span style={{fontFamily:'var(--font-mono)', fontWeight:700, fontSize:'15px', color: aboveCB ? 'var(--text-primary)' : 'var(--accent-red)'}}>
                             ${rec.strike.toFixed(2)}
                           </span>
-                          {isBest && <span style={{marginLeft:7, fontSize:'10px', background:'linear-gradient(135deg,#c9a84c,#d4a843)', color:'#0b1120', padding:'1px 7px', borderRadius:'8px', fontWeight:700}}>BEST</span>}
+                          {isBest && <span style={{marginLeft:7, fontSize:'10px', background:'linear-gradient(135deg,#d4b86a,#f0d68a)', color:'#0b1120', padding:'1px 7px', borderRadius:'8px', fontWeight:700}}>BEST</span>}
                           {!aboveCB && <div style={{fontSize:'10px', color:'var(--accent-red)', marginTop:2}}>⚠ Below cost basis</div>}
                         </td>
                         <td style={{fontFamily:'var(--font-mono)', fontSize:'12px', color:'var(--text-secondary)'}}>
@@ -3262,7 +3282,7 @@ function CoveredCallModal({ position, stock, onClose, onMarkSelling }) {
                           </div>
                         </td>
                         <td>
-                          <span style={{fontFamily:'var(--font-mono)', fontWeight:700, color:'var(--accent-gold)', fontSize:'14px'}}>
+                          <span style={{fontFamily:'var(--font-mono)', fontWeight:700, color:'var(--accent-gold-text)', fontSize:'14px'}}>
                             ${rec.totalPremium}
                           </span>
                           <div style={{fontSize:'10px', color:'var(--text-muted)'}}>for {shares} shares</div>
@@ -3880,7 +3900,7 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
               </div>
             </div>
             <div style={{display:'flex', alignItems:'center', gap:10}}>
-              <span style={{padding:'4px 12px', borderRadius:'20px', fontSize:'12px', fontWeight:600, background:'rgba(201,168,76,0.12)', color:'var(--accent-gold)', border:'1px solid rgba(201,168,76,0.25)'}}>
+              <span style={{padding:'4px 12px', borderRadius:'20px', fontSize:'12px', fontWeight:600, background:'rgba(201,168,76,0.12)', color:'var(--accent-gold-text)', border:'1px solid rgba(201,168,76,0.25)'}}>
                 {assignedWithRecs.length} Assigned Position{assignedWithRecs.length !== 1 ? 's' : ''}
               </span>
               {onSetPage && (
@@ -3927,7 +3947,7 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
                   {/* Best CC Recommendation */}
                   {rec ? (
                     <div style={{background:'rgba(201,168,76,0.06)', border:'1px solid rgba(201,168,76,0.15)', borderRadius:'var(--radius-sm)', padding:'10px 12px', marginBottom:10}}>
-                      <div style={{fontSize:'10px', color:'var(--accent-gold)', fontWeight:700, marginBottom:6, textTransform:'uppercase', letterSpacing:'0.5px'}}>Best Conservative Call</div>
+                      <div style={{fontSize:'10px', color:'var(--accent-gold-text)', fontWeight:700, marginBottom:6, textTransform:'uppercase', letterSpacing:'0.5px'}}>Best Conservative Call</div>
                       <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
                         <div>
                           <span style={{fontFamily:'var(--font-mono)', fontWeight:700, fontSize:'15px'}}>${rec.strike.toFixed(2)}</span>
