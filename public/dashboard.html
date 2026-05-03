@@ -3697,9 +3697,9 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
                     <th scope="col">Premium</th>
                     <th scope="col">Wk Yield</th>
                     <th scope="col">Mo. Yield</th>
-                    <th scope="col">Theta/Day</th>
-                    <th scope="col">Delta</th>
-                    <th scope="col">P.O.P.</th>
+                    <th scope="col" title={COL_TIP.theta}>Theta/Day</th>
+                    <th scope="col" title={COL_TIP.delta}>Delta</th>
+                    <th scope="col" title={COL_TIP.pop}>P.O.P.</th>
                     <th scope="col">Cash Req.</th>
                     <th scope="col">Max Loss</th>
                     <th scope="col">IV %ile</th>
@@ -3809,13 +3809,19 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
                           )}
                         </td>
                         <td>
+                          <span style={{display:'inline-flex', alignItems:'center'}}>
                           <Tip text={TipText.score(stock)}>
                           <span className={`score-badge ${stock.wheelScore >= 75 ? 'score-high' : stock.wheelScore >= 50 ? 'score-mid' : 'score-low'}`}>
                             {stock.wheelScore}
                           </span>
                           </Tip>
+                          <OverboughtBadge stock={stock} />
+                          </span>
                         </td>
-                        <td style={{fontSize:'12px', color:'var(--text-secondary)', maxWidth:'160px', lineHeight:1.4}}>{stock.recommendation.reason}</td>
+                        <td style={{fontSize:'12px', color:'var(--text-secondary)', maxWidth:'200px', lineHeight:1.4}}>
+                          <div>{stock.recommendation.reason}</div>
+                          <div style={{marginTop:6}}><BrokerLink symbol={stock.symbol} /></div>
+                        </td>
                       </tr>
                     );
                   })}
@@ -4009,15 +4015,15 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
                   <th scope="col">Price</th>
                   <th scope="col">Score</th>
                   <th scope="col">Action</th>
-                  <th scope="col">Strike</th>
+                  <th scope="col" title={COL_TIP.otm}>Strike</th>
                   <th scope="col">Support</th>
                   <th scope="col">Resist.</th>
                   <th scope="col">Exp Date</th>
                   <th scope="col">Premium</th>
                   <th scope="col">Wk Yield</th>
                   <th scope="col">Ann. Yield</th>
-                  <th scope="col">Delta</th>
-                  <th scope="col">P.O.P.</th>
+                  <th scope="col" title={COL_TIP.delta}>Delta</th>
+                  <th scope="col" title={COL_TIP.pop}>P.O.P.</th>
                   <th scope="col">Cash Req.</th>
                   <th scope="col">Max Loss</th>
                   <th scope="col">RSI</th>
@@ -4027,7 +4033,8 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
                   <th scope="col">Earnings</th>
                   <th scope="col">Ex-Div</th>
                   <th scope="col">Trend</th>
-                  <th scope="col">IV Rank</th>
+                  <th scope="col" title={COL_TIP.ivr}>IV Rank</th>
+                  <th scope="col">Broker</th>
                 </tr>
               </thead>
               <tbody>
@@ -4044,11 +4051,14 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
                       <div style={{fontSize:'11px', color: stock.change >= 0 ? 'var(--accent-green)' : 'var(--accent-red)'}}>{stock.change >= 0 ? '+' : ''}{stock.changePct}%</div>
                     </td>
                     <td>
+                      <span style={{display:'inline-flex', alignItems:'center'}}>
                       <Tip text={TipText.score(stock)}>
                       <span className={`score-badge ${stock.wheelScore >= 75 ? 'score-high' : stock.wheelScore >= 50 ? 'score-mid' : 'score-low'}`}>
                         {stock.wheelScore}
                       </span>
                       </Tip>
+                      <OverboughtBadge stock={stock} />
+                      </span>
                     </td>
                     <td>
                       <Tip text={TipText.action(stock)}>
@@ -4168,6 +4178,9 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
                         </div>
                         <span style={{fontFamily:'var(--font-mono)', fontSize:'11px'}}>{stock.ivRank}%</span>
                       </div>
+                    </td>
+                    <td>
+                      <BrokerLink symbol={stock.symbol} />
                     </td>
                   </tr>
                   );
@@ -4434,20 +4447,21 @@ function ScreenerPage({ stocks, user, subscriptionTier, capitalTier = 'all', onS
                   <th scope="col">Exp Date</th>
                   <th scope="col" style={{cursor:'pointer'}} onClick={() => handleSort('weeklyYield')}>Wk Yield <SortIcon field="weeklyYield"/></th>
                   <th scope="col" style={{cursor:'pointer'}} onClick={() => handleSort('annualizedYield')}>Ann Yield <SortIcon field="annualizedYield"/></th>
-                  <th scope="col" style={{cursor:'pointer'}} onClick={() => handleSort('delta')}>Delta <SortIcon field="delta"/></th>
+                  <th scope="col" style={{cursor:'pointer'}} title={COL_TIP.delta} onClick={() => handleSort('delta')}>Delta <SortIcon field="delta"/></th>
                   <th scope="col" style={{cursor:'pointer'}} onClick={() => handleSort('rsi')}>RSI <SortIcon field="rsi"/></th>
-                  <th scope="col">MACD</th>
-                  <th scope="col">BB %B</th>
+                  <th scope="col" title={COL_TIP.macd}>MACD</th>
+                  <th scope="col" title={COL_TIP.bbPercentB}>BB %B</th>
                   <th scope="col" style={{cursor:'pointer'}} onClick={() => handleSort('iv')}>IV <SortIcon field="iv"/></th>
                   <th scope="col" style={{cursor:'pointer'}} onClick={() => handleSort('optionVolume')}>Opt Vol <SortIcon field="optionVolume"/></th>
                   <th scope="col">Earnings</th>
                   <th scope="col">Trend</th>
+                  <th scope="col">Broker</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredStocks.length === 0 && (
                   <tr>
-                    <td colSpan={16} style={{textAlign:'center', padding:'40px 20px', color:'var(--text-muted)', fontSize:'14px'}}>
+                    <td colSpan={17} style={{textAlign:'center', padding:'40px 20px', color:'var(--text-muted)', fontSize:'14px'}}>
                       No stocks match your filters. Try adjusting the search term or filter values above.
                     </td>
                   </tr>
@@ -4464,11 +4478,14 @@ function ScreenerPage({ stocks, user, subscriptionTier, capitalTier = 'all', onS
                       </span>
                     </td>
                     <td>
+                      <span style={{display:'inline-flex', alignItems:'center'}}>
                       <Tip text={TipText.score(stock)}>
                       <span className={`score-badge ${stock.wheelScore >= 75 ? 'score-high' : stock.wheelScore >= 50 ? 'score-mid' : 'score-low'}`}>
                         {stock.wheelScore}
                       </span>
                       </Tip>
+                      <OverboughtBadge stock={stock} />
+                      </span>
                     </td>
                     <td>
                       <Tip text={TipText.action(stock)}>
@@ -4503,6 +4520,9 @@ function ScreenerPage({ stocks, user, subscriptionTier, capitalTier = 'all', onS
                       </Tip>
                     </td>
                     <td><Sparkline data={stock.closes.slice(-15)} width={60} height={24} color={stock.technicalSignal > 0 ? '#10b981' : '#ef4444'} /></td>
+                    <td onClick={(e) => e.stopPropagation()}>
+                      <BrokerLink symbol={stock.symbol} />
+                    </td>
                   </tr>
                   );
                 })}
@@ -6021,13 +6041,21 @@ function AdminPage({ user, authLoading }) {
 
 // ===== MAIN APP =====
 // ===== TOOLTIP COMPONENT =====
+// Detect coarse-pointer (touch) devices so we can switch hover→tap behavior.
+// Tooltip uses hover on desktop and tap-to-toggle on touch (with tap-outside dismissal).
+const isCoarsePointer = () => {
+  try { return window.matchMedia && window.matchMedia('(pointer: coarse)').matches; }
+  catch { return false; }
+};
+
 function Tip({ children, text }) {
   const [show, setShow] = React.useState(false);
   const [tipStyle, setTipStyle] = React.useState({});
   const [below, setBelow] = React.useState(false);
   const ref = React.useRef(null);
+  const tipRef = React.useRef(null);
 
-  const onEnter = () => {
+  const computePos = () => {
     const el = ref.current;
     if (!el) return;
     const r = el.getBoundingClientRect();
@@ -6040,8 +6068,44 @@ function Tip({ children, text }) {
       top: isBelow ? (r.bottom + 8) + 'px' : (r.top - 8) + 'px',
       transform: isBelow ? 'translateX(-50%)' : 'translateX(-50%) translateY(-100%)',
     });
+  };
+
+  const onEnter = () => {
+    if (isCoarsePointer()) return; // touch devices use tap, not hover
+    computePos();
     setShow(true);
   };
+  const onLeave = () => {
+    if (isCoarsePointer()) return;
+    setShow(false);
+  };
+
+  // On touch devices: tap to toggle, tap-outside to dismiss.
+  const onClick = (e) => {
+    if (!isCoarsePointer()) return;
+    e.stopPropagation();
+    if (show) { setShow(false); return; }
+    computePos();
+    setShow(true);
+  };
+
+  React.useEffect(() => {
+    if (!show) return;
+    if (!isCoarsePointer()) return;
+    const onDocTap = (ev) => {
+      const w = ref.current;
+      const t = tipRef.current;
+      if (w && w.contains(ev.target)) return;
+      if (t && t.contains(ev.target)) return;
+      setShow(false);
+    };
+    document.addEventListener('touchstart', onDocTap, { passive: true });
+    document.addEventListener('mousedown', onDocTap);
+    return () => {
+      document.removeEventListener('touchstart', onDocTap);
+      document.removeEventListener('mousedown', onDocTap);
+    };
+  }, [show]);
 
   // Portal the tooltip to document.body so it escapes any ancestor stacking
   // context (e.g. the sticky/frozen Symbol column's z-index:10 panel) and any
@@ -6051,6 +6115,7 @@ function Tip({ children, text }) {
     React.createElement('span', {
       className: 'tip-box tip-portal' + (below ? ' tip-below' : ''),
       style: tipStyle,
+      ref: tipRef,
     }, text),
     document.body
   );
@@ -6059,10 +6124,144 @@ function Tip({ children, text }) {
     className: 'tip-wrap',
     ref,
     onMouseEnter: onEnter,
-    onMouseLeave: () => setShow(false),
+    onMouseLeave: onLeave,
+    onClick,
   },
     children,
     tipNode
+  );
+}
+
+// ===== COLUMN HEADER TOOLTIPS (L4) =====
+// Plain-language explanations shown on hover (and tap on touch via the title attribute,
+// which mobile browsers also surface via long-press). Used by the three trade tables.
+const COL_TIP = {
+  bbPercentB: 'Bollinger Band Position. 0% = at lower band, 100% = at upper band. Above 100% = price exceeds upper band (overbought).',
+  macd:       'Moving Average Convergence Divergence. Positive = uptrend momentum; negative = downtrend; histogram = momentum strength.',
+  pop:        'Probability of Profit. Estimated chance the put expires worthless and you keep the full premium. Computed as (1 - delta) × 100%.',
+  otm:        'Out of the Money percentage. How far below current stock price the strike sits. Higher = safer but lower premium.',
+  ivr:        'Implied Volatility Rank. Where current IV sits relative to its 52-week range. Higher IVR = options pricing rich premium relative to history.',
+  delta:      "Option's price sensitivity to a $1 move in the underlying. Also approximates probability of finishing in-the-money.",
+  theta:      'Daily time decay. How much premium the option loses per day, all else equal.',
+  vega:       'Sensitivity to a 1% change in implied volatility. Higher Vega = more exposure to IV swings.',
+};
+
+// ===== BROKER DEEP-LINK COMPONENT (M4) =====
+// Small dropdown next to recommendation rows that opens broker URL with prefilled symbol.
+// Brokers: Robinhood (symbol-only), IBKR (account login only — no public deep-link),
+// Tradier (closest to a deep link). Last-picked broker persists in localStorage.
+const BROKERS = [
+  { id: 'robinhood', label: 'Robinhood', url: (sym) => `https://robinhood.com/options/${encodeURIComponent(sym)}` },
+  { id: 'ibkr',      label: 'Interactive Brokers', url: () => `https://www.interactivebrokers.com/sso/Login?action=ACCT_MGMT_MAIN`, note: 'IBKR has no public options deep-link — opens account login.' },
+  { id: 'tradier',   label: 'Tradier', url: (sym) => `https://brokerage.tradier.com/trading/options?symbol=${encodeURIComponent(sym)}` },
+];
+
+function BrokerLink({ symbol }) {
+  const [open, setOpen] = React.useState(false);
+  const [preferred, setPreferred] = React.useState(() => {
+    try { return localStorage.getItem('preferredBroker') || 'robinhood'; }
+    catch { return 'robinhood'; }
+  });
+  const wrapRef = React.useRef(null);
+
+  React.useEffect(() => {
+    if (!open) return;
+    const onDocClick = (ev) => {
+      if (wrapRef.current && wrapRef.current.contains(ev.target)) return;
+      setOpen(false);
+    };
+    document.addEventListener('mousedown', onDocClick);
+    document.addEventListener('touchstart', onDocClick, { passive: true });
+    return () => {
+      document.removeEventListener('mousedown', onDocClick);
+      document.removeEventListener('touchstart', onDocClick);
+    };
+  }, [open]);
+
+  const openBroker = (broker, ev) => {
+    if (ev) ev.stopPropagation();
+    try { localStorage.setItem('preferredBroker', broker.id); } catch {}
+    setPreferred(broker.id);
+    setOpen(false);
+    const url = broker.url(symbol);
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
+  const preferredBroker = BROKERS.find(b => b.id === preferred) || BROKERS[0];
+
+  return React.createElement('span', {
+    ref: wrapRef,
+    style: { position: 'relative', display: 'inline-flex', alignItems: 'center', gap: 4 },
+    onClick: (e) => e.stopPropagation(),
+  },
+    React.createElement('button', {
+      className: 'btn btn-sm btn-secondary',
+      type: 'button',
+      title: `Open ${symbol} in ${preferredBroker.label} — strike/expiry must be selected manually`,
+      'aria-haspopup': 'menu',
+      'aria-expanded': open,
+      onClick: (e) => { e.stopPropagation(); setOpen(o => !o); },
+      style: { fontSize: 11, padding: '3px 8px', whiteSpace: 'nowrap' },
+    }, 'Open in Broker ▾'),
+    open && React.createElement('div', {
+      role: 'menu',
+      style: {
+        position: 'absolute', top: '100%', right: 0, marginTop: 4,
+        background: 'var(--bg-card, #1a1f2e)',
+        border: '1px solid rgba(184,154,62,0.25)',
+        borderRadius: 6,
+        boxShadow: '0 6px 20px rgba(0,0,0,0.4)',
+        zIndex: 9999, minWidth: 200, padding: 4,
+      }
+    },
+      BROKERS.map(b => React.createElement('button', {
+        key: b.id,
+        type: 'button',
+        role: 'menuitem',
+        onClick: (e) => openBroker(b, e),
+        title: b.note || `Open ${symbol} in ${b.label}`,
+        style: {
+          display: 'block', width: '100%', textAlign: 'left',
+          padding: '6px 10px', fontSize: 12,
+          background: b.id === preferred ? 'rgba(184,154,62,0.12)' : 'transparent',
+          color: 'var(--text-primary, #e2e8f0)',
+          border: 'none', borderRadius: 4, cursor: 'pointer',
+          fontFamily: 'var(--font-primary)',
+        },
+      }, (b.id === preferred ? '★ ' : '') + b.label + (b.note ? ' *' : ''))),
+      React.createElement('div', {
+        style: {
+          fontSize: 10, color: 'var(--text-muted, #94a3b8)',
+          padding: '6px 10px', borderTop: '1px solid rgba(148,163,184,0.15)', marginTop: 2, lineHeight: 1.4,
+        }
+      }, 'Opens broker — strike/expiry must be selected manually')
+    )
+  );
+}
+
+// ===== OVERBOUGHT WARNING BADGE (M10) =====
+// Shows when daily RSI > 78 AND price is above upper Bollinger Band (percentB > 1.0).
+// Warning only — does not filter the row out.
+function OverboughtBadge({ stock }) {
+  const rsi = stock && stock.rsi;
+  const pb = stock && stock.bb && stock.bb.percentB;
+  if (!(typeof rsi === 'number' && rsi > 78)) return null;
+  if (!(typeof pb === 'number' && pb > 1.0)) return null;
+  return React.createElement(Tip, {
+    text: 'OVERBOUGHT WARNING\nRSI > 78 + price above upper Bollinger Band.\nStock may pull back, increasing assignment risk.'
+  },
+    React.createElement('span', {
+      style: {
+        display: 'inline-flex', alignItems: 'center', gap: 3,
+        padding: '2px 6px', marginLeft: 6,
+        fontSize: 10, fontWeight: 700,
+        background: 'var(--accent-amber-glow, rgba(196,154,56,0.15))',
+        color: 'var(--accent-amber)',
+        border: '1px solid rgba(196,154,56,0.35)',
+        borderRadius: 4, whiteSpace: 'nowrap',
+      },
+      'aria-label': 'Overbought warning',
+    }, '⚠ Overbought')
   );
 }
 
