@@ -2180,7 +2180,7 @@ const FirebaseHelper = {
   // "trial expired or legacy account never had one" and triggers the paywall.
   // Card-required-at-signup is FALSE for now (Holland's call — easier conversion);
   // Stripe customer + subscription get attached on first paid checkout.
-  async signUp(email, password, name) {
+  async signUp(email, password, name, opts) {
     const cred = await firebaseAuth.createUserWithEmailAndPassword(email, password);
     const uid = cred.user.uid;
     const isOwner = email.toLowerCase().includes('holland');
@@ -2192,30 +2192,27 @@ const FirebaseHelper = {
     const Timestamp = firebase.firestore && firebase.firestore.Timestamp;
     // Canonical server-trusted start (server-side enforcement A11 will read this).
     const serverStartedAt = (FieldValue && FieldValue.serverTimestamp) ? FieldValue.serverTimestamp() : nowDate;
-    // End must be a concrete timestamp +7d ahead — serverTimestamp() can't be used here
-    // since it always resolves to "now" on write. Use Firestore Timestamp if available,
-    // otherwise fall back to a JS Date (Firestore will convert).
     const serverEndsAt = (Timestamp && Timestamp.fromDate) ? Timestamp.fromDate(trialEndsDate) : trialEndsDate;
     const profile = {
       name: name || email.split('@')[0],
       email: email.toLowerCase(),
-      // Owner gets elite forever; everyone else starts on the 7-day trial.
       plan: isOwner ? 'elite' : 'trial',
       role: 'user',
       isOwner,
-      // Canonical Firestore timestamps (server-side enforcement reads these).
       trialStartedAt: serverStartedAt,
       trialEndsAt: serverEndsAt,
-      // ISO mirrors so the client can render `daysLeft` immediately on the first
-      // post-signup render without waiting for serverTimestamp() to resolve.
       trialStartedAtIso: nowIso,
       trialEndsAtIso: trialEndsIso,
-      // Stripe attachment fields — written on first paid conversion.
       stripeCustomerId: null,
       subscriptionStatus: 'trialing',
-      // Legacy field kept for back-compat with any reader that still references it.
       joinDate: nowIso,
       trialEnd: trialEndsIso,
+      // Clickwrap acceptance (audit trail for ToS arbitration enforceability).
+      // Required for new email/password signups — see AuthModal handleSubmit.
+      acceptedTermsAt: serverStartedAt,
+      acceptedTermsAtIso: nowIso,
+      acceptedTermsVersion: '1.0',
+      acceptedPrivacyVersion: '1.0',
     };
     await firebaseDb.collection('users').doc(uid).set(profile);
     return { uid, ...profile };
@@ -2228,15 +2225,19 @@ const FirebaseHelper = {
   },
 
   // Sign in with Google
-  async signInWithGoogle() {
+  async signInWithGoogle(opts) {
     const provider = new firebase.auth.GoogleAuthProvider();
     const cred = await firebaseAuth.signInWithPopup(provider);
     const uid = cred.user.uid;
     // Check if profile exists
     const doc = await firebaseDb.collection('users').doc(uid).get();
     if (doc.exists) return { uid, ...doc.data() };
-    // Create new profile for first-time Google sign-in.
-    // Same 7-day trial contract as email/password signUp — see signUp() comments.
+    // First-time Google sign-in — create profile.
+    // We require explicit clickwrap when in signup mode. In login mode, a brand-new
+    // Google account that lands here has implicitly consented by clicking the
+    // "Continue with Google" button after the AuthModal-level Terms-link explainer;
+    // we still record an audit trail.
+    const termsAccepted = !!(opts && opts.termsAccepted);
     const isOwner = cred.user.email.toLowerCase().includes('holland');
     const nowDate = new Date();
     const trialEndsDate = new Date(Date.now() + 7 * 86400000);
@@ -2260,6 +2261,11 @@ const FirebaseHelper = {
       subscriptionStatus: 'trialing',
       joinDate: nowIso,
       trialEnd: trialEndsIso,
+      acceptedTermsAt: serverStartedAt,
+      acceptedTermsAtIso: nowIso,
+      acceptedTermsVersion: '1.0',
+      acceptedPrivacyVersion: '1.0',
+      acceptedTermsMethod: termsAccepted ? 'signup-clickwrap' : 'google-implied',
     };
     await firebaseDb.collection('users').doc(uid).set(profile);
     return { uid, ...profile };
@@ -3061,7 +3067,8 @@ function LandingPage({ onLogin, onSignup, onSubscribe }) {
         <div style={{display:'flex', justifyContent:'center', gap:'24px', marginBottom:'12px', flexWrap:'wrap'}}>
           <a href="/terms.html" style={{color:'var(--text-muted)', textDecoration:'none'}}>Terms of Service</a>
           <a href="/privacy.html" style={{color:'var(--text-muted)', textDecoration:'none'}}>Privacy Policy</a>
-          <a href="https://www.theocc.com/Company-Information/Documents-and-Archives/Options-Disclosure-Document" target="_blank" rel="noopener noreferrer" style={{color:'var(--text-muted)', textDecoration:'none'}}>Risk Disclaimer (OCC)</a>
+          <a href="/disclaimer.html" style={{color:'var(--text-muted)', textDecoration:'none'}}>Risk Disclaimer</a>
+          <a href="https://www.theocc.com/Company-Information/Documents-and-Archives/Options-Disclosure-Document" target="_blank" rel="noopener noreferrer" style={{color:'var(--text-muted)', textDecoration:'none'}}>OCC Disclosure</a>
           <a href="mailto:support@wheelpro.io" style={{color:'var(--text-muted)', textDecoration:'none'}}>Contact</a>
         </div>
         <p style={{fontSize:'11px', maxWidth:'700px', margin:'0 auto', lineHeight:1.6, color:'var(--text-muted)'}}>
@@ -3082,6 +3089,9 @@ function AuthModal({ mode, onClose, onSubmit, onToggle, notice }) {
   const [name, setName] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  // Clickwrap acceptance — required at signup for ToS arbitration enforceability
+  // (Concepcion / Lamps Plus pattern). Only required in 'signup' mode.
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   // a11y: Esc-to-close
   useEffect(() => {
@@ -3096,12 +3106,13 @@ function AuthModal({ mode, onClose, onSubmit, onToggle, notice }) {
     if (!email || !password) { setError('Please fill in all fields.'); return; }
     if (mode === 'signup' && !name) { setError('Please enter your name.'); return; }
     if (mode === 'signup' && password.length < 6) { setError('Password must be at least 6 characters.'); return; }
+    if (mode === 'signup' && !acceptedTerms) { setError('You must agree to the Terms of Service and Privacy Policy to create an account.'); return; }
 
     setLoading(true);
     try {
       let userData;
       if (mode === 'signup') {
-        userData = await FirebaseHelper.signUp(email, password, name);
+        userData = await FirebaseHelper.signUp(email, password, name, { termsAccepted: true });
       } else {
         userData = await FirebaseHelper.signIn(email, password);
       }
@@ -3114,9 +3125,13 @@ function AuthModal({ mode, onClose, onSubmit, onToggle, notice }) {
 
   const handleGoogleSignIn = async () => {
     setError('');
+    if (mode === 'signup' && !acceptedTerms) {
+      setError('You must agree to the Terms of Service and Privacy Policy to create an account.');
+      return;
+    }
     setLoading(true);
     try {
-      const userData = await FirebaseHelper.signInWithGoogle();
+      const userData = await FirebaseHelper.signInWithGoogle({ termsAccepted: mode === 'signup' });
       onSubmit(userData);
     } catch (err) {
       setError(FirebaseHelper.getErrorMessage(err.code));
@@ -3178,7 +3193,25 @@ function AuthModal({ mode, onClose, onSubmit, onToggle, notice }) {
             <input id="auth-password" className="form-input" type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} autoComplete={mode === 'signup' ? 'new-password' : 'current-password'} aria-required="true" />
           </div>
           {error && <div className="form-error" role="alert" aria-live="assertive">{error}</div>}
-          <button className="btn btn-primary" type="submit" style={{width:'100%',justifyContent:'center',marginTop:'8px'}} disabled={loading}>
+          {mode === 'signup' && (
+            <label htmlFor="auth-terms" style={{display:'flex', alignItems:'flex-start', gap:'10px', margin:'14px 0 4px', fontSize:'13px', color:'var(--text-secondary)', lineHeight:1.5, cursor:'pointer'}}>
+              <input
+                id="auth-terms"
+                type="checkbox"
+                checked={acceptedTerms}
+                onChange={e => setAcceptedTerms(e.target.checked)}
+                aria-required="true"
+                style={{marginTop:'3px', width:'16px', height:'16px', accentColor:'var(--accent-gold-text)', flexShrink:0, cursor:'pointer'}}
+              />
+              <span>
+                I have read and agree to the{' '}
+                <a href="/terms.html" target="_blank" rel="noopener noreferrer" style={{color:'var(--accent-gold-text)', textDecoration:'underline'}}>Terms of Service</a>{' '}and{' '}
+                <a href="/privacy.html" target="_blank" rel="noopener noreferrer" style={{color:'var(--accent-gold-text)', textDecoration:'underline'}}>Privacy Policy</a>.
+                I understand WheelPro is an information service, not investment advice, and that options trading involves substantial risk.
+              </span>
+            </label>
+          )}
+          <button className="btn btn-primary" type="submit" style={{width:'100%',justifyContent:'center',marginTop:'12px'}} disabled={loading || (mode === 'signup' && !acceptedTerms)}>
             {loading ? <span className="spinner" aria-hidden="true" style={{width:16,height:16,borderWidth:2}}></span> : (mode === 'login' ? 'Sign In' : 'Create Account')}
           </button>
         </form>
