@@ -3442,9 +3442,9 @@ function useSplitTable(deps) {
 // Capital tier definitions: upper bound is cash cap per trade (strike * 100)
 const CAPITAL_TIERS = {
   all:     { label: 'All Capital Levels',    lower: null, upper: null },
-  starter: { label: 'Starter ($500–$2K)',    lower: 500,  upper: 2000 },
-  builder: { label: 'Builder ($2K–$10K)',    lower: 2000, upper: 10000 },
-  full:    { label: 'Full Wheel ($10K+)',    lower: 10000, upper: null },
+  starter: { label: 'Small ($500–$2K)',      lower: 500,  upper: 2000 },
+  builder: { label: 'Medium ($2K–$10K)',     lower: 2000, upper: 10000 },
+  full:    { label: 'Large ($10K+)',         lower: 10000, upper: null },
 };
 
 // Concentration helpers — exposed at module scope so all tables (Recommended Puts,
@@ -3592,7 +3592,7 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
         </div>
       </div>
 
-      {/* Capital tier: Starter concentration advisory (dismissible) */}
+      {/* Capital tier: Small ('starter' id) concentration advisory (dismissible) */}
       {capitalTier === 'starter' && !starterWarningDismissed && (
         <div style={{
           display:'flex', alignItems:'center', justifyContent:'space-between', gap:12,
@@ -3605,11 +3605,11 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
         }}>
           <div style={{display:'flex', alignItems:'center', gap:8}}>
             <span style={{fontSize:14}}>⚠</span>
-            <span><strong>Starter Tier:</strong> Single-trade concentration increases risk. Consider spreading capital across multiple trades as your account grows.</span>
+            <span><strong>Small Capital Tier:</strong> Single-trade concentration increases risk. Consider spreading capital across multiple trades as your account grows.</span>
           </div>
           <button
             onClick={dismissStarterWarning}
-            aria-label="Dismiss starter tier warning"
+            aria-label="Dismiss small capital tier warning"
             style={{background:'none', border:'none', color:'var(--accent-amber)', cursor:'pointer', fontSize:'14px', lineHeight:1, padding:'2px 6px', opacity:0.75}}
             title="Dismiss"
           >✕</button>
@@ -7166,9 +7166,9 @@ function App() {
                   style={{minWidth:170}}
                 >
                   <option value="all">All Capital Levels</option>
-                  <option value="starter">Starter ($500–$2K)</option>
-                  <option value="builder">Builder ($2K–$10K)</option>
-                  <option value="full">Full Wheel ($10K+)</option>
+                  <option value="starter">Small ($500–$2K)</option>
+                  <option value="builder">Medium ($2K–$10K)</option>
+                  <option value="full">Large ($10K+)</option>
                 </select>
               </div>
               <button className="btn btn-sm btn-secondary"
