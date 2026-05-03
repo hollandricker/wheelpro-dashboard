@@ -2025,17 +2025,48 @@ const STRIPE_PRICE_TIERS = {
 // ===== FIREBASE AUTH HELPERS =====
 const FirebaseHelper = {
   // Sign up with email/password
+  // 2026-05-03: New users start on a 7-day full-feature trial (`plan: 'trial'`).
+  // After day 7 client-side gating shows a paywall until they convert to Starter/Pro.
+  // We never write `plan: 'free'` from signup — `'free'` semantically means
+  // "trial expired or legacy account never had one" and triggers the paywall.
+  // Card-required-at-signup is FALSE for now (Holland's call — easier conversion);
+  // Stripe customer + subscription get attached on first paid checkout.
   async signUp(email, password, name) {
     const cred = await firebaseAuth.createUserWithEmailAndPassword(email, password);
     const uid = cred.user.uid;
     const isOwner = email.toLowerCase().includes('holland');
+    const nowDate = new Date();
+    const trialEndsDate = new Date(Date.now() + 7 * 86400000);
+    const nowIso = nowDate.toISOString();
+    const trialEndsIso = trialEndsDate.toISOString();
+    const FieldValue = firebase.firestore && firebase.firestore.FieldValue;
+    const Timestamp = firebase.firestore && firebase.firestore.Timestamp;
+    // Canonical server-trusted start (server-side enforcement A11 will read this).
+    const serverStartedAt = (FieldValue && FieldValue.serverTimestamp) ? FieldValue.serverTimestamp() : nowDate;
+    // End must be a concrete timestamp +7d ahead — serverTimestamp() can't be used here
+    // since it always resolves to "now" on write. Use Firestore Timestamp if available,
+    // otherwise fall back to a JS Date (Firestore will convert).
+    const serverEndsAt = (Timestamp && Timestamp.fromDate) ? Timestamp.fromDate(trialEndsDate) : trialEndsDate;
     const profile = {
       name: name || email.split('@')[0],
       email: email.toLowerCase(),
-      plan: isOwner ? 'elite' : 'free',
+      // Owner gets elite forever; everyone else starts on the 7-day trial.
+      plan: isOwner ? 'elite' : 'trial',
+      role: 'user',
       isOwner,
-      joinDate: new Date().toISOString(),
-      trialEnd: new Date(Date.now() + 7 * 86400000).toISOString(),
+      // Canonical Firestore timestamps (server-side enforcement reads these).
+      trialStartedAt: serverStartedAt,
+      trialEndsAt: serverEndsAt,
+      // ISO mirrors so the client can render `daysLeft` immediately on the first
+      // post-signup render without waiting for serverTimestamp() to resolve.
+      trialStartedAtIso: nowIso,
+      trialEndsAtIso: trialEndsIso,
+      // Stripe attachment fields — written on first paid conversion.
+      stripeCustomerId: null,
+      subscriptionStatus: 'trialing',
+      // Legacy field kept for back-compat with any reader that still references it.
+      joinDate: nowIso,
+      trialEnd: trialEndsIso,
     };
     await firebaseDb.collection('users').doc(uid).set(profile);
     return { uid, ...profile };
@@ -2055,15 +2086,31 @@ const FirebaseHelper = {
     // Check if profile exists
     const doc = await firebaseDb.collection('users').doc(uid).get();
     if (doc.exists) return { uid, ...doc.data() };
-    // Create new profile for first-time Google sign-in
+    // Create new profile for first-time Google sign-in.
+    // Same 7-day trial contract as email/password signUp — see signUp() comments.
     const isOwner = cred.user.email.toLowerCase().includes('holland');
+    const nowDate = new Date();
+    const trialEndsDate = new Date(Date.now() + 7 * 86400000);
+    const nowIso = nowDate.toISOString();
+    const trialEndsIso = trialEndsDate.toISOString();
+    const FieldValue = firebase.firestore && firebase.firestore.FieldValue;
+    const Timestamp = firebase.firestore && firebase.firestore.Timestamp;
+    const serverStartedAt = (FieldValue && FieldValue.serverTimestamp) ? FieldValue.serverTimestamp() : nowDate;
+    const serverEndsAt = (Timestamp && Timestamp.fromDate) ? Timestamp.fromDate(trialEndsDate) : trialEndsDate;
     const profile = {
       name: cred.user.displayName || cred.user.email.split('@')[0],
       email: cred.user.email.toLowerCase(),
-      plan: isOwner ? 'elite' : 'free',
+      plan: isOwner ? 'elite' : 'trial',
+      role: 'user',
       isOwner,
-      joinDate: new Date().toISOString(),
-      trialEnd: new Date(Date.now() + 7 * 86400000).toISOString(),
+      trialStartedAt: serverStartedAt,
+      trialEndsAt: serverEndsAt,
+      trialStartedAtIso: nowIso,
+      trialEndsAtIso: trialEndsIso,
+      stripeCustomerId: null,
+      subscriptionStatus: 'trialing',
+      joinDate: nowIso,
+      trialEnd: trialEndsIso,
     };
     await firebaseDb.collection('users').doc(uid).set(profile);
     return { uid, ...profile };
@@ -4295,9 +4342,12 @@ function ScreenerPage({ stocks, user, subscriptionTier, capitalTier = 'all', onS
     }));
   };
 
-  // Free tier: no screener access (gate placed after hooks to satisfy Rules of Hooks)
+  // Tier gate (placed after hooks to satisfy Rules of Hooks).
+  // Trial users (`plan: 'trial'`) get full access during their 7-day window —
+  // gating activates only after conversion to a paid plan.
+  const onActiveTrial = user?.plan === 'trial';
   const tierLimits = CONFIG.TIER_LIMITS[subscriptionTier || 'free'];
-  if (!tierLimits.screener && !user?.isOwner) {
+  if (!tierLimits.screener && !user?.isOwner && !onActiveTrial) {
     return (
       <div className="loading-state" style={{gap:20}}>
         <div style={{width:48,height:48,borderRadius:'50%',background:'var(--bg-elevated)',margin:'0 auto',display:'flex',alignItems:'center',justifyContent:'center'}}><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
@@ -4996,9 +5046,11 @@ function TradeJournalPage({ user, subscriptionTier }) {
   const bestTrade = trades.length > 0 ? trades.reduce((best, t) => t.pnl > best.pnl ? t : best, trades[0]) : null;
   const worstTrade = trades.length > 0 ? trades.reduce((worst, t) => t.pnl < worst.pnl ? t : worst, trades[0]) : null;
 
-  // Check tier access
+  // Check tier access. Trial users get full access during their 7-day window —
+  // gating activates only after conversion to a paid plan.
+  const onActiveTrial = user?.plan === 'trial';
   const tierLimits = CONFIG.TIER_LIMITS[subscriptionTier || 'free'];
-  if (!tierLimits.journal && !user?.isOwner) {
+  if (!tierLimits.journal && !user?.isOwner && !onActiveTrial) {
     return (
       <div className="loading-state" style={{gap:20}}>
         <div style={{width:48,height:48,borderRadius:'50%',background:'var(--accent-gold-glow, rgba(201,168,76,0.12))',margin:'0 auto',display:'flex',alignItems:'center',justifyContent:'center'}}><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-gold, #c9a84c)" strokeWidth="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
@@ -5523,13 +5575,17 @@ function BacktestPage({ user, subscriptionTier }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Trial users get full access during their 7-day window — Backtest is Pro-only
+  // post-conversion (Starter sees the upgrade card with the "Backtest is a Pro
+  // feature" toast/copy below).
+  const onActiveTrial = user?.plan === 'trial';
   const tierLimits = CONFIG.TIER_LIMITS[subscriptionTier || 'free'];
-  if (!tierLimits.journal && !user?.isOwner) {
+  if (!tierLimits.journal && !user?.isOwner && !onActiveTrial) {
     return (
       <div className="loading-state" style={{gap:20}}>
         <div style={{width:48,height:48,borderRadius:'50%',background:'var(--bg-elevated)',margin:'0 auto',display:'flex',alignItems:'center',justifyContent:'center'}}><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
-        <h3 style={{color:'var(--text-primary)', margin:0}}>Strategy Backtester</h3>
-        <p style={{maxWidth:400, textAlign:'center', lineHeight:1.7}}>Simulate the Wheel strategy over historical data to see returns, win rate, and drawdown. Available on Pro and Elite plans.</p>
+        <h3 style={{color:'var(--text-primary)', margin:0}}>Backtest is a Pro feature</h3>
+        <p style={{maxWidth:400, textAlign:'center', lineHeight:1.7}}>Simulate the Wheel strategy over historical data to see returns, win rate, and drawdown. Upgrade for $50/mo more to unlock backtesting.</p>
         <button className="btn btn-primary" style={{marginTop:8}}>Upgrade to Pro — $79/mo</button>
       </div>
     );
@@ -6354,6 +6410,186 @@ function PositionSizeCalculator() {
   );
 }
 
+// ===== TRIAL STATUS HOOK =====
+// Pure read of trial fields on the user document. Returns:
+//   { plan, isOnTrial, isTrialExpired, daysLeft }
+// Semantics (locked-in 2026-05-03):
+//   - `plan: 'trial'`  → user is in their 7-day window (gated only by `trialEndsAt`).
+//   - `plan: 'free'`   → LEGACY ONLY (signed up before 2026-05-03). Treat as expired.
+//   - `plan: 'starter' | 'pro' | 'elite'` → paid; not on trial.
+// We tolerate both `trialEndsAt` (Firestore Timestamp from new signups) and the ISO
+// mirror `trialEndsAtIso`, plus the legacy `trialEnd` ISO field.
+function useTrialStatus(userDoc) {
+  return useMemo(() => {
+    if (!userDoc) return { plan: null, isOnTrial: false, isTrialExpired: false, daysLeft: 0 };
+    const plan = userDoc.plan || 'free';
+    // Resolve the trial end date across all field shapes.
+    let endMs = null;
+    const candidates = [userDoc.trialEndsAt, userDoc.trialEndsAtIso, userDoc.trialEnd];
+    for (const c of candidates) {
+      if (!c) continue;
+      // Firestore Timestamp duck-typing: { seconds, nanoseconds } or has .toDate()
+      if (typeof c === 'object' && typeof c.toDate === 'function') {
+        endMs = c.toDate().getTime();
+        break;
+      }
+      if (typeof c === 'object' && typeof c.seconds === 'number') {
+        endMs = c.seconds * 1000;
+        break;
+      }
+      if (typeof c === 'string') {
+        const t = Date.parse(c);
+        if (!isNaN(t)) { endMs = t; break; }
+      }
+      if (c instanceof Date) { endMs = c.getTime(); break; }
+    }
+    const now = Date.now();
+    const hasEnd = endMs !== null;
+    const onTrialPlan = plan === 'trial';
+    // Trial is active iff the user is on the trial plan AND we have a future end date.
+    const isOnTrial = onTrialPlan && hasEnd && endMs > now;
+    // Expired covers two cases: (a) trial plan but past end, (b) legacy 'free' plan.
+    const isTrialExpired = (onTrialPlan && hasEnd && endMs <= now) || plan === 'free';
+    const daysLeft = isOnTrial ? Math.max(0, Math.ceil((endMs - now) / 86400000)) : 0;
+    return { plan, isOnTrial, isTrialExpired, daysLeft };
+  }, [
+    userDoc && userDoc.plan,
+    userDoc && (userDoc.trialEndsAtIso || userDoc.trialEnd),
+    userDoc && userDoc.trialEndsAt && (userDoc.trialEndsAt.seconds || userDoc.trialEndsAt.toString()),
+  ]);
+}
+
+// ===== TRIAL BANNER =====
+// Non-dismissible banner shown at the top of the dashboard during the active trial.
+// Renders nothing once trial expires (paywall takes over) or for paid/owner users.
+function TrialBanner({ daysLeft, onUpgrade }) {
+  const dayWord = daysLeft === 1 ? 'day' : 'days';
+  return (
+    <div
+      role="status"
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 12,
+        padding: '10px 24px',
+        background: 'rgba(201, 168, 76, 0.10)',
+        borderBottom: '1px solid rgba(201, 168, 76, 0.25)',
+        color: 'var(--accent-gold, #c9a84c)',
+        fontSize: 14,
+        fontWeight: 500,
+      }}
+    >
+      <span>
+        <span aria-hidden="true" style={{marginRight:8}}>🕒</span>
+        <strong>{daysLeft}</strong> {dayWord} left in your free trial.
+        <span style={{color:'var(--text-muted)', marginLeft:8, fontWeight:400}}>
+          Upgrade now for uninterrupted access.
+        </span>
+      </span>
+      <button
+        className="btn btn-primary btn-sm"
+        onClick={onUpgrade}
+        style={{whiteSpace:'nowrap'}}
+      >
+        Upgrade now
+      </button>
+    </div>
+  );
+}
+
+// ===== PAYWALL =====
+// Replaces the entire dashboard when the trial has expired and the user has not paid.
+// No degraded mode — full lock until they convert. Owner bypasses (handled at the call site).
+function PaywallScreen({ user, onCheckout, onSignOut }) {
+  return (
+    <div style={{
+      minHeight: '100vh',
+      background: 'var(--bg-primary)',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'flex-start',
+      padding: '64px 24px',
+    }}>
+      <div style={{maxWidth: 920, width: '100%', textAlign: 'center'}}>
+        <div style={{
+          display: 'inline-block',
+          padding: '4px 12px',
+          background: 'rgba(239, 68, 68, 0.10)',
+          border: '1px solid rgba(239, 68, 68, 0.25)',
+          borderRadius: 999,
+          fontSize: 12,
+          color: 'var(--accent-red, #ef4444)',
+          letterSpacing: '0.04em',
+          textTransform: 'uppercase',
+          marginBottom: 16,
+        }}>Trial ended</div>
+        <h1 style={{fontSize: 36, fontWeight: 700, color: 'var(--text-primary)', margin: '0 0 12px'}}>
+          Your free trial has ended
+        </h1>
+        <p style={{fontSize: 16, color: 'var(--text-muted)', margin: '0 0 40px', lineHeight: 1.6}}>
+          Pick a plan to keep using WheelPro. Your data and watchlist are saved.
+        </p>
+
+        <div className="pricing-grid" style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: 20,
+          maxWidth: 720,
+          margin: '0 auto 32px',
+        }}>
+          <div className="pricing-card">
+            <div className="pricing-tier">Starter</div>
+            <div className="pricing-amount">$29<span>/mo</span></div>
+            <div className="pricing-desc">Perfect for beginners learning the wheel</div>
+            <ul className="pricing-features">
+              <li><span className="check">✓</span> 40 stock candidates</li>
+              <li><span className="check">✓</span> All 5 technical indicators</li>
+              <li><span className="check">✓</span> Full screener with filters</li>
+              <li><span className="check">✓</span> 10 portfolio positions</li>
+            </ul>
+            <button className="btn btn-secondary pricing-btn" onClick={() => onCheckout('starter')}>
+              Choose Starter
+            </button>
+          </div>
+          <div className="pricing-card featured">
+            <div className="pricing-tier">Pro</div>
+            <div className="pricing-amount">$79<span>/mo</span></div>
+            <div className="pricing-desc">Full power for active options traders</div>
+            <ul className="pricing-features">
+              <li><span className="check">✓</span> All 1,100+ stock scans</li>
+              <li><span className="check">✓</span> Advanced screener & filters</li>
+              <li><span className="check">✓</span> Unlimited portfolio positions</li>
+              <li><span className="check">✓</span> Trade journal & P&L tracking</li>
+              <li><span className="check">✓</span> Backtest engine</li>
+            </ul>
+            <button className="btn btn-primary pricing-btn" onClick={() => onCheckout('pro')}>
+              Choose Pro
+            </button>
+          </div>
+        </div>
+
+        <div style={{display: 'flex', justifyContent: 'center', gap: 24, fontSize: 13, color: 'var(--text-muted)'}}>
+          <a role="button" tabIndex={0} onClick={onSignOut}
+             onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSignOut(); } }}
+             style={{color: 'var(--text-muted)', textDecoration: 'underline', cursor: 'pointer'}}>
+            Sign in with a different account
+          </a>
+          <a href="mailto:support@wheelpro.io" style={{color: 'var(--text-muted)', textDecoration: 'underline'}}>
+            Contact support
+          </a>
+        </div>
+        {user?.email && (
+          <div style={{marginTop: 24, fontSize: 12, color: 'var(--text-muted)'}}>
+            Signed in as {user.email}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function App() {
   // Auth state
   const [user, setUser] = useState(Storage.get('user', null));
@@ -6364,6 +6600,11 @@ function App() {
   const [pendingPlan, setPendingPlan] = useState(null); // Plan selected before signup
   const [subscriptionTier, setSubscriptionTier] = useState('free');
   const [subscriptionStatus, setSubscriptionStatus] = useState('free'); // 'active' | 'trialing' | 'free'
+
+  // 7-day trial status (pure read of `user` doc). Hook is called unconditionally
+  // here so its position in the hook list is stable across all render paths
+  // (Rules of Hooks). The branching on its result happens further down.
+  const trialStatus = useTrialStatus(user);
 
   // App state
   const [page, setPage] = useState('dashboard');
@@ -7009,6 +7250,35 @@ function App() {
     );
   }
 
+  // ===== 7-DAY TRIAL / PAYWALL GATE =====
+  // Logged in. `trialStatus` was computed above (unconditional hook call) — here
+  // we decide whether to (a) show a banner during trial or (b) replace the
+  // entire dashboard with the paywall. Owner (Holland) and any user with an
+  // active paid subscription bypass the paywall.
+  const hasActivePaidSub = subscriptionStatus === 'active' &&
+    (subscriptionTier === 'starter' || subscriptionTier === 'pro' || subscriptionTier === 'elite');
+  const shouldShowPaywall =
+    !user.isOwner &&
+    !hasActivePaidSub &&
+    trialStatus.isTrialExpired &&
+    !['starter', 'pro', 'elite'].includes(trialStatus.plan);
+
+  if (shouldShowPaywall) {
+    return (
+      <AuthContext.Provider value={{ user, handleLogin, handleLogout }}>
+        <PaywallScreen
+          user={user}
+          onCheckout={(plan) => {
+            if (window.posthog) window.posthog.capture('paywall_checkout_click', { plan });
+            StripeHelper.createCheckout(plan, user.email, user.uid);
+          }}
+          onSignOut={handleLogout}
+        />
+        <div className="watermark">WheelPro™ v{CONFIG.VERSION} · © {CONFIG.OWNER}</div>
+      </AuthContext.Provider>
+    );
+  }
+
   // Logged in - show dashboard
   const pages = {
     dashboard: { title: 'Dashboard', icon: Icons.dashboard, component: <DashboardPage stocks={stocks} watchlist={watchlist} toggleWatchlist={toggleWatchlist} onSelectStock={setSelectedStock} onSetPage={setPage} capitalTier={capitalTier} /> },
@@ -7186,6 +7456,20 @@ function App() {
               <span>🎉 Payment successful! Your subscription is now active. Welcome to WheelPro™.</span>
               <button onClick={() => setPaymentSuccess(false)} aria-label="Dismiss payment success notification" style={{background:'none',border:'none',color:'var(--accent-green)',cursor:'pointer',padding:'2px 6px',fontSize:'16px',lineHeight:1,opacity:0.7}}>✕</button>
             </div>
+          )}
+
+          {/* Trial banner — non-dismissible during the active 7-day window.
+              Hidden once user has paid (hasActivePaidSub) or for owner. */}
+          {trialStatus.isOnTrial && !hasActivePaidSub && !user.isOwner && (
+            <TrialBanner
+              daysLeft={trialStatus.daysLeft}
+              onUpgrade={() => {
+                if (window.posthog) window.posthog.capture('trial_banner_upgrade_click', { daysLeft: trialStatus.daysLeft });
+                // Default upgrade target is Pro (the featured plan). User can pick Starter
+                // from the paywall or pricing page if they want.
+                StripeHelper.createCheckout('pro', user.email, user.uid);
+              }}
+            />
           )}
 
           <div className="page-content">
