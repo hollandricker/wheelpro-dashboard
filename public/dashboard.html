@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>WheelPro™ — Options Wheel Strategy Dashboard | Sell Puts & Covered Calls Smarter</title>
 <meta name="description" content="WheelPro™ is the #1 options wheel strategy dashboard. Real-time technical analysis, multi-factor scoring, and actionable put-selling recommendations across 1,100+ stocks. Master the wheel strategy with RSI, MACD, Bollinger Bands, and proprietary scoring.">
-<meta name="keywords" content="wheel strategy, options wheel strategy, sell puts, cash secured puts, covered calls, poor mans covered call, options trading, options scanner, put selling, wheel trading, options income, premium selling, theta decay, delta neutral, options wheel calculator, weekly options income, passive income options">
+<meta name="keywords" content="wheel strategy, options wheel strategy, sell puts, cash secured puts, covered calls, poor man's covered call, options trading, options scanner, put selling, wheel trading, options income, premium selling, theta decay, delta neutral, options wheel calculator, weekly options income, passive income options">
 <meta name="author" content="Holland Ricker">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://wheelpro.io">
@@ -1986,7 +1986,7 @@ const { useState, useEffect, useMemo, useCallback, useRef, createContext, useCon
 const CONFIG = {
   APP_NAME: 'WheelPro™',
   OWNER: 'WheelPro LLC',
-  VERSION: '2.5.0',
+  VERSION: '3.3.2',
   // Stripe Configuration
   STRIPE_PUBLISHABLE_KEY: 'pk_live_YOUR_STRIPE_KEY_HERE',
   STRIPE_PRICE_FREE: 'price_FREE_TIER',
@@ -5863,7 +5863,7 @@ function StockDetailModal({ stock, onClose }) {
               <div style={{background:'var(--bg-primary)', borderRadius:'var(--radius-sm)', padding:12, textAlign:'center'}}>
                 <div style={{fontSize:10, color:'var(--text-muted)', textTransform:'uppercase', letterSpacing:1, marginBottom:4}}>Vega</div>
                 <div style={{fontFamily:'var(--font-mono)', fontSize:18, fontWeight:700, color:'var(--text-secondary)'}}>
-                  {stock.vega ? `$${stock.vega.toFixed(2)}` : `$${(stock.price * 0.004 * Math.sqrt((stock.daysToExpiry||7)/365)).toFixed(2)}`}
+                  {stock.vega ? `$${stock.vega.toFixed(4)}` : `$${(stock.price * 0.004 * Math.sqrt((stock.daysToExpiry||7)/365)).toFixed(4)}`}
                 </div>
                 <div style={{fontSize:10, color:'var(--text-muted)', marginTop:4}}>per 1% IV change</div>
               </div>
