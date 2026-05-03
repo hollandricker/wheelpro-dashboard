@@ -5805,7 +5805,9 @@ function BacktestPage({ user, subscriptionTier }) {
     setLoading(true);
     setError('');
     try {
-      const qs = `months=${params.months}&capital=${params.capital}&maxPositions=${params.maxPositions}&maxPerStock=${params.maxPerStock/100}&minScore=${params.minScore}&maxDelta=${params.maxDelta}`;
+      // API expects ?period=Nm (months) or Ny (years). Convert months > 11 to years for cleaner range strings.
+      const period = params.months >= 12 && params.months % 12 === 0 ? `${params.months / 12}y` : `${params.months}m`;
+      const qs = `period=${period}&capital=${params.capital}&maxPositions=${params.maxPositions}&maxPerStock=${params.maxPerStock/100}&minScore=${params.minScore}&maxDelta=${params.maxDelta}`;
       const endpoint = symbol.trim() ? `${CONFIG.API_BASE_URL}/api/backtest/${encodeURIComponent(symbol.trim().toUpperCase())}?${qs}` : `${CONFIG.API_BASE_URL}/api/backtest?${qs}`;
       const res = await fetch(endpoint);
       if (!res.ok) throw new Error(`API returned ${res.status}`);
@@ -5907,7 +5909,7 @@ function BacktestPage({ user, subscriptionTier }) {
         </div>
         <div style={{padding:'20px', display:'flex', flexWrap:'wrap', gap:'20px'}}>
           {[
-            { key: 'months', label: 'Lookback (months)', min: 1, max: 24, step: 1 },
+            { key: 'months', label: 'Lookback', min: 1, max: 60, step: 1 },
             { key: 'capital', label: 'Starting Capital ($)', min: 10000, max: 500000, step: 5000 },
             { key: 'maxPositions', label: 'Max Positions', min: 1, max: 20, step: 1 },
             { key: 'maxPerStock', label: 'Max per Stock (%)', min: 5, max: 50, step: 5 },
@@ -5920,7 +5922,14 @@ function BacktestPage({ user, subscriptionTier }) {
                 <input aria-label={f.label} type="range" className="range-slider" min={f.min} max={f.max} step={f.step} value={params[f.key]}
                   onChange={e => setParams(p => ({...p, [f.key]: +e.target.value}))} style={{width:100}} />
                 <span style={{fontFamily:'var(--font-mono)', fontSize:'14px', fontWeight:600, minWidth:50}}>
-                  {f.key === 'capital' ? `$${(params[f.key]/1000).toFixed(0)}K` : f.key === 'maxPerStock' ? `${params[f.key]}%` : f.key === 'maxDelta' ? params[f.key].toFixed(2) : params[f.key]}
+                  {f.key === 'capital' ? `$${(params[f.key]/1000).toFixed(0)}K` :
+                   f.key === 'maxPerStock' ? `${params[f.key]}%` :
+                   f.key === 'maxDelta' ? params[f.key].toFixed(2) :
+                   f.key === 'months' ?
+                     (params.months >= 12 && params.months % 12 === 0 ? `${params.months / 12}y` :
+                      params.months >= 12 ? `${(params.months / 12).toFixed(1)}y` :
+                      `${params.months}mo`) :
+                   params[f.key]}
                 </span>
               </div>
             </div>
