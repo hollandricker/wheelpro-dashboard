@@ -7873,7 +7873,6 @@ function App() {
         <PaywallScreen
           user={user}
           onCheckout={(plan) => {
-            if (window.posthog) window.posthog.capture('paywall_checkout_click', { plan });
             StripeHelper.createCheckout(plan, user.email, user.uid);
           }}
           onSignOut={handleLogout}
@@ -8068,7 +8067,6 @@ function App() {
             <TrialBanner
               daysLeft={trialStatus.daysLeft}
               onUpgrade={() => {
-                if (window.posthog) window.posthog.capture('trial_banner_upgrade_click', { daysLeft: trialStatus.daysLeft });
                 // Default upgrade target is Pro (the featured plan). User can pick Starter
                 // from the paywall or pricing page if they want.
                 StripeHelper.createCheckout('pro', user.email, user.uid);
