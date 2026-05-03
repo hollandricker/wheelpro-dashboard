@@ -2648,7 +2648,9 @@ const Icons = {
 };
 
 // ===== MINI SPARKLINE COMPONENT =====
-function Sparkline({ data, width = 80, height = 32, color = '#3b82f6' }) {
+// `data` is an array of daily closes. We don't know the unit at this layer, but every
+// caller currently passes daily close prices, so the title reflects that.
+function Sparkline({ data, width = 80, height = 32, color = '#3b82f6', label }) {
   if (!data || data.length < 2) return null;
   const min = Math.min(...data);
   const max = Math.max(...data);
@@ -2658,9 +2660,11 @@ function Sparkline({ data, width = 80, height = 32, color = '#3b82f6' }) {
     const y = height - ((v - min) / range) * (height - 4) - 2;
     return `${x},${y}`;
   }).join(' ');
+  const title = label || `${data.length}-day close trend`;
 
   return (
-    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
+    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} role="img" aria-label={title}>
+      <title>{title}</title>
       <polyline points={points} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   );
@@ -3589,7 +3593,7 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
             {bullishCount > bearishCount ? '●' : '●'}
           </div>
           <div className="stat-change" style={{color:'var(--text-muted)',background:'none'}}>
-            {bullishCount}↑ / {bearishCount}↓
+            {bullishCount}↑ / {bearishCount}↓ on technical signal
           </div>
         </div>
       </div>
@@ -4028,7 +4032,7 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
                   <th scope="col">P/C Ratio</th>
                   <th scope="col">Earnings</th>
                   <th scope="col">Ex-Div</th>
-                  <th scope="col">Trend</th>
+                  <th scope="col">Trend (20d)</th>
                   <th scope="col">IV Rank</th>
                 </tr>
               </thead>
@@ -4445,7 +4449,7 @@ function ScreenerPage({ stocks, user, subscriptionTier, capitalTier = 'all', onS
                   <th scope="col" style={{cursor:'pointer'}} onClick={() => handleSort('iv')}>IV <SortIcon field="iv"/></th>
                   <th scope="col" style={{cursor:'pointer'}} onClick={() => handleSort('optionVolume')}>Opt Vol <SortIcon field="optionVolume"/></th>
                   <th scope="col">Earnings</th>
-                  <th scope="col">Trend</th>
+                  <th scope="col">Trend (15d)</th>
                 </tr>
               </thead>
               <tbody>
@@ -4637,9 +4641,9 @@ function PortfolioPage({ stocks }) {
         <div className="stat-card" style={{borderLeft:'3px solid var(--accent-green)'}}>
           <div className="stat-label">Premium Collected</div>
           <div className="stat-value" style={{color:'var(--accent-green)'}}>${totalPremium.toLocaleString()}</div>
-          <div className="stat-change positive">
-            {totalCashLocked > 0 ? ((totalPremium / totalCashLocked) * 100).toFixed(2) : '—'}% ROC
-          </div>
+          {totalCashLocked > 0
+            ? <div className="stat-change positive">{((totalPremium / totalCashLocked) * 100).toFixed(2)}% ROC</div>
+            : <div className="stat-change" style={{color:'var(--text-muted)', background:'none'}}>Add a position to see ROC</div>}
         </div>
         <div className="stat-card" style={{borderLeft:'3px solid var(--accent-green)'}}>
           <div className="stat-label">Completed Cycles</div>
@@ -5023,8 +5027,10 @@ function TradeJournalPage({ user, subscriptionTier }) {
         </div>
         <div className="stat-card" style={{borderLeft:'3px solid var(--accent-green)'}}>
           <div className="stat-label">Win Rate</div>
-          <div className="stat-value" style={{color: winRate >= 70 ? 'var(--accent-green)' : winRate >= 50 ? 'var(--accent-amber)' : 'var(--accent-red)'}}>{winRate}%</div>
-          <div className="stat-change positive">{wins} of {totalTrades} profitable</div>
+          <div className="stat-value" style={{color: totalTrades === 0 ? 'var(--text-muted)' : winRate >= 70 ? 'var(--accent-green)' : winRate >= 50 ? 'var(--accent-amber)' : 'var(--accent-red)'}}>{totalTrades === 0 ? '—' : `${winRate}%`}</div>
+          {totalTrades === 0
+            ? <div className="stat-change" style={{color:'var(--text-muted)', background:'none'}}>No trades yet</div>
+            : <div className="stat-change positive">{wins} of {totalTrades} profitable</div>}
         </div>
         <div className="stat-card" style={{borderLeft: totalPnl >= 0 ? '3px solid var(--accent-green)' : '3px solid var(--accent-red)'}}>
           <div className="stat-label">Total P&L</div>
@@ -5464,7 +5470,7 @@ function SettingsPage({ settings, setSettings, user }) {
         <div className="settings-row">
           <div className="label-group">
             <div className="label-main">Auto-Refresh Data</div>
-            <div className="label-desc">Automatically refresh market data every minute</div>
+            <div className="label-desc">Refresh every 30s during market hours, every 5 min after-hours</div>
           </div>
           <label className="toggle">
             <input type="checkbox" aria-label="Auto-refresh market data" checked={settings.autoRefresh !== false}
@@ -6018,7 +6024,7 @@ function AdminPage({ user, authLoading }) {
           </div>
           <div className="detail-row">
             <span className="label">Auth Provider</span>
-            <span className="value" style={{color:'var(--text-muted)'}}>Firebase / Supabase / Custom</span>
+            <span className="value" style={{color:'var(--accent-green)'}}>✓ Firebase</span>
           </div>
         </div>
       </div>
