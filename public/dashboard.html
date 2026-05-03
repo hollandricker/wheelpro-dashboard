@@ -2015,6 +2015,35 @@ const CONFIG = {
   MAX_OTM_PCT: 0.15,  // Maximum 15% out-of-the-money
 };
 
+// ===== FIREBASE ID-TOKEN AUTO-ATTACH =====
+// Wraps window.fetch so every request to CONFIG.API_BASE_URL automatically
+// attaches `Authorization: Bearer <Firebase ID token>` when a user is signed in.
+// Paired with the API's ENABLE_AUTH flag (feat/server-side-auth-and-tier-enforcement
+// branch). Safe to deploy ahead of API flag flip — server ignores unused token.
+// Public endpoints (/api/health, /api/status) work fine with or without the header.
+(function attachFirebaseTokenToFetch() {
+  if (typeof window === 'undefined' || !window.fetch) return;
+  const origFetch = window.fetch.bind(window);
+  window.fetch = async function(input, init) {
+    init = init || {};
+    const url = typeof input === 'string' ? input : (input && input.url) || '';
+    if (url && CONFIG.API_BASE_URL && url.indexOf(CONFIG.API_BASE_URL) === 0) {
+      try {
+        const user = firebase.auth && firebase.auth().currentUser;
+        if (user) {
+          const token = await user.getIdToken();
+          init.headers = Object.assign({}, init.headers || {}, { 'Authorization': 'Bearer ' + token });
+        }
+      } catch (err) {
+        // Silently continue without token — server's ENABLE_AUTH=false mode allows it.
+        // When ENABLE_AUTH=true, missing token returns 401, which surfaces in the UI naturally.
+        console.warn('[fetch-auth] Could not attach Firebase token:', err && err.message);
+      }
+    }
+    return origFetch(input, init);
+  };
+})();
+
 // Stripe price ID → tier name mapping
 const STRIPE_PRICE_TIERS = {
   'price_1TLQLJAPjhOPhXtY3ZKL0s7c': 'starter',
