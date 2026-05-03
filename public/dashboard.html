@@ -17,7 +17,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="WheelPro™ — Options Wheel Strategy Dashboard">
 <meta name="twitter:description" content="Professional-grade options scanner for the wheel strategy. Real-time analysis across 1,100+ stocks.">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"WheelPro™","applicationCategory":"FinanceApplication","operatingSystem":"Web","description":"Professional options wheel strategy dashboard with real-time technical analysis, multi-factor scoring, and actionable trade recommendations.","url":"https://wheelpro.io","author":{"@type":"Person","name":"Holland Ricker"},"offers":[{"@type":"Offer","price":"0","priceCurrency":"USD","name":"Free"},{"@type":"Offer","price":"29","priceCurrency":"USD","name":"Starter"},{"@type":"Offer","price":"79","priceCurrency":"USD","name":"Pro"},{"@type":"Offer","price":"149","priceCurrency":"USD","name":"Elite"}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"WheelPro™","applicationCategory":"FinanceApplication","operatingSystem":"Web","description":"Professional options wheel strategy dashboard with real-time technical analysis, multi-factor scoring, and actionable trade recommendations.","url":"https://wheelpro.io","author":{"@type":"Person","name":"Holland Ricker"},"offers":[{"@type":"Offer","price":"29","priceCurrency":"USD","name":"Starter"},{"@type":"Offer","price":"79","priceCurrency":"USD","name":"Pro"}]}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the wheel strategy in options trading?","acceptedAnswer":{"@type":"Answer","text":"The wheel strategy is an options income strategy where you sell cash-secured puts on stocks you want to own. If assigned, you then sell covered calls until the stock is called away. This cycle generates consistent premium income."}},{"@type":"Question","name":"How does WheelPro help with the wheel strategy?","acceptedAnswer":{"@type":"Answer","text":"WheelPro scans 1,100+ stocks using 5 technical indicators (RSI, MACD, Bollinger Bands, EMA, SMA), calculates a proprietary Wheel Score from 0-100, and recommends the best puts to sell with specific strike prices, deltas, and expected yields."}},{"@type":"Question","name":"What is a poor man's covered call?","acceptedAnswer":{"@type":"Answer","text":"A poor man's covered call (PMCC) uses a deep in-the-money LEAPS call instead of 100 shares of stock as collateral for selling covered calls. It requires less capital than a traditional covered call while generating similar premium income."}}]}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
@@ -507,10 +507,100 @@ body.protected img { pointer-events: none; }
 }
 .pricing-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  /* Two cards centered (Starter + Pro). Elite tier deferred to v2. */
+  grid-template-columns: repeat(2, minmax(280px, 360px));
+  justify-content: center;
   gap: 24px;
-  max-width: 1000px;
+  max-width: 800px;
   margin: 0 auto;
+}
+/* Pro/Starter feature comparison table — WCAG AAA on navy */
+.pricing-compare {
+  max-width: 880px;
+  margin: 64px auto 0;
+  text-align: left;
+}
+.pricing-compare h3 {
+  font-family: var(--font-display);
+  font-size: 22px;
+  text-align: center;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+}
+.pricing-compare-sub {
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 14px;
+  margin-bottom: 32px;
+}
+.pricing-compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.pricing-compare-table th,
+.pricing-compare-table td {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+  color: var(--text-primary); /* AAA: do not use --text-muted on rows */
+  vertical-align: middle;
+}
+.pricing-compare-table th {
+  font-family: var(--font-display);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 12px;
+  background: var(--bg-elevated);
+}
+.pricing-compare-table th.col-feature { text-align: left; }
+.pricing-compare-table th.col-starter,
+.pricing-compare-table th.col-pro {
+  text-align: center;
+  width: 22%;
+}
+.pricing-compare-table th.col-pro {
+  color: var(--accent-gold);
+  background: var(--accent-gold-glow);
+}
+.pricing-compare-table td.cell-feature { font-weight: 500; }
+.pricing-compare-table td.cell-yes,
+.pricing-compare-table td.cell-no {
+  text-align: center;
+  font-family: var(--font-mono);
+  font-weight: 700;
+}
+.pricing-compare-table td.cell-yes { color: var(--accent-green); }
+.pricing-compare-table td.cell-no { color: var(--text-muted); }
+.pricing-compare-table td.cell-yes.pro-only {
+  color: var(--accent-gold);
+  text-shadow: 0 0 8px rgba(184,154,62,0.35);
+}
+.pricing-compare-table tr:last-child td { border-bottom: none; }
+.pricing-compare-table tr.section-header td {
+  background: var(--bg-elevated);
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--accent-gold);
+}
+.pro-tag {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  background: var(--gradient-accent);
+  color: #0b1120;
+  border-radius: 100px;
+  vertical-align: middle;
 }
 .pricing-card {
   background: var(--bg-card);
@@ -1610,6 +1700,11 @@ body.protected img { pointer-events: none; }
   .pricing-grid { grid-template-columns: 1fr !important; max-width: 400px !important; gap: 16px; }
   .pricing-card { padding: 28px 24px; }
   .pricing-amount { font-size: 36px; }
+  /* Mobile: comparison table — let it scroll horizontally rather than crush */
+  .pricing-compare { padding: 0 4px; }
+  .pricing-compare-table { font-size: 13px; }
+  .pricing-compare-table th,
+  .pricing-compare-table td { padding: 10px 8px; }
 
   /* Footer legal links — stack on mobile */
   .pricing-section + div { padding: 24px 16px !important; }
@@ -1992,7 +2087,10 @@ const CONFIG = {
   STRIPE_PRICE_FREE: 'price_FREE_TIER',
   STRIPE_PRICE_STARTER: 'price_1TLQLJAPjhOPhXtY3ZKL0s7c',
   STRIPE_PRICE_PRO: 'price_1TLQMCAPjhOPhXtYzCpfJlU7',
+  // Elite tier deferred to v2 — keep IDs for rollback
   STRIPE_PRICE_ELITE: 'price_1TLQMsAPjhOPhXtYv0Jf8QyB',
+  STRIPE_PRICE_ELITE_MONTHLY: 'price_1TLQMsAPjhOPhXtYv0Jf8QyB',
+  STRIPE_PRICE_ELITE_ANNUAL: 'price_ELITE_ANNUAL_PLACEHOLDER',
   // Tier Limits
   TIER_LIMITS: {
     free: { maxStocks: 10, screener: false, maxPortfolio: 1, journal: false, alerts: false },
@@ -2759,58 +2857,73 @@ function LandingPage({ onLogin, onSignup, onSubscribe }) {
 
       <div className="pricing-section" id="pricing">
         <h2>Choose Your Plan</h2>
-        <p className="subtitle">Start free. Upgrade when you're ready. Cancel anytime.</p>
-        <div className="pricing-grid" style={{gridTemplateColumns:'repeat(auto-fit, minmax(240px, 1fr))', maxWidth:'1200px'}}>
-          <div className="pricing-card">
-            <div className="pricing-tier">Free</div>
-            <div className="pricing-amount">$0<span>/mo</span></div>
-            <div className="pricing-desc">Explore the wheel strategy with real data</div>
-            <ul className="pricing-features">
-              <li><span className="check">✓</span> Top 10 wheel candidates</li>
-              <li><span className="check">✓</span> Wheel scoring algorithm</li>
-              <li><span className="check">✓</span> 1 portfolio position</li>
-              <li><span className="check">✓</span> Basic indicators (RSI, MACD)</li>
-            </ul>
-            <button className="btn btn-secondary pricing-btn" onClick={onSignup}>Get Started Free</button>
-          </div>
+        <p className="subtitle">Two plans. 7-day free trial on Pro. Cancel anytime.</p>
+        <div className="pricing-grid">
           <div className="pricing-card">
             <div className="pricing-tier">Starter</div>
             <div className="pricing-amount">$29<span>/mo</span></div>
-            <div className="pricing-desc">Perfect for beginners learning the wheel</div>
+            <div className="pricing-desc">Everything you need to start trading the wheel.</div>
             <ul className="pricing-features">
-              <li><span className="check">✓</span> 40 stock candidates</li>
-              <li><span className="check">✓</span> All 5 technical indicators</li>
-              <li><span className="check">✓</span> Full screener with filters</li>
-              <li><span className="check">✓</span> 10 portfolio positions</li>
+              <li><span className="check">✓</span> Stock screener (1,100+ symbols)</li>
+              <li><span className="check">✓</span> Put recommendations + Wheel Score</li>
+              <li><span className="check">✓</span> Basic technicals (RSI, MACD, Bollinger)</li>
+              <li><span className="check">✓</span> Manual portfolio entry</li>
+              <li><span className="check">✓</span> Standard data refresh</li>
+              <li><span className="check">✓</span> Email support</li>
             </ul>
-            <button className="btn btn-secondary pricing-btn" onClick={() => onSubscribe ? onSubscribe('starter') : onSignup()}>Start 7-Day Trial</button>
+            <button className="btn btn-secondary pricing-btn" onClick={() => onSubscribe ? onSubscribe('starter') : onSignup()}>Get Starter — $29/mo</button>
           </div>
           <div className="pricing-card featured">
             <div className="pricing-tier">Pro</div>
             <div className="pricing-amount">$79<span>/mo</span></div>
-            <div className="pricing-desc">Full power for active options traders</div>
+            <div className="pricing-desc">Everything in Starter, PLUS automation, alerts, and broker sync.</div>
             <ul className="pricing-features">
-              <li><span className="check">✓</span> All 1,100+ stock scans</li>
-              <li><span className="check">✓</span> Advanced screener & filters</li>
-              <li><span className="check">✓</span> Unlimited portfolio positions</li>
-              <li><span className="check">✓</span> Trade journal & P&L tracking</li>
-              <li><span className="check">✓</span> Email alerts & notifications</li>
+              <li><span className="check" style={{color:'var(--accent-gold)'}}>✓</span> Real-time alerts (high-score, earnings, signal changes)</li>
+              <li><span className="check" style={{color:'var(--accent-gold)'}}>✓</span> Multi-broker portfolio sync (Robinhood, IBKR, Tradier)</li>
+              <li><span className="check" style={{color:'var(--accent-gold)'}}>✓</span> Advanced gate thresholds (custom RSI/yield/delta)</li>
+              <li><span className="check" style={{color:'var(--accent-gold)'}}>✓</span> Backtest engine (1-year historical)</li>
+              <li><span className="check" style={{color:'var(--accent-gold)'}}>✓</span> "Open in Broker" 1-click deep-link</li>
+              <li><span className="check" style={{color:'var(--accent-gold)'}}>✓</span> Trade journal with CSV export</li>
+              <li><span className="check" style={{color:'var(--accent-gold)'}}>✓</span> Priority data refresh</li>
+              <li><span className="check" style={{color:'var(--accent-gold)'}}>✓</span> Priority support (24h response)</li>
             </ul>
-            <button className="btn btn-primary pricing-btn" onClick={() => onSubscribe ? onSubscribe('pro') : onSignup()}>Start 7-Day Trial</button>
+            <button className="btn btn-primary pricing-btn" onClick={() => onSubscribe ? onSubscribe('pro') : onSignup()}>Try Pro Free for 7 Days</button>
           </div>
-          <div className="pricing-card">
-            <div className="pricing-tier">Elite</div>
-            <div className="pricing-amount">$149<span>/mo</span></div>
-            <div className="pricing-desc">For professionals & fund managers</div>
-            <ul className="pricing-features">
-              <li><span className="check">✓</span> Everything in Pro</li>
-              <li><span className="check">✓</span> API access</li>
-              <li><span className="check">✓</span> Priority data refresh</li>
-              <li><span className="check">✓</span> Custom watchlists</li>
-              <li><span className="check">✓</span> Monthly 1-on-1 strategy call</li>
-            </ul>
-            <button className="btn btn-secondary pricing-btn" onClick={() => onSubscribe ? onSubscribe('elite') : onSignup()}>Start 7-Day Trial</button>
-          </div>
+        </div>
+
+        <div className="pricing-compare">
+          <h3>Starter vs Pro — what you actually get</h3>
+          <p className="pricing-compare-sub">Pro is $50 more. Here is exactly what that $50 unlocks.</p>
+          <table className="pricing-compare-table">
+            <thead>
+              <tr>
+                <th className="col-feature">Feature</th>
+                <th className="col-starter">Starter<br/><span style={{fontWeight:400, fontSize:'11px', color:'var(--text-secondary)'}}>$29/mo</span></th>
+                <th className="col-pro">Pro<br/><span style={{fontWeight:400, fontSize:'11px', color:'var(--accent-gold)'}}>$79/mo</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="section-header"><td colSpan="3">Core analytics</td></tr>
+              <tr><td className="cell-feature">Stock screener (1,100+ symbols)</td><td className="cell-yes">✓</td><td className="cell-yes">✓</td></tr>
+              <tr><td className="cell-feature">Put recommendations + Wheel Score</td><td className="cell-yes">✓</td><td className="cell-yes">✓</td></tr>
+              <tr><td className="cell-feature">Basic technicals (RSI, MACD, Bollinger)</td><td className="cell-yes">✓</td><td className="cell-yes">✓</td></tr>
+              <tr><td className="cell-feature">Manual portfolio entry</td><td className="cell-yes">✓</td><td className="cell-yes">✓</td></tr>
+
+              <tr className="section-header"><td colSpan="3">Automation &amp; alerts <span className="pro-tag">PRO</span></td></tr>
+              <tr><td className="cell-feature">Real-time alerts (high-score, earnings warnings, signal changes)</td><td className="cell-no">—</td><td className="cell-yes pro-only">✓</td></tr>
+              <tr><td className="cell-feature">Multi-broker portfolio sync (Robinhood, IBKR, Tradier)</td><td className="cell-no">—</td><td className="cell-yes pro-only">✓</td></tr>
+              <tr><td className="cell-feature">"Open in Broker" 1-click deep-link</td><td className="cell-no">—</td><td className="cell-yes pro-only">✓</td></tr>
+
+              <tr className="section-header"><td colSpan="3">Advanced strategy tools <span className="pro-tag">PRO</span></td></tr>
+              <tr><td className="cell-feature">Advanced gate thresholds (custom RSI/yield/delta tuning)</td><td className="cell-no">—</td><td className="cell-yes pro-only">✓</td></tr>
+              <tr><td className="cell-feature">Backtest engine (1-year historical strategy testing)</td><td className="cell-no">—</td><td className="cell-yes pro-only">✓</td></tr>
+              <tr><td className="cell-feature">Trade journal with CSV export</td><td className="cell-no">—</td><td className="cell-yes pro-only">✓</td></tr>
+
+              <tr className="section-header"><td colSpan="3">Performance &amp; support</td></tr>
+              <tr><td className="cell-feature">Data refresh</td><td>Standard</td><td style={{color:'var(--accent-gold)', fontWeight:600}}>Priority</td></tr>
+              <tr><td className="cell-feature">Support</td><td>Email</td><td style={{color:'var(--accent-gold)', fontWeight:600}}>Priority (24h response)</td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
@@ -4302,7 +4415,7 @@ function ScreenerPage({ stocks, user, subscriptionTier, capitalTier = 'all', onS
       <div className="loading-state" style={{gap:20}}>
         <div style={{width:48,height:48,borderRadius:'50%',background:'var(--bg-elevated)',margin:'0 auto',display:'flex',alignItems:'center',justifyContent:'center'}}><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
         <h3 style={{color:'var(--text-primary)', margin:0}}>Advanced Screener</h3>
-        <p style={{maxWidth:400, textAlign:'center', lineHeight:1.7}}>Filter and sort all stocks by yield, delta, score, sector, and technical signal. Search for specific tickers. Available on Starter, Pro, and Elite plans.</p>
+        <p style={{maxWidth:400, textAlign:'center', lineHeight:1.7}}>Filter and sort all stocks by yield, delta, score, sector, and technical signal. Search for specific tickers. Available on Starter and Pro plans.</p>
         <button className="btn btn-primary" style={{marginTop:8}}>Upgrade to Starter — $29/mo</button>
       </div>
     );
@@ -5003,7 +5116,7 @@ function TradeJournalPage({ user, subscriptionTier }) {
       <div className="loading-state" style={{gap:20}}>
         <div style={{width:48,height:48,borderRadius:'50%',background:'var(--accent-gold-glow, rgba(201,168,76,0.12))',margin:'0 auto',display:'flex',alignItems:'center',justifyContent:'center'}}><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-gold, #c9a84c)" strokeWidth="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
         <h3 style={{color:'var(--text-primary)', margin:0}}>Trade Journal</h3>
-        <p style={{maxWidth:400, textAlign:'center', lineHeight:1.7}}>Track your completed trades, measure win rate, and see your actual P&L over time. Available on Pro and Elite plans.</p>
+        <p style={{maxWidth:400, textAlign:'center', lineHeight:1.7}}>Track your completed trades, measure win rate, and see your actual P&L over time. Available on the Pro plan.</p>
         <button className="btn btn-primary" style={{marginTop:8}}>Upgrade to Pro — $79/mo</button>
       </div>
     );
@@ -5529,7 +5642,7 @@ function BacktestPage({ user, subscriptionTier }) {
       <div className="loading-state" style={{gap:20}}>
         <div style={{width:48,height:48,borderRadius:'50%',background:'var(--bg-elevated)',margin:'0 auto',display:'flex',alignItems:'center',justifyContent:'center'}}><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
         <h3 style={{color:'var(--text-primary)', margin:0}}>Strategy Backtester</h3>
-        <p style={{maxWidth:400, textAlign:'center', lineHeight:1.7}}>Simulate the Wheel strategy over historical data to see returns, win rate, and drawdown. Available on Pro and Elite plans.</p>
+        <p style={{maxWidth:400, textAlign:'center', lineHeight:1.7}}>Simulate the Wheel strategy over historical data to see returns, win rate, and drawdown. Available on the Pro plan.</p>
         <button className="btn btn-primary" style={{marginTop:8}}>Upgrade to Pro — $79/mo</button>
       </div>
     );
