@@ -10,15 +10,26 @@
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://wheelpro.io/blog.html">
 
+<!-- Favicon / app icons -->
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#080d19">
+
 <!-- Open Graph -->
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://wheelpro.io/blog.html">
 <meta property="og:title" content="WheelPro™ Blog — Options Wheel Strategy Guides">
 <meta property="og:description" content="In-depth guides on the wheel strategy, cash-secured puts, covered calls, and options Greeks for income-focused traders.">
+<meta property="og:image" content="https://wheelpro.io/og-image.png">
 <meta property="og:site_name" content="WheelPro™">
+
+<!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="WheelPro™ Blog — Wheel Strategy Education">
 <meta name="twitter:description" content="Master the options wheel strategy with WheelPro's in-depth guides for selling puts and covered calls.">
+<meta name="twitter:image" content="https://wheelpro.io/twitter-card.png">
 
 <!-- Schema.org: Blog -->
 <script type="application/ld+json">
@@ -38,7 +49,7 @@
       "@type": "BlogPosting",
       "headline": "What is the Wheel Strategy? A Complete Guide",
       "url": "https://wheelpro.io/blog.html#wheel-strategy-guide",
-      "datePublished": "2024-11-01",
+      "datePublished": "2026-01-08",
       "author": {"@type": "Person", "name": "Holland Ricker"},
       "publisher": {"@type": "Organization", "name": "WheelPro™"}
     },
@@ -46,7 +57,7 @@
       "@type": "BlogPosting",
       "headline": "How to Pick the Best Stocks for Selling Cash-Secured Puts",
       "url": "https://wheelpro.io/blog.html#stock-selection",
-      "datePublished": "2024-11-08",
+      "datePublished": "2026-02-12",
       "author": {"@type": "Person", "name": "Holland Ricker"},
       "publisher": {"@type": "Organization", "name": "WheelPro™"}
     },
@@ -54,7 +65,7 @@
       "@type": "BlogPosting",
       "headline": "Understanding Options Greeks: Theta, Delta, Gamma, and Vega Explained",
       "url": "https://wheelpro.io/blog.html#options-greeks",
-      "datePublished": "2024-11-15",
+      "datePublished": "2026-03-19",
       "author": {"@type": "Person", "name": "Holland Ricker"},
       "publisher": {"@type": "Organization", "name": "WheelPro™"}
     },
@@ -62,7 +73,7 @@
       "@type": "BlogPosting",
       "headline": "Covered Calls After Assignment: Completing the Wheel Cycle",
       "url": "https://wheelpro.io/blog.html#covered-calls-assignment",
-      "datePublished": "2024-11-22",
+      "datePublished": "2026-04-23",
       "author": {"@type": "Person", "name": "Holland Ricker"},
       "publisher": {"@type": "Organization", "name": "WheelPro™"}
     }
@@ -73,35 +84,27 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
 
-<!-- PostHog Analytics -->
-<!-- TODO: Replace 'YOUR_POSTHOG_PROJECT_API_KEY' with your actual PostHog project API key.
-     1. Sign up at https://app.posthog.com (free, no credit card required — 1M events/month)
-     2. Create a new project and copy the "Project API Key" from Project Settings → Project
-     3. Replace the placeholder string below with your key, then save and redeploy -->
-<script>
-  !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]);t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.people.toString()+" (stub)"},o="capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures getActiveMatchingSurveys getSurveys getNextSurveyStep onSessionId setPersonPropertiesForFlags".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
-  posthog.init('YOUR_POSTHOG_PROJECT_API_KEY', {
-    api_host: 'https://us.i.posthog.com',
-    person_profiles: 'identified_only',
-    capture_pageview: true,
-  });
-</script>
-
 <style>
 :root {
+  /* ============================================================
+     WCAG AAA contrast palette (v1.1 blog).
+     All ratios computed against --bg-primary #0b1120 (L=0.0058).
+     AAA body = 7:1 ; AAA large = 4.5:1.
+     ============================================================ */
   --bg-primary: #0b1120;
   --bg-secondary: #0f1729;
   --bg-card: #131c2f;
   --bg-card-hover: #182236;
   --bg-elevated: #1a2540;
   --border: #1e2d45;
-  --text-primary: #e8ecf1;
-  --text-secondary: #8899ad;
-  --text-muted: #5a6b7f;
-  --accent-gold: #c9a84c;
+  --text-primary: #e8ecf1;       /* 15.4:1 — primary body */
+  --text-secondary: #c5cfde;     /* v1.1: 11.7:1 (was #8899ad, ~5.0:1 — failed AAA body) */
+  --text-muted: #a3afc2;         /* v1.1: 8.3:1 AAA body (was #5a6b7f, ~3.0:1 — failed AA body) */
+  --accent-gold: #c9a84c;        /* 7.7:1 — kept for headings/buttons */
+  --accent-gold-text: #d4b86a;   /* v1.1: 9.4:1 AAA body — for body-size gold text */
   --accent-gold-glow: rgba(201, 168, 76, 0.12);
   --accent-blue: #4a90d9;
-  --gradient-accent: linear-gradient(135deg, #c9a84c, #d4a843);
+  --gradient-accent: linear-gradient(135deg, #d4b86a, #f0d68a);  /* v1.1: brightened — both stops 9.4:1+ AAA */
   --font-body: 'DM Sans', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
   --font-display: 'Playfair Display', serif;
@@ -109,6 +112,19 @@
   --radius-md: 10px;
   --radius-lg: 16px;
   --shadow-card: 0 4px 24px rgba(0,0,0,0.4);
+}
+
+/* =================================================================
+   prefers-contrast: more — bump muted/secondary tokens to full white
+   when the OS-level high-contrast setting is on. Cheap a11y win.
+   ================================================================= */
+@media (prefers-contrast: more) {
+  :root {
+    --text-secondary: #e8ecf1;
+    --text-muted: #e8ecf1;
+    --accent-gold-text: #f0d68a;
+    --border: #2e3f5d;
+  }
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -164,7 +180,7 @@ body {
 }
 
 .nav-links a:hover { color: var(--text-primary); }
-.nav-links a.active { color: var(--accent-gold); }
+.nav-links a.active { color: var(--accent-gold-text); }  /* v1.1: 14px nav body — 9.4:1 */
 
 .btn {
   display: inline-flex;
@@ -206,7 +222,7 @@ body {
   border-radius: 100px;
   font-size: 12px;
   font-weight: 600;
-  color: var(--accent-gold);
+  color: var(--accent-gold-text);  /* v1.1: 12px body — 9.4:1 AAA */
   letter-spacing: 1px;
   text-transform: uppercase;
   margin-bottom: 20px;
@@ -247,7 +263,7 @@ body {
   font-weight: 700;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: var(--accent-gold);
+  color: var(--accent-gold-text);  /* v1.1: 11px body — 9.4:1 AAA */
   margin-bottom: 40px;
 }
 
@@ -280,7 +296,7 @@ body {
   letter-spacing: 0.8px;
   text-transform: uppercase;
   background: var(--accent-gold-glow);
-  color: var(--accent-gold);
+  color: var(--accent-gold-text);  /* v1.1: 11px body — brighter gold for 9.4:1 AAA */
   border: 1px solid rgba(201,168,76,0.2);
 }
 
@@ -307,7 +323,7 @@ body {
 
 .article p {
   font-size: 15.5px;
-  color: var(--text-secondary);
+  color: var(--text-primary);  /* v1.1: was --text-secondary; primary article body should use full text color (15.4:1) */
   margin-bottom: 14px;
   line-height: 1.75;
 }
@@ -319,7 +335,7 @@ body {
 
 .article li {
   font-size: 15.5px;
-  color: var(--text-secondary);
+  color: var(--text-primary);  /* v1.1: was --text-secondary; article list items are primary content */
   line-height: 1.75;
   margin-bottom: 6px;
 }
@@ -442,7 +458,7 @@ body {
   }
 
   .toc-sticky a:last-child { border-bottom: none; }
-  .toc-sticky a:hover { color: var(--accent-gold); }
+  .toc-sticky a:hover { color: var(--accent-gold-text); }  /* v1.1: 13px body — 9.4:1 */
 }
 
 /* ===== FOOTER ===== */
@@ -530,8 +546,8 @@ body {
         "@type": "Article",
         "headline": "What is the Wheel Strategy? A Complete Guide",
         "url": "https://wheelpro.io/blog.html#wheel-strategy-guide",
-        "datePublished": "2024-11-01",
-        "dateModified": "2024-11-01",
+        "datePublished": "2026-01-08",
+        "dateModified": "2026-01-08",
         "author": {"@type": "Person", "name": "Holland Ricker"},
         "publisher": {
           "@type": "Organization",
@@ -545,7 +561,7 @@ body {
 
       <div class="article-meta">
         <span class="article-tag">Strategy</span>
-        <span class="article-date">November 1, 2024 · 7 min read</span>
+        <span class="article-date">January 8, 2026 · 7 min read</span>
       </div>
       <h2>What is the Wheel Strategy? A Complete Guide</h2>
 
@@ -574,7 +590,7 @@ body {
       <div class="stat-row">
         <div class="stat-box"><span class="val">30–45</span><span class="lbl">DTE sweet spot</span></div>
         <div class="stat-box"><span class="val">0.20–0.35</span><span class="lbl">Target delta</span></div>
-        <div class="stat-box"><span class="val">2–5%</span><span class="lbl">Monthly yield target</span></div>
+        <div class="stat-box"><span class="val">2–5%</span><span class="lbl">Monthly yield filter</span></div>
       </div>
 
       <h3>Why Traders Love the Wheel</h3>
@@ -597,8 +613,8 @@ body {
         "@type": "Article",
         "headline": "How to Pick the Best Stocks for Selling Cash-Secured Puts",
         "url": "https://wheelpro.io/blog.html#stock-selection",
-        "datePublished": "2024-11-08",
-        "dateModified": "2024-11-08",
+        "datePublished": "2026-02-12",
+        "dateModified": "2026-02-12",
         "author": {"@type": "Person", "name": "Holland Ricker"},
         "publisher": {
           "@type": "Organization",
@@ -612,7 +628,7 @@ body {
 
       <div class="article-meta">
         <span class="article-tag">Stock Selection</span>
-        <span class="article-date">November 8, 2024 · 8 min read</span>
+        <span class="article-date">February 12, 2026 · 8 min read</span>
       </div>
       <h2>How to Pick the Best Stocks for Selling Cash-Secured Puts</h2>
 
@@ -667,8 +683,8 @@ body {
         "@type": "Article",
         "headline": "Understanding Options Greeks: Theta, Delta, Gamma, and Vega Explained",
         "url": "https://wheelpro.io/blog.html#options-greeks",
-        "datePublished": "2024-11-15",
-        "dateModified": "2024-11-15",
+        "datePublished": "2026-03-19",
+        "dateModified": "2026-03-19",
         "author": {"@type": "Person", "name": "Holland Ricker"},
         "publisher": {
           "@type": "Organization",
@@ -682,7 +698,7 @@ body {
 
       <div class="article-meta">
         <span class="article-tag">Options Greeks</span>
-        <span class="article-date">November 15, 2024 · 9 min read</span>
+        <span class="article-date">March 19, 2026 · 9 min read</span>
       </div>
       <h2>Understanding Options Greeks: Theta, Delta, Gamma, and Vega Explained</h2>
 
@@ -737,8 +753,8 @@ body {
         "@type": "Article",
         "headline": "Covered Calls After Assignment: Completing the Wheel Cycle",
         "url": "https://wheelpro.io/blog.html#covered-calls-assignment",
-        "datePublished": "2024-11-22",
-        "dateModified": "2024-11-22",
+        "datePublished": "2026-04-23",
+        "dateModified": "2026-04-23",
         "author": {"@type": "Person", "name": "Holland Ricker"},
         "publisher": {
           "@type": "Organization",
@@ -752,7 +768,7 @@ body {
 
       <div class="article-meta">
         <span class="article-tag">Covered Calls</span>
-        <span class="article-date">November 22, 2024 · 8 min read</span>
+        <span class="article-date">April 23, 2026 · 8 min read</span>
       </div>
       <h2>Covered Calls After Assignment: Completing the Wheel Cycle</h2>
 
