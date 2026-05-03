@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Terms of Service — WheelPro™</title>
+<meta name="description" content="WheelPro Terms of Service. Information service. Not a broker, not an investment adviser, not a fiduciary.">
+<link rel="icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<style>
+  :root {
+    --bg: #080d19;
+    --bg-elevated: #0f172a;
+    --text-primary: #e2e7ef;
+    --text-secondary: #c5cfde;
+    --text-muted: #a3afc2;
+    --accent-gold: #b89a3e;
+    --accent-gold-text: #d4b86a;
+    --accent-gold-bright: #f0d68a;
+    --border: #2a3447;
+    --warning-bg: rgba(245, 158, 11, 0.08);
+    --warning-border: rgba(245, 158, 11, 0.45);
+    --warning-text: #fbbf24;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.7;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  .legal-wrap {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 48px 24px 96px;
+  }
+  .legal-header {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 24px;
+    margin-bottom: 40px;
+  }
+  .legal-header .crumb {
+    font-size: 13px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 12px;
+  }
+  .legal-header .crumb a {
+    color: var(--accent-gold-text);
+    text-decoration: none;
+  }
+  .legal-header .crumb a:hover { text-decoration: underline; }
+  .legal-header h1 {
+    margin: 0 0 8px;
+    font-size: 36px;
+    line-height: 1.2;
+    background: linear-gradient(135deg, var(--accent-gold-text), var(--accent-gold-bright));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .legal-header .subtitle {
+    color: var(--text-secondary);
+    font-size: 16px;
+    margin: 0;
+  }
+  .effective-date {
+    display: inline-block;
+    font-size: 13px;
+    color: var(--text-muted);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 12px;
+    margin-top: 16px;
+  }
+  .toc {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin: 32px 0;
+  }
+  .toc h2 {
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--accent-gold-text);
+    margin: 0 0 12px;
+  }
+  .toc ol {
+    margin: 0;
+    padding-left: 22px;
+    columns: 2;
+    column-gap: 32px;
+  }
+  .toc ol li { margin: 4px 0; }
+  .toc a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 14px;
+  }
+  .toc a:hover { color: var(--accent-gold-bright); text-decoration: underline; }
+  h2.section {
+    color: var(--accent-gold-text);
+    font-size: 22px;
+    margin-top: 40px;
+    margin-bottom: 12px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+  h2.section:first-of-type {
+    border-top: none;
+    padding-top: 0;
+  }
+  h3 {
+    color: var(--text-primary);
+    font-size: 17px;
+    margin-top: 20px;
+    margin-bottom: 8px;
+  }
+  p { color: var(--text-primary); margin: 12px 0; }
+  ul, ol { color: var(--text-primary); }
+  ul li, ol li { margin: 6px 0; }
+  a { color: var(--accent-gold-bright); }
+  strong { color: var(--accent-gold-bright); font-weight: 700; }
+  .callout {
+    background: var(--warning-bg);
+    border-left: 4px solid var(--warning-border);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 20px 0;
+  }
+  .callout p { margin: 6px 0; color: var(--text-primary); }
+  .callout strong { color: var(--warning-text); }
+  .all-caps {
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+  }
+  blockquote.address {
+    margin: 12px 0;
+    padding: 12px 18px;
+    border-left: 3px solid var(--accent-gold);
+    background: var(--bg-elevated);
+    border-radius: 4px;
+    color: var(--text-secondary);
+    font-style: normal;
+  }
+  .footer-meta {
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+  @media (prefers-contrast: more) {
+    :root {
+      --text-secondary: var(--text-primary);
+      --text-muted: var(--text-primary);
+    }
+  }
+  @media (max-width: 640px) {
+    .legal-wrap { padding: 32px 16px 64px; }
+    .legal-header h1 { font-size: 28px; }
+    .toc ol { columns: 1; }
+  }
+</style>
+</head>
+<body>
+<main class="legal-wrap" role="main">
+
+  <header class="legal-header">
+    <div class="crumb"><a href="/">← WheelPro Home</a></div>
+    <h1>Terms of Service</h1>
+    <p class="subtitle">WheelPro Analytics LLC, a Florida limited liability company</p>
+    <span class="effective-date">Effective Date: May 3, 2026 · Last Updated: May 3, 2026</span>
+  </header>
+
+  <div class="callout" role="region" aria-label="Important notice">
+    <p><strong>READ CAREFULLY.</strong> These Terms include a <strong>binding arbitration clause and class-action waiver</strong> (Section 15) that affect how disputes are resolved. They also include a <strong>limitation of WheelPro's liability</strong> (Section 13) and a disclaimer that WheelPro is <strong>not an investment adviser, broker-dealer, or fiduciary</strong> (Sections 3 and 4).</p>
+  </div>
+
+  <nav class="toc" aria-label="Table of contents">
+    <h2>Contents</h2>
+    <ol>
+      <li><a href="#s1">Acceptance of Terms</a></li>
+      <li><a href="#s2">Definitions</a></li>
+      <li><a href="#s3">Description of Service &amp; Publisher Status</a></li>
+      <li><a href="#s4">Not Investment Advice — Not a Fiduciary</a></li>
+      <li><a href="#s5">Options Trading Risk</a></li>
+      <li><a href="#s6">No Guaranteed Returns</a></li>
+      <li><a href="#s7">Eligibility &amp; Account Registration</a></li>
+      <li><a href="#s8">Subscription, Billing &amp; Cancellation</a></li>
+      <li><a href="#s9">Acceptable Use</a></li>
+      <li><a href="#s10">Intellectual Property</a></li>
+      <li><a href="#s11">Third-Party Data Sources</a></li>
+      <li><a href="#s12">Disclaimer of Warranties</a></li>
+      <li><a href="#s13">Limitation of Liability</a></li>
+      <li><a href="#s14">Indemnification</a></li>
+      <li><a href="#s15">Arbitration &amp; Class-Action Waiver</a></li>
+      <li><a href="#s16">Governing Law &amp; Venue</a></li>
+      <li><a href="#s17">Termination</a></li>
+      <li><a href="#s18">Modifications to Terms</a></li>
+      <li><a href="#s19">Notices &amp; Communications</a></li>
+      <li><a href="#s20">Severability</a></li>
+      <li><a href="#s21">Assignment</a></li>
+      <li><a href="#s22">Force Majeure</a></li>
+      <li><a href="#s23">Entire Agreement</a></li>
+      <li><a href="#s24">Contact</a></li>
+    </ol>
+  </nav>
+
+  <h2 class="section" id="s1">1. Acceptance of Terms</h2>
+  <p>These Terms of Service ("<strong>Terms</strong>") form a binding contract between you ("<strong>you</strong>", "<strong>your</strong>", or "<strong>User</strong>") and <strong>WheelPro Analytics LLC</strong>, a Florida limited liability company ("<strong>WheelPro</strong>", "<strong>we</strong>", "<strong>us</strong>", or "<strong>our</strong>"). They govern your access to and use of the WheelPro web application at <a href="https://wheelpro.io">wheelpro.io</a> and all related subdomains, applications, software, content, data, dashboards, screeners, scoring algorithms, alerts, blogs, documentation, and any other product or service we provide (collectively, the "<strong>Service</strong>").</p>
+  <p><strong>By creating an account, starting a free trial, paying a subscription fee, or otherwise accessing or using the Service, you agree to be bound by these Terms.</strong> If you do not agree, do not use the Service.</p>
+  <p>If you are using the Service on behalf of an entity, you represent that you have authority to bind that entity to these Terms, and "you" includes that entity.</p>
+
+  <h2 class="section" id="s2">2. Definitions</h2>
+  <ul>
+    <li><strong>"Account"</strong> means the registered user record associated with you on the Service.</li>
+    <li><strong>"Subscriber"</strong> means any individual or entity that has registered an Account, regardless of plan tier or trial status.</li>
+    <li><strong>"Trial"</strong> means the seven (7) day full-feature evaluation period offered to new Subscribers.</li>
+    <li><strong>"Subscription"</strong> means a paid recurring plan (currently Starter or Pro), billed monthly or annually, that grants ongoing access to the Service.</li>
+    <li><strong>"Released Parties"</strong> means WheelPro Analytics LLC and its members, managers, officers, directors, employees, contractors, agents, affiliates, licensors, and service providers, individually and collectively.</li>
+    <li><strong>"Content"</strong> means data, calculations, scores, rankings, charts, recommendations (in the screening sense), educational material, and any other output produced or displayed by the Service.</li>
+  </ul>
+
+  <h2 class="section" id="s3">3. Description of Service &amp; Publisher Status</h2>
+  <p>WheelPro is an <strong>information and analytics tool</strong> for retail traders interested in the options "wheel" strategy. The Service provides:</p>
+  <ul>
+    <li>Real-time and delayed market data on equities and equity options sourced from third-party feeds;</li>
+    <li>An algorithmic ranking of options opportunities ("<strong>Wheel Score</strong>") based on a proprietary multi-factor scoring methodology;</li>
+    <li>Technical indicators, sentiment signals, and earnings-aware filtering;</li>
+    <li>Educational content describing the wheel strategy, options mechanics, and risk concepts;</li>
+    <li>Hypothetical backtest simulations using historical price data;</li>
+    <li>Personal portfolio tracking and trade journaling tools;</li>
+    <li>Optional email alerts and digest emails.</li>
+  </ul>
+  <p><strong>WheelPro is NOT:</strong></p>
+  <ul>
+    <li>A broker-dealer registered with the U.S. Securities and Exchange Commission ("<strong>SEC</strong>") or a member of the Financial Industry Regulatory Authority ("<strong>FINRA</strong>");</li>
+    <li>A registered investment adviser under the Investment Advisers Act of 1940 or any state securities law;</li>
+    <li>A fiduciary, financial planner, accountant, tax adviser, or attorney;</li>
+    <li>A trade execution platform or order routing system;</li>
+    <li>A custodian of any user funds, securities, or other assets;</li>
+    <li>An issuer, underwriter, market maker, or seller of any security;</li>
+    <li>A source of personalized investment advice tailored to your specific financial situation, goals, or risk tolerance.</li>
+  </ul>
+  <p>WheelPro operates as an <strong>impersonal publisher of general financial information</strong> within the meaning of Section 202(a)(11)(D) of the Investment Advisers Act of 1940 and the Supreme Court's decision in <em>Lowe v. SEC</em>, 472 U.S. 181 (1985). The Service is offered to the general public on a subscription basis, distributed in regular intervals through a publication-style interface, and provided without regard to any individual Subscriber's particular financial situation, risk tolerance, holdings, or investment objectives.</p>
+
+  <h2 class="section" id="s4">4. Not Investment Advice — Not a Fiduciary</h2>
+  <div class="callout">
+    <p class="all-caps"><strong>WheelPro does not provide investment advice. Nothing displayed in the Service is a recommendation to buy, sell, hold, or trade any security.</strong></p>
+  </div>
+  <p>The Service displays <strong>information</strong>: algorithmic rankings, technical indicators, screening output, historical analyses, and educational content. We do not know, do not collect, and do not consider:</p>
+  <ul>
+    <li>Your overall financial situation, net worth, or income;</li>
+    <li>Your risk tolerance, investment objectives, or time horizon;</li>
+    <li>Your tax situation, employment status, dependents, or insurance coverage;</li>
+    <li>Other holdings, leverage, margin status, or concentrated positions;</li>
+    <li>Your trading experience, account approvals, or knowledge level.</li>
+  </ul>
+  <p>Without those facts, no output from the Service can be "advice" in any regulatory or professional sense. Specifically, nothing displayed in the Service constitutes:</p>
+  <ul>
+    <li>A recommendation to buy, sell, hold, or trade any specific security;</li>
+    <li>A solicitation, offer, or invitation to enter into any transaction;</li>
+    <li>A representation that any trade, strategy, position, expiration, strike, or counterparty is suitable for you;</li>
+    <li>An endorsement of any broker, dealer, exchange, market maker, or third-party service;</li>
+    <li>An opinion that any security is safe, profitable, or appropriate for any purpose.</li>
+  </ul>
+  <p><strong>You alone are responsible for every trading decision you make.</strong> You should consult a licensed investment adviser, broker-dealer, or other qualified professional before acting on any information from the Service.</p>
+
+  <h2 class="section" id="s5">5. Options Trading Risk</h2>
+  <div class="callout">
+    <p class="all-caps"><strong>Options trading involves substantial risk and is not suitable for every investor.</strong> You may lose your entire investment in a single trade.</p>
+  </div>
+  <p>Before trading options, you must:</p>
+  <ol>
+    <li>Read and understand the OCC publication "<a href="https://www.theocc.com/Company-Information/Documents-and-Archives/Options-Disclosure-Document" target="_blank" rel="noopener noreferrer">Characteristics and Risks of Standardized Options</a>" (the "<strong>OCC Disclosure</strong>"), which is incorporated into these Terms by reference;</li>
+    <li>Understand the specific risks of cash-secured puts, covered calls, the wheel strategy, early assignment, dividend risk, gamma risk, theta decay, vega exposure, pin risk, and counterparty/clearing risk;</li>
+    <li>Verify with your broker that your account is approved for the level of options trading you intend, and that you have sufficient buying power, margin headroom, and cash reserves to satisfy assignment;</li>
+    <li>Honestly assess whether your financial situation can absorb a total loss of capital deployed.</li>
+  </ol>
+  <p><strong>Past performance is not indicative of future results.</strong> Volatility, liquidity, dividends, corporate actions, exchange halts, regulatory changes, and macroeconomic shocks can all produce outcomes materially different from anything displayed in the Service.</p>
+
+  <h2 class="section" id="s6">6. No Guaranteed Returns</h2>
+  <p>Any backtest, projected yield, annualized yield, premium estimate, win rate, drawdown, Sharpe ratio, or historical statistic shown in the Service is <strong>hypothetical</strong> and based on assumptions that may not reflect actual market conditions. Backtests do not account for:</p>
+  <ul>
+    <li>Slippage, partial fills, or rejected orders;</li>
+    <li>Commissions, regulatory fees, exchange fees, or financing costs;</li>
+    <li>Income, capital gains, or other taxes;</li>
+    <li>Real-world assignment behavior, early exercise, or pin risk;</li>
+    <li>Counterparty defaults, exchange halts, or broker outages;</li>
+    <li>Liquidity constraints in fast or thin markets;</li>
+    <li>Margin calls, account-level concentration limits, or pattern-day-trader rules.</li>
+  </ul>
+  <p>Yields displayed in the Service (e.g., "weekly yield," "annualized yield") are <strong>screening criteria</strong>: they describe what an option's premium implies about return at the moment the data was captured, not what you will actually earn. <strong>Past performance does not predict or guarantee future results.</strong></p>
+
+  <h2 class="section" id="s7">7. Eligibility &amp; Account Registration</h2>
+  <p>To register an Account and use the Service, you represent and warrant that you:</p>
+  <ul>
+    <li>Are at least <strong>eighteen (18) years</strong> of age;</li>
+    <li>Are a resident of the <strong>United States</strong>;</li>
+    <li>Have legal capacity to enter into a binding contract;</li>
+    <li>Are not on any U.S. sanctions list, denied-party list, or prohibited from receiving the Service under U.S. export controls;</li>
+    <li>Provide accurate, current, and complete registration information and update it as needed.</li>
+  </ul>
+  <p>You are solely responsible for maintaining the confidentiality of your login credentials and for all activity that occurs under your Account, whether or not you authorized it. Notify us at <a href="mailto:support@wheelpro.io">support@wheelpro.io</a> immediately if you suspect unauthorized access.</p>
+  <p><strong>International users.</strong> The Service is offered exclusively to U.S. residents. We do not direct, market, or solicit the Service to users outside the United States. If you access the Service from outside the U.S., you do so on your own initiative and at your own risk, and you represent that doing so does not violate any law applicable to you. We make no representation that the Service is appropriate or available for use outside the United States.</p>
+
+  <h2 class="section" id="s8">8. Subscription, Billing &amp; Cancellation</h2>
+  <h3>8.1 Plans &amp; Pricing</h3>
+  <ul>
+    <li><strong>Starter</strong> — $29 per month, or $295.80 per year (15% discount versus monthly).</li>
+    <li><strong>Pro</strong> — $79 per month, or $805.80 per year (15% discount versus monthly).</li>
+    <li><strong>7-Day Free Trial</strong> — Full Pro-equivalent access for new Subscribers. Unless you cancel before the trial ends, your Trial automatically converts to a paid Subscription at the price for the plan you selected at signup.</li>
+  </ul>
+  <p>Pricing displayed on the Service at the time you subscribe controls. We may add new tiers, adjust feature inclusions, or retire tiers from time to time.</p>
+
+  <h3>8.2 Payment Processor</h3>
+  <p>Payments are processed by <strong>Stripe, Inc.</strong>, a third-party payment processor. By providing payment information, you authorize WheelPro and Stripe to charge the recurring fee for your selected plan, plus any applicable taxes, until you cancel. You agree to Stripe's terms of service. We do not store your full card number; only a tokenized reference and last-four digits.</p>
+
+  <h3>8.3 Cancellation</h3>
+  <p>You may cancel your Subscription at any time from your Account settings. <strong>Cancellation takes effect at the end of the then-current billing period</strong>. You will continue to have access through that date. <strong>No prorated refunds are issued for partial billing periods.</strong></p>
+
+  <h3>8.4 Refunds</h3>
+  <p>All sales are final and non-refundable except where required by applicable law. If you believe a charge was made in error, contact <a href="mailto:support@wheelpro.io">support@wheelpro.io</a> within thirty (30) days of the charge and we will investigate in good faith. Chargebacks initiated without first contacting support may result in immediate Account termination.</p>
+
+  <h3>8.5 Price Changes</h3>
+  <p>We may change Subscription prices, feature bundles, or trial terms with at least <strong>thirty (30) days' advance notice</strong> sent to your registered email address. Continued use of the Service after the effective date of any price change constitutes acceptance. If you do not accept, your sole remedy is to cancel before the change takes effect.</p>
+
+  <h3>8.6 Failed Payments</h3>
+  <p>If a recurring charge fails (e.g., expired card), we may retry the charge, downgrade your access, or suspend your Account. We will give you reasonable notice and an opportunity to update your payment method.</p>
+
+  <h2 class="section" id="s9">9. Acceptable Use</h2>
+  <p>You agree NOT to:</p>
+  <ul>
+    <li>Reverse-engineer, decompile, disassemble, or attempt to derive source code from the Service or any part of it;</li>
+    <li>Scrape, crawl, harvest, or use automated tools or scripts to access the Service or extract data;</li>
+    <li>Resell, sublicense, redistribute, or commercialize access to the Service or its outputs;</li>
+    <li>Use the Service for any unlawful purpose, including market manipulation, insider trading, or fraud;</li>
+    <li>Share your Account credentials, allow another person to use your Account, or maintain more than one Account per individual;</li>
+    <li>Interfere with the operation of the Service, the experience of other users, or any third-party data feed;</li>
+    <li>Use the Service to develop, train, fine-tune, or benchmark a competing product or model;</li>
+    <li>Bypass tier restrictions, paywalls, rate limits, or any access control;</li>
+    <li>Use the Service to generate, transmit, or amplify spam, malware, or fraudulent content;</li>
+    <li>Misrepresent your affiliation with WheelPro or any other person or entity;</li>
+    <li>Remove, obscure, or alter any proprietary notice, trademark, or watermark.</li>
+  </ul>
+  <p>We may investigate and take action against any suspected violation, including but not limited to suspending or terminating your Account and reporting suspected illegal activity to law enforcement.</p>
+
+  <h2 class="section" id="s10">10. Intellectual Property</h2>
+  <p>The Service and all content displayed in it (including the Wheel Score algorithm, scoring methodology, technical indicators, ranking logic, code, design system, copy, logos, brand identifiers, blog posts, educational material, and any derivative work) are the property of WheelPro Analytics LLC or its licensors, and are protected by U.S. and international copyright, trademark, trade-secret, and other intellectual-property laws.</p>
+  <h3>10.1 Limited License</h3>
+  <p>Subject to your continuous compliance with these Terms and your active Subscription, we grant you a limited, non-exclusive, non-transferable, non-sublicensable, revocable license to access and use the Service for your own personal, non-commercial purposes. <strong>All rights not expressly granted are reserved.</strong></p>
+  <h3>10.2 Trademarks</h3>
+  <p>"WheelPro", "WheelPro Analytics", the WheelPro logo, the Wheel Score mark, and any related word marks or design marks are trademarks of WheelPro Analytics LLC. You may not use our trademarks without our prior written permission.</p>
+  <h3>10.3 Feedback</h3>
+  <p>Any feedback, ideas, or suggestions you submit to WheelPro about the Service are non-confidential, and you grant us a perpetual, irrevocable, worldwide, royalty-free, sublicensable license to use them for any purpose without compensation to you.</p>
+
+  <h2 class="section" id="s11">11. Third-Party Data Sources</h2>
+  <p>Market data, options chains, historical prices, earnings dates, sentiment, and other information displayed in the Service are sourced from third parties, including but not limited to Tradier, Polygon.io, Yahoo Finance, Google Firebase, Resend, and Stripe. These third parties have their own terms of use, accuracy disclaimers, latency characteristics, and licensing restrictions.</p>
+  <p><strong>We do not warrant the accuracy, completeness, timeliness, or reliability of any third-party data.</strong> Data may be delayed, stale, gapped, or incorrect. If a third-party source disrupts, modifies, or terminates its data feed, the Service may experience reduced or degraded functionality. We reserve the right to substitute, supplement, or discontinue any data source without notice.</p>
+  <p>You are solely responsible for verifying any quote, premium, Greek, expiration, dividend, or earnings date directly with your broker or exchange before placing a trade.</p>
+
+  <h2 class="section" id="s12">12. Disclaimer of Warranties</h2>
+  <div class="callout">
+    <p class="all-caps">The Service is provided "as is" and "as available" without warranties of any kind, express or implied.</p>
+  </div>
+  <p>To the fullest extent permitted by applicable law, WheelPro disclaims all warranties, including but not limited to:</p>
+  <ul>
+    <li>Implied warranties of merchantability, fitness for a particular purpose, title, and non-infringement;</li>
+    <li>Warranties that the Service will be uninterrupted, error-free, secure, free of viruses or malicious code, or available at any particular time or location;</li>
+    <li>Warranties as to the accuracy, completeness, currency, or reliability of any data, score, calculation, ranking, alert, or other Content;</li>
+    <li>Warranties that the Service will produce profitable trading results, identify suitable trades for you, or avoid losses.</li>
+  </ul>
+  <p>You acknowledge that financial markets are volatile and unpredictable, that algorithmic outputs can be wrong, that data can be stale or erroneous, and that you assume <strong>all risk</strong> of using or relying on the Service.</p>
+
+  <h2 class="section" id="s13">13. Limitation of Liability</h2>
+  <div class="callout">
+    <p class="all-caps">To the fullest extent permitted by applicable law, the Released Parties shall not be liable to you for any indirect, incidental, consequential, special, punitive, or exemplary damages, and their aggregate liability is capped.</p>
+  </div>
+  <h3>13.1 Excluded Damages</h3>
+  <p>Under no circumstances shall the Released Parties be liable for any:</p>
+  <ul>
+    <li>Lost profits, lost revenue, lost trading opportunities, or lost business;</li>
+    <li>Lost, corrupted, or unavailable data;</li>
+    <li>Damages arising from missed trades, executed trades, mis-priced trades, assignment, or counterparty default;</li>
+    <li>Damages arising from algorithmic outputs that turned out to be wrong, stale, or misinterpreted;</li>
+    <li>Damages arising from third-party data feeds being inaccurate, delayed, or unavailable;</li>
+    <li>Damages arising from Service downtime, latency, error, or interruption;</li>
+    <li>Damages arising from cybersecurity incidents not caused by our gross negligence or willful misconduct,</li>
+  </ul>
+  <p>even if a Released Party has been advised of the possibility of such damages or such damages were foreseeable.</p>
+  <h3>13.2 Aggregate Cap</h3>
+  <p><strong>The aggregate liability of the Released Parties to you for all claims arising out of or related to the Service or these Terms shall not exceed the greater of:</strong></p>
+  <ul>
+    <li><strong>(i) the total amount you paid WheelPro in the twelve (12) months immediately preceding the event giving rise to the claim;</strong> or</li>
+    <li><strong>(ii) one hundred U.S. dollars ($100).</strong></li>
+  </ul>
+  <h3>13.3 Mandatory Application</h3>
+  <p>The limitations and exclusions in this Section 13 apply regardless of the form of action, whether in contract, tort (including negligence), strict liability, statute, or otherwise, and apply even if any limited remedy fails of its essential purpose.</p>
+  <h3>13.4 Jurisdictional Carve-Out</h3>
+  <p>Some jurisdictions do not allow the exclusion of certain damages or the limitation of liability for consequential or incidental damages. To the extent these limitations are not enforceable in your jurisdiction, the Released Parties' liability shall be limited to the smallest amount permitted by applicable law.</p>
+
+  <h2 class="section" id="s14">14. Indemnification</h2>
+  <p>You agree to defend, indemnify, and hold harmless the Released Parties from and against any and all claims, demands, suits, proceedings, losses, costs, damages, judgments, settlements, fines, penalties, and expenses (including reasonable attorneys' fees, expert fees, and court costs) arising out of or related to:</p>
+  <ul>
+    <li>Your access to or use of the Service;</li>
+    <li>Your violation of these Terms or any applicable law or regulation;</li>
+    <li>Your trading decisions, trading activities, or any positions you enter or fail to enter (whether or not based on Service Content);</li>
+    <li>Your violation of any third-party right, including intellectual-property, privacy, or contractual rights;</li>
+    <li>Any content, data, or material you submit to the Service;</li>
+    <li>Any misrepresentation made by you to WheelPro.</li>
+  </ul>
+  <p>WheelPro reserves the right, at your expense, to assume the exclusive defense and control of any matter for which you are required to indemnify us, in which case you agree to cooperate with our defense.</p>
+
+  <h2 class="section" id="s15">15. Arbitration &amp; Class-Action Waiver</h2>
+  <div class="callout">
+    <p class="all-caps">Read this section carefully. It requires most disputes to be resolved by binding individual arbitration and waives your right to a jury trial or to participate in a class action.</p>
+  </div>
+  <h3>15.1 Agreement to Arbitrate</h3>
+  <p>You and WheelPro agree that any dispute, claim, or controversy arising out of or relating to these Terms or the Service ("<strong>Dispute</strong>") shall be resolved by <strong>binding individual arbitration</strong> administered by the <strong>American Arbitration Association ("AAA")</strong> under its <strong>Consumer Arbitration Rules</strong> then in effect (the "<strong>AAA Rules</strong>"). The arbitrator, and not any federal, state, or local court or agency, shall have exclusive authority to resolve any dispute relating to the interpretation, applicability, enforceability, or formation of this arbitration agreement, including any claim that all or any part of this arbitration agreement is void or voidable.</p>
+  <h3>15.2 Class-Action Waiver</h3>
+  <p>You and WheelPro agree that <strong>each may bring claims against the other only on an individual basis and not as a plaintiff or class member in any purported class, consolidated, mass, or representative proceeding.</strong> The arbitrator may not consolidate more than one person's claims and may not preside over any form of class, mass, or representative proceeding. If this class-action waiver is found unenforceable, then the entirety of this Section 15 shall be null and void, but the remainder of these Terms shall remain in full force and effect.</p>
+  <h3>15.3 Pre-Arbitration Notice</h3>
+  <p>Before initiating arbitration, the party initiating the Dispute shall send a written notice ("<strong>Notice of Dispute</strong>") to the other party describing the nature and basis of the claim and the specific relief sought. Notice to WheelPro shall be sent to <a href="mailto:support@wheelpro.io">support@wheelpro.io</a> and by U.S. Mail to the address in Section 19. The parties shall attempt to resolve the Dispute informally for thirty (30) days after the Notice of Dispute is received before initiating arbitration.</p>
+  <h3>15.4 Venue &amp; Format</h3>
+  <p>Arbitration shall take place in <strong>Hillsborough County, Florida</strong>, unless you and WheelPro agree to another location, or unless the arbitration may proceed by telephone, videoconference, or written submissions under the AAA Rules. Each party shall bear its own attorneys' fees and costs except where the AAA Rules or applicable law require otherwise.</p>
+  <h3>15.5 Carve-Outs</h3>
+  <p>Nothing in this Section prevents either party from:</p>
+  <ul>
+    <li>Bringing an individual action in <strong>small-claims court</strong> in the appropriate jurisdiction (so long as the action remains in that court and is not removed or transferred to another court);</li>
+    <li>Seeking injunctive, declaratory, or other equitable relief in a court of competent jurisdiction to prevent or stop the actual or threatened infringement, misappropriation, or violation of intellectual-property rights, trade secrets, or confidentiality obligations;</li>
+    <li>Reporting unlawful activity to a government agency or filing a charge with a government agency that has jurisdiction over a party.</li>
+  </ul>
+  <h3>15.6 Opt-Out</h3>
+  <p>You may opt out of this arbitration agreement (Section 15.1, 15.2, and 15.4) by mailing written notice to WheelPro Analytics LLC at the address in Section 19 within <strong>thirty (30) days</strong> of first agreeing to these Terms. Your opt-out notice must include your full legal name, the email address associated with your Account, the words "I opt out of the WheelPro arbitration agreement," and your wet signature. Opting out does not affect any other provision of these Terms.</p>
+  <h3>15.7 Federal Arbitration Act</h3>
+  <p>This arbitration agreement is governed by the <strong>Federal Arbitration Act, 9 U.S.C. §§ 1-16</strong>, and shall be enforced to the fullest extent permissible under that Act, including with respect to its preemption of any conflicting state law.</p>
+
+  <h2 class="section" id="s16">16. Governing Law &amp; Venue</h2>
+  <p>These Terms and any non-arbitrable Dispute shall be governed by and construed in accordance with the laws of the <strong>State of Florida</strong>, without regard to its conflict-of-laws rules. Any action not subject to arbitration under Section 15 shall be brought exclusively in the state or federal courts located in <strong>Hillsborough County, Florida</strong>, and you irrevocably consent to personal jurisdiction in those courts and waive any objection to venue.</p>
+  <p>The United Nations Convention on Contracts for the International Sale of Goods does not apply to these Terms.</p>
+
+  <h2 class="section" id="s17">17. Termination</h2>
+  <h3>17.1 Termination by You</h3>
+  <p>You may terminate your Account at any time by following the cancellation process in Section 8.3 or by emailing <a href="mailto:support@wheelpro.io">support@wheelpro.io</a>.</p>
+  <h3>17.2 Termination by WheelPro</h3>
+  <p>We may suspend or terminate your Account, with or without notice, if we believe in good faith that:</p>
+  <ul>
+    <li>You have violated these Terms;</li>
+    <li>Your use of the Service violates applicable law or third-party rights;</li>
+    <li>Continued service to you exposes any Released Party to legal, financial, regulatory, reputational, or operational risk;</li>
+    <li>You have engaged in behavior abusive to WheelPro staff or other users;</li>
+    <li>An extended period of inactivity warrants closing the Account.</li>
+  </ul>
+  <h3>17.3 Effect of Termination</h3>
+  <p>Upon termination, your right to access the Service ends immediately. We may delete your Account data after termination subject to our retention obligations. Sections that by their nature should survive termination — including Sections 4, 5, 6, 10, 11, 12, 13, 14, 15, 16, 18, 20, 21, 23, this Section 17.3, and any other provisions reasonably interpreted to survive — shall survive.</p>
+
+  <h2 class="section" id="s18">18. Modifications to Terms</h2>
+  <p>We may modify these Terms from time to time. We will provide notice of any material change by:</p>
+  <ul>
+    <li>Posting the updated Terms with a new Effective Date at <a href="https://wheelpro.io/terms.html">wheelpro.io/terms.html</a>; AND</li>
+    <li>Sending an email notification to the address associated with your Account at least <strong>thirty (30) days</strong> before the effective date of the change, where the change materially reduces your rights.</li>
+  </ul>
+  <p><strong>Your continued use of the Service after the effective date of any modification constitutes acceptance.</strong> If you do not agree, your sole remedy is to terminate your Account before the change takes effect.</p>
+
+  <h2 class="section" id="s19">19. Notices &amp; Communications</h2>
+  <h3>19.1 Notices to You</h3>
+  <p>We may give you notice by posting on the Service, by email to the address on your Account, by SMS where you have opted in, or by other reasonable means. Email notices are deemed delivered when sent.</p>
+  <h3>19.2 Notices to WheelPro</h3>
+  <p>All legal notices, opt-out notices under Section 15.6, and Notices of Dispute under Section 15.3 must be in writing and sent to:</p>
+  <blockquote class="address">
+    WheelPro Analytics LLC<br>
+    Attn: Legal — Member<br>
+    [Registered agent address on file with the Florida Department of State]<br>
+    Email: <a href="mailto:support@wheelpro.io">support@wheelpro.io</a>
+  </blockquote>
+  <h3>19.3 Email &amp; SMS Consent</h3>
+  <p>By providing your email address, you consent to receive transactional and account-related email from WheelPro. Marketing email is opt-in and you may unsubscribe at any time using the link in any marketing email or by contacting <a href="mailto:support@wheelpro.io">support@wheelpro.io</a>. Where SMS is offered, message and data rates may apply, and you may opt out by replying STOP.</p>
+
+  <h2 class="section" id="s20">20. Severability</h2>
+  <p>If any provision of these Terms is held invalid, illegal, or unenforceable by a court or arbitrator of competent jurisdiction, that provision shall be enforced to the maximum extent permissible and the remaining provisions shall remain in full force and effect. The invalidity of any provision in any jurisdiction shall not affect its validity or enforceability in any other jurisdiction.</p>
+
+  <h2 class="section" id="s21">21. Assignment</h2>
+  <p>You may not assign or transfer these Terms or any rights under them, in whole or in part, by operation of law or otherwise, without our prior written consent. Any attempted assignment without consent is void. WheelPro may assign these Terms in connection with a merger, acquisition, sale of all or substantially all of its assets, reorganization, or by operation of law, without your consent and without notice.</p>
+
+  <h2 class="section" id="s22">22. Force Majeure</h2>
+  <p>Neither party shall be liable for any failure or delay in performance caused by acts of God, war, terrorism, riot, embargo, governmental action, regulatory change, fire, flood, earthquake, pandemic, internet or third-party data-feed outage, hosting-provider outage, denial-of-service attack, or any other event beyond the reasonable control of the affected party.</p>
+
+  <h2 class="section" id="s23">23. Entire Agreement</h2>
+  <p>These Terms, together with the WheelPro Privacy Policy and any other notices, disclosures, or terms incorporated by reference (including the OCC Disclosure referenced in Section 5), constitute the entire agreement between you and WheelPro regarding the Service and supersede all prior or contemporaneous agreements, communications, and understandings, whether written or oral.</p>
+  <p>No failure or delay by WheelPro in exercising any right under these Terms shall operate as a waiver of that right. Any waiver must be in writing and signed by an authorized representative of WheelPro.</p>
+
+  <h2 class="section" id="s24">24. Contact</h2>
+  <p>For questions about these Terms or the Service:</p>
+  <blockquote class="address">
+    WheelPro Analytics LLC<br>
+    Email: <a href="mailto:support@wheelpro.io">support@wheelpro.io</a><br>
+    Web: <a href="https://wheelpro.io">https://wheelpro.io</a>
+  </blockquote>
+
+  <div class="footer-meta">
+    <p>© 2026 WheelPro Analytics LLC. All rights reserved. WheelPro™ and the Wheel Score™ are trademarks of WheelPro Analytics LLC. <a href="/dashboard.html">Return to WheelPro</a> · <a href="/privacy.html">Privacy Policy</a> · <a href="https://www.theocc.com/Company-Information/Documents-and-Archives/Options-Disclosure-Document" target="_blank" rel="noopener noreferrer">OCC Risk Disclosure</a></p>
+    <p><strong>Effective Date:</strong> May 3, 2026 · <strong>Last Updated:</strong> May 3, 2026 · Version 1.0</p>
+  </div>
+
+</main>
+</body>
+</html>
