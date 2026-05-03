@@ -3486,6 +3486,8 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
   const topStocks = useMemo(() => {
     return [...stocks]
       .filter(s => s.weeklyYield >= 0.01 && s.delta <= 0.35)
+      // Audit H2: enforce $5 price floor universally — keep sub-$5 names out of Top Candidates
+      .filter(s => (s.price || 0) >= 5 && (s.strikePrice || 0) >= 5)
       .sort((a, b) => b.wheelScore - a.wheelScore)
       .slice(0, 20);
   }, [stocks]);
@@ -4254,6 +4256,8 @@ function ScreenerPage({ stocks, user, subscriptionTier, capitalTier = 'all', onS
 
   const filteredStocks = useMemo(() => {
     let result = allScreenerStocks.filter(s => {
+      // Audit H2: enforce $5 price floor universally — keep sub-$5 names out of Screener
+      if ((s.price || 0) < 5 || (s.strikePrice || 0) < 5) return false;
       if (filters.sector !== 'All' && s.sector !== filters.sector) return false;
       if (s.weeklyYield < filters.minYield / 100) return false;
       if (s.delta > filters.maxDelta) return false;
@@ -5818,7 +5822,10 @@ function StockDetailModal({ stock, onClose }) {
               ['DTE', `${stock.daysToExpiry} days (${stock.expDateStr || ''})`],
               ['IV', `${stock.iv}%`],
               ['IV %ile', `${stock.ivPercentile || 50}%`],
-              ['Bid-Ask', `$${stock.bidAskSpread.toFixed(2)}`],
+              // Audit H6: don't fabricate a spread when the underlying bid/ask is missing
+              ['Bid-Ask', (stock.bid == null || stock.ask == null || stock.bidAskSpread == null)
+                ? 'no live quote'
+                : `$${stock.bidAskSpread.toFixed(2)}`],
             ].map(([l, v]) => <div key={l} className="detail-row" style={{padding:'6px 0'}}><span className="label">{l}</span><span className="value">{v}</span></div>)}
           </div>
           <div className="detail-card" style={{padding:16}}>
