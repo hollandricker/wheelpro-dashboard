@@ -35,20 +35,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
 
-<!-- PostHog Analytics -->
-<!-- TODO: Replace 'YOUR_POSTHOG_PROJECT_API_KEY' with your actual PostHog project API key.
-     1. Sign up at https://app.posthog.com (free, no credit card required — 1M events/month)
-     2. Create a new project and copy the "Project API Key" from Project Settings → Project
-     3. Replace the placeholder string below with your key, then save and redeploy -->
-<script>
-  !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]);t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.people.toString()+" (stub)"},o="capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures getActiveMatchingSurveys getSurveys getNextSurveyStep onSessionId setPersonPropertiesForFlags".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
-  posthog.init('YOUR_POSTHOG_PROJECT_API_KEY', {
-    api_host: 'https://us.i.posthog.com',
-    person_profiles: 'identified_only',
-    capture_pageview: true,
-  });
-</script>
-
 <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -2026,6 +2012,11 @@ const CONFIG = {
   STRIPE_PRICE_STARTER: 'price_1TLQLJAPjhOPhXtY3ZKL0s7c',
   STRIPE_PRICE_PRO: 'price_1TLQMCAPjhOPhXtYzCpfJlU7',
   STRIPE_PRICE_ELITE: 'price_1TLQMsAPjhOPhXtYv0Jf8QyB',
+  // TODO(stripe): create annual price IDs in Stripe dashboard at monthly * 12 * 0.85 (15% off)
+  // and replace these placeholders. Until then, annual checkout falls back to the monthly price.
+  STRIPE_PRICE_STARTER_ANNUAL: 'price_TODO_STARTER_ANNUAL',
+  STRIPE_PRICE_PRO_ANNUAL: 'price_TODO_PRO_ANNUAL',
+  STRIPE_PRICE_ELITE_ANNUAL: 'price_TODO_ELITE_ANNUAL',
   // Tier Limits
   TIER_LIMITS: {
     free: { maxStocks: 10, screener: false, maxPortfolio: 1, journal: false, alerts: false },
@@ -2148,6 +2139,11 @@ const StripeHelper = {
       starter: CONFIG.STRIPE_PRICE_STARTER,
       pro: CONFIG.STRIPE_PRICE_PRO,
       elite: CONFIG.STRIPE_PRICE_ELITE,
+      // TODO(stripe): once annual price IDs are created in Stripe, these will route correctly.
+      // Until then, fall back to the monthly price IDs so checkout still works.
+      starter_annual: CONFIG.STRIPE_PRICE_STARTER_ANNUAL?.startsWith('price_TODO') ? CONFIG.STRIPE_PRICE_STARTER : CONFIG.STRIPE_PRICE_STARTER_ANNUAL,
+      pro_annual: CONFIG.STRIPE_PRICE_PRO_ANNUAL?.startsWith('price_TODO') ? CONFIG.STRIPE_PRICE_PRO : CONFIG.STRIPE_PRICE_PRO_ANNUAL,
+      elite_annual: CONFIG.STRIPE_PRICE_ELITE_ANNUAL?.startsWith('price_TODO') ? CONFIG.STRIPE_PRICE_ELITE : CONFIG.STRIPE_PRICE_ELITE_ANNUAL,
     };
     const priceId = priceMap[plan];
     if (!priceId) {
@@ -2706,6 +2702,8 @@ function Sparkline({ data, width = 80, height = 32, color = '#3b82f6', label }) 
 
 // ===== LANDING PAGE =====
 function LandingPage({ onLogin, onSignup, onSubscribe }) {
+  // Pricing billing-cycle toggle (cosmetic — annual = monthly * 12 * 0.85, i.e. 15% off)
+  const [annual, setAnnual] = useState(false);
   return (
     <div className="landing-hero">
       <nav className="landing-nav" aria-label="Marketing site navigation">
@@ -2746,8 +2744,8 @@ function LandingPage({ onLogin, onSignup, onSubscribe }) {
             <div className="landing-stat-label">Stocks Scanned</div>
           </div>
           <div className="landing-stat">
-            <div className="landing-stat-value">2%+</div>
-            <div className="landing-stat-label">Weekly Yield Target</div>
+            <div className="landing-stat-value">≥2%</div>
+            <div className="landing-stat-label">Weekly Yield Filter</div>
           </div>
           <div className="landing-stat">
             <div className="landing-stat-value">5</div>
@@ -2798,6 +2796,25 @@ function LandingPage({ onLogin, onSignup, onSubscribe }) {
       <div className="pricing-section" id="pricing">
         <h2>Choose Your Plan</h2>
         <p className="subtitle">Start free. Upgrade when you're ready. Cancel anytime.</p>
+        {/* Billing-cycle toggle: annual saves 15% vs. monthly. Cosmetic only — Stripe checkout still uses the monthly price IDs until annual price IDs are added (see TODO in CONFIG / StripeHelper). */}
+        <div role="radiogroup" aria-label="Billing period" style={{display:'inline-flex', gap:0, padding:4, background:'var(--bg-elevated)', border:'1px solid var(--border)', borderRadius:'var(--radius-md)', marginBottom:24}}>
+          <button
+            type="button"
+            role="radio"
+            aria-checked={!annual}
+            onClick={() => setAnnual(false)}
+            className="btn btn-sm"
+            style={{background: !annual ? 'var(--accent-blue)' : 'transparent', color: !annual ? '#fff' : 'var(--text-secondary)', border:'none', borderRadius:'var(--radius-sm)', padding:'6px 16px', fontWeight:600}}
+          >Monthly</button>
+          <button
+            type="button"
+            role="radio"
+            aria-checked={annual}
+            onClick={() => setAnnual(true)}
+            className="btn btn-sm"
+            style={{background: annual ? 'var(--accent-blue)' : 'transparent', color: annual ? '#fff' : 'var(--text-secondary)', border:'none', borderRadius:'var(--radius-sm)', padding:'6px 16px', fontWeight:600}}
+          >Annual <span style={{fontSize:11, opacity:0.85, marginLeft:4}}>save 15%</span></button>
+        </div>
         <div className="pricing-grid" style={{gridTemplateColumns:'repeat(auto-fit, minmax(240px, 1fr))', maxWidth:'1200px'}}>
           <div className="pricing-card">
             <div className="pricing-tier">Free</div>
@@ -2813,7 +2830,7 @@ function LandingPage({ onLogin, onSignup, onSubscribe }) {
           </div>
           <div className="pricing-card">
             <div className="pricing-tier">Starter</div>
-            <div className="pricing-amount">$29<span>/mo</span></div>
+            <div className="pricing-amount">{annual ? `$${Math.round(29 * 12 * 0.85)}` : '$29'}<span>{annual ? '/yr' : '/mo'}</span></div>
             <div className="pricing-desc">Perfect for beginners learning the wheel</div>
             <ul className="pricing-features">
               <li><span className="check">✓</span> 40 stock candidates</li>
@@ -2821,11 +2838,11 @@ function LandingPage({ onLogin, onSignup, onSubscribe }) {
               <li><span className="check">✓</span> Full screener with filters</li>
               <li><span className="check">✓</span> 10 portfolio positions</li>
             </ul>
-            <button className="btn btn-secondary pricing-btn" onClick={() => onSubscribe ? onSubscribe('starter') : onSignup()}>Start 7-Day Trial</button>
+            <button className="btn btn-secondary pricing-btn" onClick={() => onSubscribe ? onSubscribe(annual ? 'starter_annual' : 'starter') : onSignup()}>Start 7-Day Trial</button>
           </div>
           <div className="pricing-card featured">
             <div className="pricing-tier">Pro</div>
-            <div className="pricing-amount">$79<span>/mo</span></div>
+            <div className="pricing-amount">{annual ? `$${Math.round(79 * 12 * 0.85)}` : '$79'}<span>{annual ? '/yr' : '/mo'}</span></div>
             <div className="pricing-desc">Full power for active options traders</div>
             <ul className="pricing-features">
               <li><span className="check">✓</span> All 1,100+ stock scans</li>
@@ -2834,35 +2851,34 @@ function LandingPage({ onLogin, onSignup, onSubscribe }) {
               <li><span className="check">✓</span> Trade journal & P&L tracking</li>
               <li><span className="check">✓</span> Email alerts & notifications</li>
             </ul>
-            <button className="btn btn-primary pricing-btn" onClick={() => onSubscribe ? onSubscribe('pro') : onSignup()}>Start 7-Day Trial</button>
+            <button className="btn btn-primary pricing-btn" onClick={() => onSubscribe ? onSubscribe(annual ? 'pro_annual' : 'pro') : onSignup()}>Start 7-Day Trial</button>
           </div>
           <div className="pricing-card">
             <div className="pricing-tier">Elite</div>
-            <div className="pricing-amount">$149<span>/mo</span></div>
+            <div className="pricing-amount">{annual ? `$${Math.round(149 * 12 * 0.85)}` : '$149'}<span>{annual ? '/yr' : '/mo'}</span></div>
             <div className="pricing-desc">For professionals & fund managers</div>
             <ul className="pricing-features">
               <li><span className="check">✓</span> Everything in Pro</li>
-              <li><span className="check">✓</span> API access</li>
-              <li><span className="check">✓</span> Priority data refresh</li>
               <li><span className="check">✓</span> Custom watchlists</li>
-              <li><span className="check">✓</span> Monthly 1-on-1 strategy call</li>
+              {/* TODO: add real Elite differentiators */}
             </ul>
-            <button className="btn btn-secondary pricing-btn" onClick={() => onSubscribe ? onSubscribe('elite') : onSignup()}>Start 7-Day Trial</button>
+            <button className="btn btn-secondary pricing-btn" onClick={() => onSubscribe ? onSubscribe(annual ? 'elite_annual' : 'elite') : onSignup()}>Start 7-Day Trial</button>
           </div>
         </div>
       </div>
 
       <div style={{textAlign:'center', padding:'40px', color:'var(--text-muted)', fontSize:'12px', borderTop:'1px solid var(--border)'}}>
         <p style={{marginBottom:'12px'}}>© {new Date().getFullYear()} WheelPro Analytics LLC — All Rights Reserved</p>
-        <div style={{display:'flex', justifyContent:'center', gap:'24px', marginBottom:'12px'}}>
+        <div style={{display:'flex', justifyContent:'center', gap:'24px', marginBottom:'12px', flexWrap:'wrap'}}>
           <a href="/terms" style={{color:'var(--text-muted)', textDecoration:'none'}}>Terms of Service</a>
           <a href="/privacy" style={{color:'var(--text-muted)', textDecoration:'none'}}>Privacy Policy</a>
-          <a href="/disclaimer" style={{color:'var(--text-muted)', textDecoration:'none'}}>Risk Disclaimer</a>
+          <a href="https://www.theocc.com/Company-Information/Documents-and-Archives/Options-Disclosure-Document" target="_blank" rel="noopener noreferrer" style={{color:'var(--text-muted)', textDecoration:'none'}}>Risk Disclaimer (OCC)</a>
           <a href="mailto:support@wheelpro.io" style={{color:'var(--text-muted)', textDecoration:'none'}}>Contact</a>
         </div>
-        <p style={{fontSize:'11px', maxWidth:'600px', margin:'0 auto', lineHeight:1.6, color:'var(--text-muted)'}}>
+        <p style={{fontSize:'11px', maxWidth:'700px', margin:'0 auto', lineHeight:1.6, color:'var(--text-muted)'}}>
           WheelPro™ is an educational tool for informational purposes only. It is not financial, investment, or trading advice.
-          Options trading involves substantial risk of loss. Past performance does not guarantee future results.
+          Options trading involves substantial risk of loss and is not suitable for every investor. Past performance does not guarantee future results.
+          Before trading options, read the OCC's <a href="https://www.theocc.com/Company-Information/Documents-and-Archives/Options-Disclosure-Document" target="_blank" rel="noopener noreferrer" style={{color:'var(--text-muted)', textDecoration:'underline'}}>Characteristics and Risks of Standardized Options</a>.
           Consult a licensed financial advisor before making any trading decisions.
         </p>
       </div>
@@ -2897,7 +2913,6 @@ function AuthModal({ mode, onClose, onSubmit, onToggle, notice }) {
       let userData;
       if (mode === 'signup') {
         userData = await FirebaseHelper.signUp(email, password, name);
-        if (window.posthog) window.posthog.capture('sign_up', { method: 'email' });
       } else {
         userData = await FirebaseHelper.signIn(email, password);
       }
@@ -2913,7 +2928,6 @@ function AuthModal({ mode, onClose, onSubmit, onToggle, notice }) {
     setLoading(true);
     try {
       const userData = await FirebaseHelper.signInWithGoogle();
-      if (window.posthog) window.posthog.capture('sign_up', { method: 'google' });
       onSubmit(userData);
     } catch (err) {
       setError(FirebaseHelper.getErrorMessage(err.code));
@@ -3790,7 +3804,7 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
                           </Tip>
                         </td>
                         <td>
-                          <Tip text={`THETA DECAY: $${(stock.thetaPerDay || (stock.premium * 100 / (stock.daysToExpiry || 7))).toFixed(2)}/day\nThis is how much the option loses in value each day — money that flows to you as the seller.\n\nProjected income from theta:\nPer week: $${(stock.thetaPerWeek || (stock.premium * 100 / (stock.daysToExpiry || 7) * 5)).toFixed(2)}\nPer month: $${((stock.thetaPerDay || (stock.premium * 100 / (stock.daysToExpiry || 7))) * 21).toFixed(2)}\nPer year: $${((stock.thetaPerDay || (stock.premium * 100 / (stock.daysToExpiry || 7))) * 252).toFixed(0)} (if repeated)\n\n${stock.gammaRisk === 'HIGH' ? 'HIGH gamma risk — delta can change rapidly on short DTE' : stock.gammaRisk === 'ELEVATED' ? 'Elevated gamma — monitor position closely' : 'Normal gamma risk'}`}>
+                          <Tip text={`THETA DECAY: $${(stock.thetaPerDay || (stock.premium * 100 / (stock.daysToExpiry || 7))).toFixed(2)}/day\nThis is how much the option loses in value each day — money that flows to you as the seller.\n\nProjected income from theta:\nPer week: $${(stock.thetaPerWeek || (stock.premium * 100 / (stock.daysToExpiry || 7) * 5)).toFixed(2)}\nPer month: $${((stock.thetaPerDay || (stock.premium * 100 / (stock.daysToExpiry || 7))) * 21).toFixed(2)}\nAnnualized: $${((stock.thetaPerDay || (stock.premium * 100 / (stock.daysToExpiry || 7))) * 252).toFixed(0)}\n\n${stock.gammaRisk === 'HIGH' ? 'HIGH gamma risk — delta can change rapidly on short DTE' : stock.gammaRisk === 'ELEVATED' ? 'Elevated gamma — monitor position closely' : 'Normal gamma risk'}`}>
                           <span style={{fontFamily:'var(--font-mono)', fontWeight:700, color:'var(--accent-green)'}}>
                             ${(stock.thetaPerDay || (stock.premium * 100 / (stock.daysToExpiry || 7))).toFixed(2)}
                           </span>
@@ -4287,16 +4301,6 @@ function ScreenerPage({ stocks, user, subscriptionTier, capitalTier = 'all', onS
     }, 400);
     return () => { clearTimeout(timer); controller.abort(); };
   }, [filters.search, stocks]);
-
-  // Track screener searches with 400ms debounce (mirrors the API search delay)
-  React.useEffect(() => {
-    const term = filters.search.trim();
-    if (!term) return;
-    const timer = setTimeout(() => {
-      if (window.posthog) window.posthog.capture('screener_search', { query: term });
-    }, 400);
-    return () => clearTimeout(timer);
-  }, [filters.search]);
 
   // Combine loaded stocks with any dynamically fetched extras
   const allScreenerStocks = React.useMemo(() => {
@@ -5600,11 +5604,6 @@ function BacktestPage({ user, subscriptionTier }) {
   }
 
   const runBacktest = async () => {
-    if (window.posthog) window.posthog.capture('backtest_run', {
-      symbol: symbol.trim().toUpperCase() || 'all',
-      months: params.months,
-      capital: params.capital,
-    });
     setLoading(true);
     setError('');
     try {
@@ -5736,6 +5735,10 @@ function BacktestPage({ user, subscriptionTier }) {
 
       {results && (
         <>
+          {/* Backtest disclaimer — required near any simulated-results display */}
+          <div style={{padding:'12px 16px', background:'rgba(245,158,11,0.08)', border:'1px solid rgba(245,158,11,0.25)', borderRadius:'var(--radius-md)', color:'var(--text-secondary)', fontSize:'12px', lineHeight:1.6, marginBottom:16}}>
+            <strong style={{color:'var(--accent-amber)'}}>Disclaimer:</strong> These are simulated historical results. Past performance does not guarantee future results. Backtested data does not reflect actual trading and may not account for slippage, fees, taxes, or assignment behavior.
+          </div>
           {/* Summary Stats */}
           <div className="stats-grid" style={{marginBottom:24}}>
             <div className="stat-card" style={{borderLeft: results.summary.totalPnl >= 0 ? '3px solid var(--accent-green)' : '3px solid var(--accent-red)'}}>
@@ -5820,9 +5823,6 @@ function BacktestPage({ user, subscriptionTier }) {
 // ===== STOCK DETAIL MODAL =====
 function StockDetailModal({ stock, onClose }) {
   if (!stock) return null;
-  React.useEffect(() => {
-    if (window.posthog) window.posthog.capture('stock_modal_open', { symbol: stock.symbol, sector: stock.sector, wheel_score: stock.wheelScore });
-  }, [stock.symbol]);
   // a11y: Esc-to-close
   React.useEffect(() => {
     const onKey = (e) => { if (e.key === 'Escape') onClose(); };
@@ -5941,7 +5941,10 @@ function StockDetailModal({ stock, onClose }) {
                 {' '}${(stock.thetaPerDay || (stock.premium * 100 / (stock.daysToExpiry || 7))).toFixed(2)}/day
                 {' · '}${((stock.thetaPerDay || (stock.premium * 100 / (stock.daysToExpiry || 7))) * 5).toFixed(2)}/week
                 {' · '}${((stock.thetaPerDay || (stock.premium * 100 / (stock.daysToExpiry || 7))) * 21).toFixed(0)}/month
-                {' · '}${((stock.thetaPerDay || (stock.premium * 100 / (stock.daysToExpiry || 7))) * 252).toFixed(0)}/year (if repeated)
+                {' · '}Annualized: ${((stock.thetaPerDay || (stock.premium * 100 / (stock.daysToExpiry || 7))) * 252).toFixed(0)}
+              </div>
+              <div style={{fontSize:10, color:'var(--text-muted)', lineHeight:1.5, marginTop:8, paddingTop:8, borderTop:'1px solid var(--border)', fontStyle:'italic'}}>
+                Past performance does not guarantee future results. Options trading involves substantial risk of loss. This is a screening criterion, not a recommendation or promised return.
               </div>
             </div>
           </div>
@@ -5959,8 +5962,7 @@ function StockDetailModal({ stock, onClose }) {
 
 // ===== CSV EXPORT HELPER =====
 function exportCSV(stocks, filename) {
-  if (window.posthog) window.posthog.capture('csv_export', { row_count: stocks.length, filename: filename || 'wheelpro-export.csv' });
-  const headers = ['Symbol','Name','Sector','Price','Change%','Score','Action','Confidence','Strike','OTM%','Premium','Wk Yield','Mo Yield','Ann Yield','Delta','POP','Cash Req','Max Loss','RSI','Signal','IV','IV%ile','P/C Ratio','Earnings','DTE'];
+  const headers =['Symbol','Name','Sector','Price','Change%','Score','Action','Confidence','Strike','OTM%','Premium','Wk Yield','Mo Yield','Ann Yield','Delta','POP','Cash Req','Max Loss','RSI','Signal','IV','IV%ile','P/C Ratio','Earnings','DTE'];
   const rows = stocks.map(s => [
     s.symbol, s.name, s.sector, s.price.toFixed(2), s.changePct,
     s.wheelScore, s.recommendation?.type || '', s.recommendation?.confidence || '',
@@ -7292,12 +7294,6 @@ function App() {
             // Now set user state — PortfolioPage/Journal will remount reading correct localStorage
             setUser(profile);
             Storage.set('user', profile);
-            // Identify authenticated user in PostHog so events are tied to their account
-            if (window.posthog) window.posthog.identify(fbUser.uid, {
-              email: fbUser.email,
-              name: profile.name,
-              plan: profile.plan,
-            });
             // Fetch live Stripe subscription tier
             fetchSubscriptionTier(fbUser.email, profile.isOwner);
             // Detect successful Stripe checkout redirect
@@ -7447,7 +7443,6 @@ function App() {
           onLogin={() => setShowAuth('login')}
           onSignup={() => setShowAuth('signup')}
           onSubscribe={(plan) => {
-            if (window.posthog) window.posthog.capture('checkout_click', { plan, logged_in: !!user });
             // If not logged in, store the plan and show signup — checkout happens after account creation
             if (!user) { setPendingPlan(plan); setShowAuth('signup'); return; }
             StripeHelper.createCheckout(plan, user.email, user.uid);
