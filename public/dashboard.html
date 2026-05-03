@@ -2627,24 +2627,25 @@ const Storage = {
 };
 
 // ===== SVG ICONS =====
+// Decorative icons paired with adjacent text labels — all hidden from AT.
 const Icons = {
-  dashboard: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>,
-  screener: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>,
-  settings: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>,
-  admin: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
-  logout: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>,
-  menu: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>,
-  arrowUp: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="18,15 12,9 6,15"/></svg>,
-  arrowDown: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="6,9 12,15 18,9"/></svg>,
-  refresh: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="23,4 23,10 17,10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>,
-  close: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
-  check: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20,6 9,17 4,12"/></svg>,
-  lock: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>,
-  star: <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="1"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>,
-  chart: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>,
-  portfolio: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>,
-  journal: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="12" y2="15"/></svg>,
-  upgrade: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>,
+  dashboard: <svg aria-hidden="true" focusable="false" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>,
+  screener: <svg aria-hidden="true" focusable="false" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>,
+  settings: <svg aria-hidden="true" focusable="false" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>,
+  admin: <svg aria-hidden="true" focusable="false" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
+  logout: <svg aria-hidden="true" focusable="false" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>,
+  menu: <svg aria-hidden="true" focusable="false" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>,
+  arrowUp: <svg aria-hidden="true" focusable="false" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="18,15 12,9 6,15"/></svg>,
+  arrowDown: <svg aria-hidden="true" focusable="false" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="6,9 12,15 18,9"/></svg>,
+  refresh: <svg aria-hidden="true" focusable="false" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="23,4 23,10 17,10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>,
+  close: <svg aria-hidden="true" focusable="false" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
+  check: <svg aria-hidden="true" focusable="false" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20,6 9,17 4,12"/></svg>,
+  lock: <svg aria-hidden="true" focusable="false" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>,
+  star: <svg aria-hidden="true" focusable="false" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="1"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>,
+  chart: <svg aria-hidden="true" focusable="false" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>,
+  portfolio: <svg aria-hidden="true" focusable="false" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>,
+  journal: <svg aria-hidden="true" focusable="false" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="12" y2="15"/></svg>,
+  upgrade: <svg aria-hidden="true" focusable="false" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>,
 };
 
 // ===== MINI SPARKLINE COMPONENT =====
@@ -2670,8 +2671,8 @@ function Sparkline({ data, width = 80, height = 32, color = '#3b82f6' }) {
 function LandingPage({ onLogin, onSignup, onSubscribe }) {
   return (
     <div className="landing-hero">
-      <nav className="landing-nav">
-        <div className="landing-logo">WheelPro<span>™</span></div>
+      <nav className="landing-nav" aria-label="Marketing site navigation">
+        <div className="landing-logo">WheelPro<span aria-hidden="true">™</span></div>
         <div className="landing-nav-links">
           <a href="#features">Features</a>
           <a href="#pricing">Pricing</a>
@@ -2683,7 +2684,7 @@ function LandingPage({ onLogin, onSignup, onSubscribe }) {
 
       <div className="landing-content">
         <div className="landing-badge">
-          <span className="dot"></span>
+          <span className="dot" aria-hidden="true"></span>
           Live Market Analysis
         </div>
         <h1 className="landing-h1">
@@ -2725,32 +2726,32 @@ function LandingPage({ onLogin, onSignup, onSubscribe }) {
       <div className="landing-features" id="features">
         <div className="features-grid">
           <div className="feature-card">
-            <div className="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+            <div className="feature-icon"><svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
             <h3>Multi-Factor Scoring</h3>
             <p>Proprietary algorithm combines premium yield, delta safety, technical signals, liquidity, and IV rank into a single actionable Wheel Score. Perfect for weekly options income and theta decay strategies.</p>
           </div>
           <div className="feature-card">
-            <div className="feature-icon" style={{background:'var(--accent-green-glow)'}}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22,7 13.5,15.5 8.5,10.5 2,17"/><polyline points="16,7 22,7 22,13"/></svg></div>
+            <div className="feature-icon" style={{background:'var(--accent-green-glow)'}}><svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22,7 13.5,15.5 8.5,10.5 2,17"/><polyline points="16,7 22,7 22,13"/></svg></div>
             <h3>5 Technical Indicators</h3>
             <p>RSI, MACD, Bollinger Bands, EMA crossovers, and trend analysis work together to identify optimal entry points for selling puts and covered calls. Supports the poor man's covered call (PMCC) strategy.</p>
           </div>
           <div className="feature-card">
-            <div className="feature-icon" style={{background:'var(--accent-purple) linear-gradient(135deg, rgba(139,92,246,0.15), rgba(59,130,246,0.15))'}}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg></div>
+            <div className="feature-icon" style={{background:'var(--accent-purple) linear-gradient(135deg, rgba(139,92,246,0.15), rgba(59,130,246,0.15))'}}><svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg></div>
             <h3>Real-Time Scanner</h3>
             <p>Continuously monitors the market for options wheel strategy opportunities. Filter by sector, yield, delta, and technical signal to find cash-secured put and covered call trades that generate passive income.</p>
           </div>
           <div className="feature-card">
-            <div className="feature-icon" style={{background:'var(--accent-amber-glow)'}}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+            <div className="feature-icon" style={{background:'var(--accent-amber-glow)'}}><svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
             <h3>Risk Protection</h3>
             <p>Built-in earnings date warnings, ex-dividend alerts, delta-neutral position sizing, and composite bearish/bullish signals help you avoid trades that could result in unwanted assignment or loss.</p>
           </div>
           <div className="feature-card">
-            <div className="feature-icon" style={{background:'var(--accent-red-glow)'}}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></div>
+            <div className="feature-icon" style={{background:'var(--accent-red-glow)'}}><svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></div>
             <h3>Smart Recommendations</h3>
             <p>Every stock gets a clear recommendation with HIGH, MEDIUM, or WAIT confidence. Tells you exactly which puts to sell, at what strike, and when.</p>
           </div>
           <div className="feature-card">
-            <div className="feature-icon" style={{background:'rgba(236,72,153,0.15)'}}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18"/></svg></div>
+            <div className="feature-icon" style={{background:'rgba(236,72,153,0.15)'}}><svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18"/></svg></div>
             <h3>Works Everywhere</h3>
             <p>Responsive dashboard works on desktop, tablet, and mobile. Access your wheel analysis on the go from any device with a browser.</p>
           </div>
@@ -2925,20 +2926,20 @@ function AuthModal({ mode, onClose, onSubmit, onToggle, notice }) {
           {mode === 'signup' && (
             <div className="form-group">
               <label className="form-label" htmlFor="auth-name">Full Name</label>
-              <input id="auth-name" className="form-input" type="text" placeholder="Your Name" value={name} onChange={e => setName(e.target.value)} autoComplete="name" />
+              <input id="auth-name" className="form-input" type="text" placeholder="Your Name" value={name} onChange={e => setName(e.target.value)} autoComplete="name" aria-required="true" />
             </div>
           )}
           <div className="form-group">
             <label className="form-label" htmlFor="auth-email">Email Address</label>
-            <input id="auth-email" className="form-input" type="email" placeholder="you@example.com" value={email} onChange={e => setEmail(e.target.value)} autoComplete="email" />
+            <input id="auth-email" className="form-input" type="email" placeholder="you@example.com" value={email} onChange={e => setEmail(e.target.value)} autoComplete="email" aria-required="true" />
           </div>
           <div className="form-group">
             <label className="form-label" htmlFor="auth-password">Password</label>
-            <input id="auth-password" className="form-input" type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} autoComplete={mode === 'signup' ? 'new-password' : 'current-password'} />
+            <input id="auth-password" className="form-input" type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} autoComplete={mode === 'signup' ? 'new-password' : 'current-password'} aria-required="true" />
           </div>
-          {error && <div className="form-error">{error}</div>}
+          {error && <div className="form-error" role="alert" aria-live="assertive">{error}</div>}
           <button className="btn btn-primary" type="submit" style={{width:'100%',justifyContent:'center',marginTop:'8px'}} disabled={loading}>
-            {loading ? <span className="spinner" style={{width:16,height:16,borderWidth:2}}></span> : (mode === 'login' ? 'Sign In' : 'Create Account')}
+            {loading ? <span className="spinner" aria-hidden="true" style={{width:16,height:16,borderWidth:2}}></span> : (mode === 'login' ? 'Sign In' : 'Create Account')}
           </button>
         </form>
 
@@ -3158,11 +3159,11 @@ function CoveredCallModal({ position, stock, onClose, onMarkSelling }) {
           )}
 
           {/* Category Tabs */}
-          <div className="cc-category-tabs">
-            <button className={`cc-tab ${category === 'conservative' ? 'active' : ''}`} onClick={() => setCategory('conservative')}>
+          <div className="cc-category-tabs" role="tablist" aria-label="Covered call recommendation category">
+            <button id="cc-tab-conservative" role="tab" aria-selected={category === 'conservative'} aria-controls="cc-tabpanel-recs" className={`cc-tab ${category === 'conservative' ? 'active' : ''}`} onClick={() => setCategory('conservative')}>
               Conservative — Further OTM
             </button>
-            <button className={`cc-tab ${category === 'aggressive' ? 'active' : ''}`} onClick={() => setCategory('aggressive')}>
+            <button id="cc-tab-aggressive" role="tab" aria-selected={category === 'aggressive'} aria-controls="cc-tabpanel-recs" className={`cc-tab ${category === 'aggressive' ? 'active' : ''}`} onClick={() => setCategory('aggressive')}>
               Aggressive — More Premium
             </button>
           </div>
@@ -3173,17 +3174,17 @@ function CoveredCallModal({ position, stock, onClose, onMarkSelling }) {
           </div>
 
           {loading ? (
-            <div style={{textAlign:'center', padding:'48px', color:'var(--text-muted)'}}>
-              <div className="spinner" style={{margin:'0 auto 12px'}}></div>
+            <div id="cc-tabpanel-recs" role="tabpanel" aria-busy="true" aria-live="polite" style={{textAlign:'center', padding:'48px', color:'var(--text-muted)'}}>
+              <div className="spinner" style={{margin:'0 auto 12px'}} aria-hidden="true"></div>
               <p>Loading recommendations...</p>
             </div>
           ) : currentRecs.length === 0 ? (
-            <div style={{textAlign:'center', padding:'48px', color:'var(--text-muted)'}}>
+            <div id="cc-tabpanel-recs" role="tabpanel" style={{textAlign:'center', padding:'48px', color:'var(--text-muted)'}}>
               No recommendations available for this category.
             </div>
           ) : (
-            <div style={{overflowX:'auto', borderRadius:'var(--radius-md)', border:'1px solid var(--border)'}}>
-              <table className="cc-rec-table">
+            <div id="cc-tabpanel-recs" role="tabpanel" style={{overflowX:'auto', borderRadius:'var(--radius-md)', border:'1px solid var(--border)'}}>
+              <table className="cc-rec-table" aria-label="Covered call strike recommendations">
                 <thead>
                   <tr>
                     <th scope="col">Strike</th>
@@ -3661,7 +3662,7 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
           <div className="split-table-wrapper responsive-layout-fade" key="rec-table">
             {/* FIXED: Symbol column */}
             <div className="split-table-fixed" ref={recSplit.fixedRef}>
-              <table className="data-table">
+              <table className="data-table" aria-label="Recommended puts — fixed symbol column">
                 <thead>
                   <tr><th scope="col">Symbol</th></tr>
                 </thead>
@@ -3685,7 +3686,7 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
             </div>
             {/* SCROLLABLE: all other columns */}
             <div className="split-table-scroll" ref={recSplit.scrollRef}>
-              <table className="data-table">
+              <table className="data-table" aria-label="Recommended puts — option metrics">
                 <thead>
                   <tr>
                     <th scope="col">Confidence</th>
@@ -3973,7 +3974,7 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
         <div className="split-table-wrapper">
           {/* FIXED: # + Symbol columns */}
           <div className="split-table-fixed" ref={candSplit.fixedRef}>
-            <table className="data-table">
+            <table className="data-table" aria-label="Top wheel candidates — fixed rank and symbol columns">
               <thead>
                 <tr><th scope="col">#</th><th scope="col">Symbol</th></tr>
               </thead>
@@ -4003,7 +4004,7 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
           </div>
           {/* SCROLLABLE: all other columns */}
           <div className="split-table-scroll" ref={candSplit.scrollRef}>
-            <table className="data-table">
+            <table className="data-table" aria-label="Top wheel candidates — option metrics">
               <thead>
                 <tr>
                   <th scope="col">Price</th>
@@ -4300,7 +4301,7 @@ function ScreenerPage({ stocks, user, subscriptionTier, capitalTier = 'all', onS
   if (!tierLimits.screener && !user?.isOwner) {
     return (
       <div className="loading-state" style={{gap:20}}>
-        <div style={{width:48,height:48,borderRadius:'50%',background:'var(--bg-elevated)',margin:'0 auto',display:'flex',alignItems:'center',justifyContent:'center'}}><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+        <div style={{width:48,height:48,borderRadius:'50%',background:'var(--bg-elevated)',margin:'0 auto',display:'flex',alignItems:'center',justifyContent:'center'}}><svg aria-hidden="true" focusable="false" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
         <h3 style={{color:'var(--text-primary)', margin:0}}>Advanced Screener</h3>
         <p style={{maxWidth:400, textAlign:'center', lineHeight:1.7}}>Filter and sort all stocks by yield, delta, score, sector, and technical signal. Search for specific tickers. Available on Starter, Pro, and Elite plans.</p>
         <button className="btn btn-primary" style={{marginTop:8}}>Upgrade to Starter — $29/mo</button>
@@ -4397,10 +4398,10 @@ function ScreenerPage({ stocks, user, subscriptionTier, capitalTier = 'all', onS
         <div className="split-table-wrapper">
           {/* FIXED: Symbol column */}
           <div className="split-table-fixed" ref={scrSplit.fixedRef}>
-            <table className="data-table">
+            <table className="data-table" aria-label="Stock screener — fixed symbol column">
               <thead>
                 <tr>
-                  <th scope="col" style={{cursor:'pointer'}} onClick={() => handleSort('symbol')}>Symbol <SortIcon field="symbol"/></th>
+                  <th scope="col" aria-sort={filters.sortBy === 'symbol' ? (filters.sortDir === 'desc' ? 'descending' : 'ascending') : 'none'} style={{cursor:'pointer'}} onClick={() => handleSort('symbol')}>Symbol <SortIcon field="symbol"/></th>
                 </tr>
               </thead>
               <tbody>
@@ -4423,23 +4424,23 @@ function ScreenerPage({ stocks, user, subscriptionTier, capitalTier = 'all', onS
           </div>
           {/* SCROLLABLE: all other columns */}
           <div className="split-table-scroll" ref={scrSplit.scrollRef}>
-            <table className="data-table">
+            <table className="data-table" aria-label="Stock screener — metrics, sortable">
               <thead>
                 <tr>
                   <th scope="col">Name</th>
-                  <th scope="col" style={{cursor:'pointer'}} onClick={() => handleSort('price')}>Price <SortIcon field="price"/></th>
-                  <th scope="col" style={{cursor:'pointer'}} onClick={() => handleSort('wheelScore')}>Score <SortIcon field="wheelScore"/></th>
+                  <th scope="col" aria-sort={filters.sortBy === 'price' ? (filters.sortDir === 'desc' ? 'descending' : 'ascending') : 'none'} style={{cursor:'pointer'}} onClick={() => handleSort('price')}>Price <SortIcon field="price"/></th>
+                  <th scope="col" aria-sort={filters.sortBy === 'wheelScore' ? (filters.sortDir === 'desc' ? 'descending' : 'ascending') : 'none'} style={{cursor:'pointer'}} onClick={() => handleSort('wheelScore')}>Score <SortIcon field="wheelScore"/></th>
                   <th scope="col">Recommendation</th>
                   <th scope="col">Strike</th>
                   <th scope="col">Exp Date</th>
-                  <th scope="col" style={{cursor:'pointer'}} onClick={() => handleSort('weeklyYield')}>Wk Yield <SortIcon field="weeklyYield"/></th>
-                  <th scope="col" style={{cursor:'pointer'}} onClick={() => handleSort('annualizedYield')}>Ann Yield <SortIcon field="annualizedYield"/></th>
-                  <th scope="col" style={{cursor:'pointer'}} onClick={() => handleSort('delta')}>Delta <SortIcon field="delta"/></th>
-                  <th scope="col" style={{cursor:'pointer'}} onClick={() => handleSort('rsi')}>RSI <SortIcon field="rsi"/></th>
+                  <th scope="col" aria-sort={filters.sortBy === 'weeklyYield' ? (filters.sortDir === 'desc' ? 'descending' : 'ascending') : 'none'} style={{cursor:'pointer'}} onClick={() => handleSort('weeklyYield')}>Wk Yield <SortIcon field="weeklyYield"/></th>
+                  <th scope="col" aria-sort={filters.sortBy === 'annualizedYield' ? (filters.sortDir === 'desc' ? 'descending' : 'ascending') : 'none'} style={{cursor:'pointer'}} onClick={() => handleSort('annualizedYield')}>Ann Yield <SortIcon field="annualizedYield"/></th>
+                  <th scope="col" aria-sort={filters.sortBy === 'delta' ? (filters.sortDir === 'desc' ? 'descending' : 'ascending') : 'none'} style={{cursor:'pointer'}} onClick={() => handleSort('delta')}>Delta <SortIcon field="delta"/></th>
+                  <th scope="col" aria-sort={filters.sortBy === 'rsi' ? (filters.sortDir === 'desc' ? 'descending' : 'ascending') : 'none'} style={{cursor:'pointer'}} onClick={() => handleSort('rsi')}>RSI <SortIcon field="rsi"/></th>
                   <th scope="col">MACD</th>
                   <th scope="col">BB %B</th>
-                  <th scope="col" style={{cursor:'pointer'}} onClick={() => handleSort('iv')}>IV <SortIcon field="iv"/></th>
-                  <th scope="col" style={{cursor:'pointer'}} onClick={() => handleSort('optionVolume')}>Opt Vol <SortIcon field="optionVolume"/></th>
+                  <th scope="col" aria-sort={filters.sortBy === 'iv' ? (filters.sortDir === 'desc' ? 'descending' : 'ascending') : 'none'} style={{cursor:'pointer'}} onClick={() => handleSort('iv')}>IV <SortIcon field="iv"/></th>
+                  <th scope="col" aria-sort={filters.sortBy === 'optionVolume' ? (filters.sortDir === 'desc' ? 'descending' : 'ascending') : 'none'} style={{cursor:'pointer'}} onClick={() => handleSort('optionVolume')}>Opt Vol <SortIcon field="optionVolume"/></th>
                   <th scope="col">Earnings</th>
                   <th scope="col">Trend</th>
                 </tr>
@@ -4750,7 +4751,7 @@ function PortfolioPage({ stocks }) {
           </div>
         ) : (
           <div className="table-scroll">
-            <table className="data-table">
+            <table className="data-table" aria-label="Open positions">
               <thead>
                 <tr>
                   <th scope="col">Symbol</th>
@@ -5001,7 +5002,7 @@ function TradeJournalPage({ user, subscriptionTier }) {
   if (!tierLimits.journal && !user?.isOwner) {
     return (
       <div className="loading-state" style={{gap:20}}>
-        <div style={{width:48,height:48,borderRadius:'50%',background:'var(--accent-gold-glow, rgba(201,168,76,0.12))',margin:'0 auto',display:'flex',alignItems:'center',justifyContent:'center'}}><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-gold, #c9a84c)" strokeWidth="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
+        <div style={{width:48,height:48,borderRadius:'50%',background:'var(--accent-gold-glow, rgba(201,168,76,0.12))',margin:'0 auto',display:'flex',alignItems:'center',justifyContent:'center'}}><svg aria-hidden="true" focusable="false" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-gold, #c9a84c)" strokeWidth="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
         <h3 style={{color:'var(--text-primary)', margin:0}}>Trade Journal</h3>
         <p style={{maxWidth:400, textAlign:'center', lineHeight:1.7}}>Track your completed trades, measure win rate, and see your actual P&L over time. Available on Pro and Elite plans.</p>
         <button className="btn btn-primary" style={{marginTop:8}}>Upgrade to Pro — $79/mo</button>
@@ -5105,13 +5106,13 @@ function TradeJournalPage({ user, subscriptionTier }) {
 
         {trades.length === 0 ? (
           <div style={{padding:'40px 20px', textAlign:'center', color:'var(--text-muted)'}}>
-            <div style={{width:48,height:48,borderRadius:'50%',background:'var(--accent-gold-glow, rgba(201,168,76,0.12))',margin:'0 auto 12px',display:'flex',alignItems:'center',justifyContent:'center'}}><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-gold, #c9a84c)" strokeWidth="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
+            <div style={{width:48,height:48,borderRadius:'50%',background:'var(--accent-gold-glow, rgba(201,168,76,0.12))',margin:'0 auto 12px',display:'flex',alignItems:'center',justifyContent:'center'}}><svg aria-hidden="true" focusable="false" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-gold, #c9a84c)" strokeWidth="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
             <p>No trades logged yet. Click <strong>+ Log Trade</strong> to start building your track record.</p>
             <p style={{fontSize:'12px', marginTop:8}}>Tracking your trades helps measure your actual performance vs WheelPro recommendations.</p>
           </div>
         ) : (
           <div className="table-scroll">
-            <table className="data-table">
+            <table className="data-table" aria-label="Trade journal entries">
               <thead>
                 <tr>
                   <th scope="col">Date</th>
@@ -5306,7 +5307,7 @@ function AdvancedGateThresholdsCard({ user }) {
           <div className="advanced-gates-warning">
             ⚠ These settings affect which trades pass WheelPro's safety gates. Only adjust if you understand the implications. Each option has a plain-English description below.
           </div>
-          {toast && <div className="advanced-gates-toast">{toast}</div>}
+          {toast && <div className="advanced-gates-toast" role="status" aria-live="polite">{toast}</div>}
 
           {renderRow({
             key: 'rsiDailyMax', label: 'Daily RSI Maximum',
@@ -5501,7 +5502,7 @@ class ErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div style={{padding:'40px 20px', textAlign:'center'}}>
+        <div role="alert" aria-live="assertive" style={{padding:'40px 20px', textAlign:'center'}}>
           <div style={{color:'var(--accent-red)', marginBottom:16, fontSize:14}}>
             Something went wrong: {this.state.error?.message || 'Unknown error'}
           </div>
@@ -5527,7 +5528,7 @@ function BacktestPage({ user, subscriptionTier }) {
   if (!tierLimits.journal && !user?.isOwner) {
     return (
       <div className="loading-state" style={{gap:20}}>
-        <div style={{width:48,height:48,borderRadius:'50%',background:'var(--bg-elevated)',margin:'0 auto',display:'flex',alignItems:'center',justifyContent:'center'}}><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+        <div style={{width:48,height:48,borderRadius:'50%',background:'var(--bg-elevated)',margin:'0 auto',display:'flex',alignItems:'center',justifyContent:'center'}}><svg aria-hidden="true" focusable="false" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
         <h3 style={{color:'var(--text-primary)', margin:0}}>Strategy Backtester</h3>
         <p style={{maxWidth:400, textAlign:'center', lineHeight:1.7}}>Simulate the Wheel strategy over historical data to see returns, win rate, and drawdown. Available on Pro and Elite plans.</p>
         <button className="btn btn-primary" style={{marginTop:8}}>Upgrade to Pro — $79/mo</button>
@@ -5719,7 +5720,7 @@ function BacktestPage({ user, subscriptionTier }) {
               <h3>Trade Log ({results.trades.length} trades)</h3>
             </div>
             <div className="table-scroll" style={{maxHeight:400, overflowY:'auto'}}>
-              <table className="data-table">
+              <table className="data-table" aria-label="Backtest trade results">
                 <thead><tr>
                   <th scope="col">Open</th><th scope="col">Close</th><th scope="col">Symbol</th><th scope="col">Outcome</th><th scope="col">P&L</th>
                 </tr></thead>
@@ -6272,10 +6273,10 @@ function OnboardingTour({ onComplete }) {
 
   return (
     <>
-      <div className="tour-overlay" onClick={() => {}} />
-      <div className={`tour-card ${current.position === 'center' ? 'tour-card-center' : 'tour-card-top'}`}>
-        <div style={{width:48,height:48,borderRadius:'50%',background:'var(--accent-gold-glow, rgba(201,168,76,0.12))',border:'2px solid var(--accent-gold, #c9a84c)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 16px',fontSize:20,color:'var(--accent-gold, #c9a84c)',fontWeight:700}}>{step + 1}</div>
-        <h3 style={{fontSize:18, fontWeight:700, textAlign:'center', marginBottom:12, color:'var(--text-primary)', fontFamily:'var(--font-display)'}}>{current.title}</h3>
+      <div className="tour-overlay" onClick={() => {}} aria-hidden="true" />
+      <div className={`tour-card ${current.position === 'center' ? 'tour-card-center' : 'tour-card-top'}`} role="dialog" aria-modal="true" aria-labelledby="tour-step-title">
+        <div aria-hidden="true" style={{width:48,height:48,borderRadius:'50%',background:'var(--accent-gold-glow, rgba(201,168,76,0.12))',border:'2px solid var(--accent-gold, #c9a84c)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 16px',fontSize:20,color:'var(--accent-gold, #c9a84c)',fontWeight:700}}>{step + 1}</div>
+        <h3 id="tour-step-title" style={{fontSize:18, fontWeight:700, textAlign:'center', marginBottom:12, color:'var(--text-primary)', fontFamily:'var(--font-display)'}}>{current.title}</h3>
         <p style={{fontSize:14, color:'var(--text-secondary)', lineHeight:1.7, textAlign:'center'}}>{current.body}</p>
         <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginTop:24}}>
           <button onClick={onComplete} style={{background:'none', border:'none', color:'var(--text-muted)', cursor:'pointer', fontSize:13, fontFamily:'var(--font-body)', padding:'6px 12px'}}>
@@ -7024,9 +7025,9 @@ function App() {
     <AuthContext.Provider value={{ user, handleLogin, handleLogout }}>
       <div className="dashboard-layout">
         {/* Sidebar */}
-        <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
+        <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`} aria-label="Sidebar">
           <div className="sidebar-header">
-            <div className="sidebar-logo">WheelPro™</div>
+            <div className="sidebar-logo">WheelPro<span aria-hidden="true">™</span></div>
             <div className="sidebar-logo-sub">Options Dashboard</div>
           </div>
           <nav className="sidebar-nav" aria-label="Primary">
@@ -7104,7 +7105,7 @@ function App() {
                   countdownText = s >= 60 ? `${Math.floor(s/60)}m ${String(s%60).padStart(2,'0')}s` : `${s}s`;
                 }
                 return (
-                  <span style={{fontSize:'12px', color: isLive ? 'var(--accent-green)' : 'var(--accent-amber)', display:'inline-flex', alignItems:'center', gap:'8px'}}>
+                  <span role="status" aria-live="polite" aria-atomic="true" style={{fontSize:'12px', color: isLive ? 'var(--accent-green)' : 'var(--accent-amber)', display:'inline-flex', alignItems:'center', gap:'8px'}}>
                     <span>
                       {lastRefresh ? `Updated ${lastRefresh.toLocaleTimeString()}` : 'Awaiting market data'}
                       {isLive ? ' · ● Live Data' : ' · ● Loading market data…'}
@@ -7132,8 +7133,8 @@ function App() {
                 const isPreMarket = isWeekday && mins >= 240 && mins < 570; // 4:00 AM - 9:30 AM ET
                 const isAfterHours = isWeekday && mins >= 960 && mins < 1200; // 4:00 PM - 8:00 PM ET
                 return (
-                  <div className="topbar-badge" style={!isOpen ? {background:'rgba(245,158,11,0.1)', borderColor:'rgba(245,158,11,0.2)'} : {}}>
-                    <span className="pulse" style={!isOpen ? {background:'var(--accent-amber)', boxShadow:'0 0 8px var(--accent-amber)'} : {}}></span>
+                  <div className="topbar-badge" role="status" aria-live="polite" aria-label={isOpen ? 'Market is open' : isPreMarket ? 'Market is in pre-market session' : isAfterHours ? 'Market is in after-hours session' : 'Market is closed'} style={!isOpen ? {background:'rgba(245,158,11,0.1)', borderColor:'rgba(245,158,11,0.2)'} : {}}>
+                    <span className="pulse" aria-hidden="true" style={!isOpen ? {background:'var(--accent-amber)', boxShadow:'0 0 8px var(--accent-amber)'} : {}}></span>
                     {isOpen ? 'Market Open' : isPreMarket ? 'Pre-Market' : isAfterHours ? 'After Hours' : 'Market Closed'}
                   </div>
                 );
@@ -7182,7 +7183,7 @@ function App() {
           </header>
 
           {paymentSuccess && (
-            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:'12px',padding:'12px 24px',background:'rgba(34,197,94,0.1)',borderBottom:'1px solid rgba(34,197,94,0.2)',color:'var(--accent-green)',fontSize:'14px',fontWeight:500}}>
+            <div role="status" aria-live="polite" style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:'12px',padding:'12px 24px',background:'rgba(34,197,94,0.1)',borderBottom:'1px solid rgba(34,197,94,0.2)',color:'var(--accent-green)',fontSize:'14px',fontWeight:500}}>
               <span>🎉 Payment successful! Your subscription is now active. Welcome to WheelPro™.</span>
               <button onClick={() => setPaymentSuccess(false)} aria-label="Dismiss payment success notification" style={{background:'none',border:'none',color:'var(--accent-green)',cursor:'pointer',padding:'2px 6px',fontSize:'16px',lineHeight:1,opacity:0.7}}>✕</button>
             </div>
@@ -7192,9 +7193,9 @@ function App() {
             {loadingState.status === 'warming' ? (
               // Cold-start cache fill from the API (HTTP 202). We auto-retry; the user sees progress.
               // Critical: NEVER render the data table while warming — no fake prices may sneak through.
-              <div className="loading-state" style={{minHeight:'60vh'}}>
+              <div className="loading-state" role="status" aria-live="polite" aria-busy="true" style={{minHeight:'60vh'}}>
                 <div style={{maxWidth:480, width:'100%', padding:'32px 28px', background:'var(--gradient-card)', border:'1px solid var(--border)', borderRadius:'var(--radius-md)', display:'flex', flexDirection:'column', alignItems:'center', gap:16, textAlign:'center'}}>
-                  <div className="spinner" style={{borderTopColor:'var(--accent-amber)'}}></div>
+                  <div className="spinner" aria-hidden="true" style={{borderTopColor:'var(--accent-amber)'}}></div>
                   <h3 style={{margin:0, fontSize:'18px', color:'var(--text-primary)', fontWeight:600}}>Loading live market data</h3>
                   <p style={{margin:0, fontSize:'13px', color:'var(--text-muted)', lineHeight:1.5}}>
                     {loadingState.message || 'Tradier feed warming up — refreshing automatically'}
@@ -7208,7 +7209,7 @@ function App() {
               </div>
             ) : loadingState.status === 'error' ? (
               // Hard failure (network or non-2xx). NEVER substitute fake prices; show retry.
-              <div className="loading-state" style={{minHeight:'60vh'}}>
+              <div className="loading-state" role="alert" aria-live="assertive" style={{minHeight:'60vh'}}>
                 <div style={{maxWidth:480, width:'100%', padding:'32px 28px', background:'var(--gradient-card)', border:'1px solid rgba(239,68,68,0.3)', borderRadius:'var(--radius-md)', display:'flex', flexDirection:'column', alignItems:'center', gap:16, textAlign:'center'}}>
                   <h3 style={{margin:0, fontSize:'18px', color:'var(--text-primary)', fontWeight:600}}>Couldn't reach market data</h3>
                   <p style={{margin:0, fontSize:'13px', color:'var(--text-muted)', lineHeight:1.5}}>
@@ -7223,8 +7224,8 @@ function App() {
                 </div>
               </div>
             ) : (loading && stocks.length === 0 && loadingState.status !== 'empty') ? (
-              <div className="loading-state">
-                <div className="spinner"></div>
+              <div className="loading-state" role="status" aria-live="polite" aria-busy="true">
+                <div className="spinner" aria-hidden="true"></div>
                 <p>Loading market data...</p>
                 <div style={{display:'grid', gridTemplateColumns:'repeat(4, 1fr)', gap:16, width:'100%', maxWidth:900, marginTop:20}}>
                   {[1,2,3,4].map(i => (
@@ -7241,7 +7242,7 @@ function App() {
               // "no recommendations" copy already handled inside the dashboard component.
               <>
                 {dataSourceInfo?.dataLimitedToMonthly && (
-                  <div style={{
+                  <div role="status" aria-live="polite" style={{
                     margin: '0 0 16px',
                     padding: '10px 14px',
                     background: 'rgba(245,158,11,0.08)',
@@ -7253,7 +7254,7 @@ function App() {
                     alignItems: 'center',
                     gap: 10,
                   }}>
-                    <span style={{fontSize:'14px'}}>●</span>
+                    <span aria-hidden="true" style={{fontSize:'14px'}}>●</span>
                     <span>
                       Showing <strong>monthly</strong> options recommendations while {' '}
                       <strong>{
@@ -7278,7 +7279,7 @@ function App() {
       {/* v2.5: Onboarding Tour */}
       {showTour && <OnboardingTour onComplete={completeTour} />}
 
-      <footer className="footer">
+      <footer className="footer" role="contentinfo">
         <div className="footer-copyright">
           © {new Date().getFullYear()} {CONFIG.OWNER} — All Rights Reserved · WheelPro™ v{CONFIG.VERSION}
         </div>
