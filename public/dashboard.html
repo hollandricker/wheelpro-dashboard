@@ -5928,17 +5928,66 @@ function exportCSV(stocks, filename) {
 }
 
 // ===== ADMIN PAGE (Owner Only) =====
-function AdminPage({ user, authLoading }) {
-  const [subscribers, setSubscribers] = useState([
-    { id: 1, name: 'Demo User', email: 'demo@example.com', plan: 'Professional', status: 'active', joined: '2026-01-15', revenue: 99 },
-    { id: 2, name: 'Trial User', email: 'trial@example.com', plan: 'Starter', status: 'trial', joined: '2026-02-01', revenue: 0 },
-  ]);
+// Pricing — kept in sync with the public pricing cards above (Starter $29, Pro $79, Elite $149).
+// If pricing changes on the marketing page, update here too.
+const ADMIN_PLAN_PRICES = { starter: 29, pro: 79, elite: 149 };
+const PAID_PLANS = ['starter', 'pro', 'elite'];
 
-  const totalRevenue = subscribers.reduce((sum, s) => sum + s.revenue, 0);
-  const activeCount = subscribers.filter(s => s.status === 'active').length;
+// Read a Firestore field that might be a Timestamp, Date, ISO string, or millis number.
+// Returns a JS Date (or null if missing/invalid).
+function _toDate(v) {
+  if (!v) return null;
+  if (v && typeof v.toDate === 'function') { try { return v.toDate(); } catch { return null; } }
+  if (v instanceof Date) return v;
+  if (typeof v === 'number') return new Date(v);
+  if (typeof v === 'string') { const d = new Date(v); return isNaN(d.getTime()) ? null : d; }
+  return null;
+}
+
+function _daysBetween(a, b) {
+  if (!a || !b) return null;
+  const ms = b.getTime() - a.getTime();
+  if (!isFinite(ms)) return null;
+  return ms / 86400000;
+}
+
+function _fmtDate(d) {
+  if (!d) return '—';
+  return d.toISOString().slice(0, 10);
+}
+
+function AdminPage({ user, authLoading }) {
+  const [users, setUsers] = useState(null);   // null = not loaded yet
+  const [loadError, setLoadError] = useState(null);
 
   // While Firebase auth is still resolving, show a loading state to avoid flashing the
   // "restricted" lock screen before we know whether the user is the owner.
+  // (Hooks above must run unconditionally — this early-return is fine because it sits
+  // between hook calls and the data-fetch effect, which is itself gated on isOwner.)
+  // Check if current user is the owner (set on signup via email-contains-"holland" logic).
+  const isOwner = user?.isOwner === true;
+
+  // Load real user docs from Firestore. Requires admin Firestore rules to allow reading /users/*.
+  useEffect(() => {
+    if (authLoading || !isOwner) return;
+    let cancelled = false;
+    setLoadError(null);
+    (async () => {
+      try {
+        const snap = await firebaseDb.collection('users').get();
+        if (cancelled) return;
+        const rows = snap.docs.map(d => ({ uid: d.id, ...d.data() }));
+        setUsers(rows);
+      } catch (err) {
+        if (cancelled) return;
+        console.warn('[WheelPro][admin] users query failed:', err);
+        setLoadError(err && (err.code || err.message) || 'unknown');
+        setUsers([]);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [authLoading, isOwner]);
+
   if (authLoading) {
     return (
       <div className="loading-state">
@@ -5947,9 +5996,6 @@ function AdminPage({ user, authLoading }) {
       </div>
     );
   }
-
-  // Check if current user is the owner (set on signup via email-contains-"holland" logic)
-  const isOwner = user?.isOwner === true;
 
   if (!isOwner) {
     return (
@@ -5960,49 +6006,215 @@ function AdminPage({ user, authLoading }) {
     );
   }
 
+  if (users === null) {
+    return (
+      <div className="loading-state">
+        <div className="spinner" />
+        <p>Loading users…</p>
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="admin-card" style={{padding:24}}>
+        <h3 style={{marginTop:0}}>Admin access not configured</h3>
+        <p style={{color:'var(--text-secondary)', lineHeight:1.6}}>
+          Update Firestore rules to allow admin reads of <code>/users/*</code>.
+        </p>
+        <p style={{color:'var(--text-muted)', fontSize:12, marginTop:8}}>
+          Error: <code>{String(loadError)}</code>
+        </p>
+      </div>
+    );
+  }
+
+  // Empty state — no users at all yet.
+  if (users.length === 0) {
+    return (
+      <div className="admin-card" style={{padding:24, textAlign:'center'}}>
+        <h3 style={{marginTop:0}}>No users yet</h3>
+        <p style={{color:'var(--text-secondary)'}}>Once people sign up, they'll appear here.</p>
+      </div>
+    );
+  }
+
+  const now = new Date();
+
+  // ----- Normalize each user into the shape the rest of the page consumes. -----
+  // Field-shape assumptions (see report):
+  //   email                    string
+  //   plan                     'free'|'trial'|'starter'|'pro'|'elite' (default 'free')
+  //   subscriptionStatus       'active'|'trialing'|'canceled'|... (optional, from Stripe webhook)
+  //   createdAt | joinDate     Timestamp/ISO/Date — when the auth user was created
+  //   planStartedAt            Timestamp/ISO/Date — when they started a paid plan
+  //   trialStartedAt           Timestamp/ISO/Date — when their trial began
+  //   trialEndsAt | trialEnd   Timestamp/ISO/Date — when their trial ends
+  const normalized = users.map(u => {
+    const plan = (u.plan || 'free').toLowerCase();
+    const createdAt    = _toDate(u.createdAt) || _toDate(u.joinDate);
+    const planStartedAt  = _toDate(u.planStartedAt);
+    const trialStartedAt = _toDate(u.trialStartedAt);
+    const trialEndsAt    = _toDate(u.trialEndsAt) || _toDate(u.trialEnd);
+    return {
+      uid: u.uid,
+      email: u.email || '(no email)',
+      plan,
+      subscriptionStatus: u.subscriptionStatus || null,
+      isOwner: u.isOwner === true,
+      createdAt, planStartedAt, trialStartedAt, trialEndsAt,
+    };
+  });
+
+  // Sort newest-first by createdAt; users without a date sink to the bottom.
+  normalized.sort((a, b) => {
+    const ta = a.createdAt ? a.createdAt.getTime() : 0;
+    const tb = b.createdAt ? b.createdAt.getTime() : 0;
+    return tb - ta;
+  });
+
+  // ----- KPIs -----
+  const totalSignedUp = normalized.length;
+
+  const trialsActive = normalized.filter(u =>
+    u.plan === 'trial' && u.trialEndsAt && u.trialEndsAt.getTime() > now.getTime()
+  ).length;
+
+  const paidUsers = normalized.filter(u =>
+    PAID_PLANS.includes(u.plan) && u.subscriptionStatus === 'active'
+  );
+  const paidByPlan = { starter: 0, pro: 0, elite: 0 };
+  paidUsers.forEach(u => { paidByPlan[u.plan] = (paidByPlan[u.plan] || 0) + 1; });
+
+  const mrr =
+    paidByPlan.starter * ADMIN_PLAN_PRICES.starter +
+    paidByPlan.pro     * ADMIN_PLAN_PRICES.pro +
+    paidByPlan.elite   * ADMIN_PLAN_PRICES.elite;
+  const arr = mrr * 12;
+  const arpu = paidUsers.length > 0 ? mrr / paidUsers.length : null;
+
+  const trialStarters = normalized.filter(u => u.trialStartedAt);
+  const converters = trialStarters.filter(u =>
+    u.planStartedAt && u.plan !== 'free' && u.plan !== 'trial'
+  );
+  const conversionRate = trialStarters.length > 0
+    ? (converters.length / trialStarters.length) * 100
+    : null;
+
+  const conversionDays = converters
+    .map(u => _daysBetween(u.trialStartedAt, u.planStartedAt))
+    .filter(d => d !== null && d >= 0);
+  const avgDaysToConvert = conversionDays.length > 0
+    ? conversionDays.reduce((a, b) => a + b, 0) / conversionDays.length
+    : null;
+
+  // Em-dash for empty/no-data so we don't show misleading $0.00 / 0%.
+  const dash = '—';
+  const fmtMoney = v => v == null ? dash : '$' + v.toLocaleString(undefined, { maximumFractionDigits: 0 });
+  const fmtPct   = v => v == null ? dash : v.toFixed(1) + '%';
+  const fmtDays  = v => v == null ? dash : v.toFixed(1) + 'd';
+
   return (
     <div>
       <div className="stats-grid" style={{marginBottom:24}}>
         <div className="stat-card">
-          <div className="stat-label">Monthly Revenue</div>
-          <div className="stat-value" style={{color:'var(--accent-green)'}}>${totalRevenue}</div>
+          <div className="stat-label">Total Signed Up</div>
+          <div className="stat-value">{totalSignedUp}</div>
+        </div>
+        <div className="stat-card" style={{borderLeft:'3px solid var(--accent-amber)'}}>
+          <div className="stat-label">Free Trials Active</div>
+          <div className="stat-value">{trialsActive}</div>
+        </div>
+        <div className="stat-card" style={{borderLeft:'3px solid var(--accent-green)'}}>
+          <div className="stat-label">Paid Subscribers</div>
+          <div className="stat-value">{paidUsers.length}</div>
         </div>
         <div className="stat-card">
-          <div className="stat-label">Active Subscribers</div>
-          <div className="stat-value">{activeCount}</div>
+          {/* TODO(presence): Real-time "logged on now" requires a presence channel
+              (e.g. RTDB onDisconnect, or a heartbeat onlineAt field). Placeholder for now. */}
+          <div className="stat-label">Logged On Now</div>
+          <div className="stat-value" title="Real-time presence requires presence channel — see TODO">{dash}</div>
+        </div>
+      </div>
+
+      <div className="stats-grid" style={{marginBottom:24}}>
+        <div className="stat-card" style={{borderLeft:'3px solid var(--accent-green)'}}>
+          <div className="stat-label">MRR</div>
+          <div className="stat-value">{paidUsers.length > 0 ? fmtMoney(mrr) : dash}</div>
         </div>
         <div className="stat-card">
-          <div className="stat-label">Total Users</div>
-          <div className="stat-value">{subscribers.length}</div>
+          <div className="stat-label">ARR</div>
+          <div className="stat-value">{paidUsers.length > 0 ? fmtMoney(arr) : dash}</div>
         </div>
         <div className="stat-card">
-          <div className="stat-label">Avg Revenue/User</div>
-          <div className="stat-value">${subscribers.length > 0 ? Math.round(totalRevenue / subscribers.length) : 0}</div>
+          <div className="stat-label">ARPU</div>
+          <div className="stat-value">{fmtMoney(arpu)}</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-label">Trial → Paid</div>
+          <div className="stat-value">{fmtPct(conversionRate)}</div>
+          <div style={{fontSize:11, color:'var(--text-muted)', marginTop:4}}>
+            avg {fmtDays(avgDaysToConvert)} to convert
+          </div>
         </div>
       </div>
 
       <div className="admin-card">
-        <h3>Subscribers</h3>
-        <div className="subscriber-list">
-          {subscribers.map(sub => (
-            <div className="subscriber-item" key={sub.id}>
-              <div className="subscriber-info">
-                <div className="subscriber-avatar">{sub.name.charAt(0).toUpperCase()}</div>
-                <div>
-                  <div className="subscriber-name">{sub.name}</div>
-                  <div className="subscriber-email">{sub.email} · {sub.plan} · Joined {sub.joined}</div>
-                </div>
-              </div>
-              <div style={{display:'flex', gap:'8px', alignItems:'center'}}>
-                <span className={`status-badge status-${sub.status}`}>
-                  {sub.status === 'active' ? '● Active' : sub.status === 'trial' ? '◐ Trial' : '○ Expired'}
-                </span>
-                <span style={{fontFamily:'var(--font-mono)', fontSize:'13px', color:'var(--accent-green)'}}>
-                  ${sub.revenue}/mo
-                </span>
-              </div>
-            </div>
-          ))}
+        <h3>Users ({totalSignedUp})</h3>
+        <div style={{overflowX:'auto'}}>
+          <table style={{width:'100%', borderCollapse:'collapse', fontSize:13}}>
+            <thead>
+              <tr style={{textAlign:'left', color:'var(--text-muted)', borderBottom:'1px solid var(--border)'}}>
+                <th style={{padding:'8px 12px'}}>Email</th>
+                <th style={{padding:'8px 12px'}}>Plan</th>
+                <th style={{padding:'8px 12px'}}>Status</th>
+                <th style={{padding:'8px 12px'}}>Signed Up</th>
+                <th style={{padding:'8px 12px'}}>Plan Started</th>
+                <th style={{padding:'8px 12px', textAlign:'right'}}>Days as Trial</th>
+              </tr>
+            </thead>
+            <tbody>
+              {normalized.map(u => {
+                // "Days as Trial":
+                //   - if converted: trialStartedAt → planStartedAt
+                //   - if still on trial: trialStartedAt → now
+                //   - else: dash
+                let trialDays = null;
+                if (u.trialStartedAt && u.planStartedAt && PAID_PLANS.includes(u.plan)) {
+                  trialDays = _daysBetween(u.trialStartedAt, u.planStartedAt);
+                } else if (u.trialStartedAt && u.plan === 'trial') {
+                  trialDays = _daysBetween(u.trialStartedAt, now);
+                }
+
+                const planLabel = u.plan
+                  ? u.plan.charAt(0).toUpperCase() + u.plan.slice(1)
+                  : 'Free';
+
+                let statusLabel, statusClass;
+                if (u.subscriptionStatus === 'active') { statusLabel = '● Active';   statusClass = 'status-active'; }
+                else if (u.subscriptionStatus === 'trialing' || u.plan === 'trial') { statusLabel = '◐ Trial'; statusClass = 'status-trial'; }
+                else if (u.subscriptionStatus === 'canceled' || u.subscriptionStatus === 'cancelled') { statusLabel = '○ Cancelled'; statusClass = 'status-expired'; }
+                else { statusLabel = planLabel; statusClass = ''; }
+
+                return (
+                  <tr key={u.uid} style={{borderBottom:'1px solid var(--border)'}}>
+                    <td style={{padding:'8px 12px'}}>
+                      {u.email}{u.isOwner ? ' 👑' : ''}
+                    </td>
+                    <td style={{padding:'8px 12px'}}>{planLabel}</td>
+                    <td style={{padding:'8px 12px'}}>
+                      <span className={`status-badge ${statusClass}`}>{statusLabel}</span>
+                    </td>
+                    <td style={{padding:'8px 12px', fontFamily:'var(--font-mono)'}}>{_fmtDate(u.createdAt)}</td>
+                    <td style={{padding:'8px 12px', fontFamily:'var(--font-mono)'}}>{_fmtDate(u.planStartedAt)}</td>
+                    <td style={{padding:'8px 12px', fontFamily:'var(--font-mono)', textAlign:'right'}}>
+                      {trialDays == null ? dash : trialDays.toFixed(1)}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       </div>
 
