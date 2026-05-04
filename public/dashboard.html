@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>WheelPro™ — Options Wheel Strategy Dashboard | Sell Puts & Covered Calls Smarter</title>
 <meta name="description" content="WheelPro™ is the #1 options wheel strategy dashboard. Real-time technical analysis, multi-factor scoring, and actionable put-selling recommendations across 1,100+ stocks. Master the wheel strategy with RSI, MACD, Bollinger Bands, and proprietary scoring.">
 <meta name="keywords" content="wheel strategy, options wheel strategy, sell puts, cash secured puts, covered calls, poor man's covered call, options trading, options scanner, put selling, wheel trading, options income, premium selling, theta decay, delta neutral, options wheel calculator, weekly options income, passive income options">
@@ -33,6 +33,9 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"WheelPro™","applicationCategory":"FinanceApplication","operatingSystem":"Web","description":"Professional options wheel strategy dashboard with real-time technical analysis, multi-factor scoring, and actionable trade recommendations.","url":"https://wheelpro.io","author":{"@type":"Person","name":"Holland Ricker"},"offers":[{"@type":"Offer","price":"29","priceCurrency":"USD","name":"Starter"},{"@type":"Offer","price":"79","priceCurrency":"USD","name":"Pro"}]}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the wheel strategy in options trading?","acceptedAnswer":{"@type":"Answer","text":"The wheel strategy is an options income strategy where you sell cash-secured puts on stocks you want to own. If assigned, you then sell covered calls until the stock is called away. This cycle generates consistent premium income."}},{"@type":"Question","name":"How does WheelPro help with the wheel strategy?","acceptedAnswer":{"@type":"Answer","text":"WheelPro scans 1,100+ stocks using 5 technical indicators (RSI, MACD, Bollinger Bands, EMA, SMA), calculates a proprietary Wheel Score from 0-100, and recommends the best puts to sell with specific strike prices, deltas, and expected yields."}},{"@type":"Question","name":"What is a poor man's covered call?","acceptedAnswer":{"@type":"Answer","text":"A poor man's covered call (PMCC) uses a deep in-the-money LEAPS call instead of 100 shares of stock as collateral for selling covered calls. It requires less capital than a traditional covered call while generating similar premium income."}}]}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<!-- Preconnect to Railway API so first stocks fetch on mobile LTE doesn't pay full DNS+TLS cost serially -->
+<link rel="preconnect" href="https://web-production-e726.up.railway.app" crossorigin>
+<link rel="dns-prefetch" href="https://web-production-e726.up.railway.app">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
 
 <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -179,11 +182,15 @@ body {
   background: var(--bg-primary);
   color: var(--text-primary);
   line-height: 1.5;
-  min-height: 100vh;
+  min-height: 100vh;       /* fallback for older browsers */
+  min-height: 100dvh;      /* dynamic viewport — avoids iOS Safari address-bar jump */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-feature-settings: "kern" 1;
   letter-spacing: 0.01em;
+  /* iPhone notch + home-indicator safe areas (no-op on non-notched devices) */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 /* Scrollbar — v3.3.1: bright white by default for max visibility on dark bg */
@@ -262,11 +269,12 @@ body.protected {
 body.protected img { pointer-events: none; }
 
 /* ===== LAYOUT ===== */
-.app-container { min-height: 100vh; display: flex; flex-direction: column; }
+.app-container { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; }
 
 /* ===== LANDING PAGE ===== */
 .landing-hero {
   min-height: 100vh;
+  min-height: 100dvh;
   background: var(--gradient-hero);
   display: flex;
   flex-direction: column;
@@ -778,6 +786,7 @@ body.protected img { pointer-events: none; }
 .dashboard-layout {
   display: flex;
   min-height: 100vh;
+  min-height: 100dvh;
 }
 
 /* Sidebar */
@@ -899,6 +908,7 @@ body.protected img { pointer-events: none; }
   min-width: 0;
   margin-left: 240px;
   min-height: 100vh;
+  min-height: 100dvh;
   overflow-x: hidden;
 }
 
@@ -1733,8 +1743,10 @@ body.protected img { pointer-events: none; }
   .page-content { padding: 16px; }
   .stats-grid { grid-template-columns: 1fr; gap: 12px; }
   .settings-grid { grid-template-columns: 1fr; }
-  .data-table { font-size: 10px; }
-  .data-table th, .data-table td { padding: 6px 5px; }
+  /* v3.4: bumped from 10px → 13px. AAA-readable body for 50-yr-old eyes; trades a few
+     visible columns in freeze-pane for legibility. */
+  .data-table { font-size: 13px; }
+  .data-table th, .data-table td { padding: 8px 7px; }
   .topbar {
     padding: 10px 16px;
     flex-wrap: wrap;
@@ -1779,8 +1791,9 @@ body.protected img { pointer-events: none; }
   .split-table-fixed .data-table td { padding: 8px 8px; }
   .split-table-scroll .data-table th,
   .split-table-scroll .data-table td { padding: 8px 6px; }
-  .data-table th { font-size: 10px; letter-spacing: 0.5px; font-weight: 700; }
-  .data-table td { font-size: 11px; }
+  /* v3.4: 480px-and-narrower table cells — bumped to 11/12px from 10/11px for legibility */
+  .data-table th { font-size: 11px; letter-spacing: 0.5px; font-weight: 700; }
+  .data-table td { font-size: 12px; }
   .split-table-fixed .ticker,
   .split-table-scroll .ticker { font-size: 12px; }
 }
@@ -2101,8 +2114,10 @@ const CONFIG = {
   APP_NAME: 'WheelPro™',
   OWNER: 'WheelPro Analytics LLC',
   VERSION: '3.3.2',
-  // Stripe Configuration
-  STRIPE_PUBLISHABLE_KEY: 'pk_live_YOUR_STRIPE_KEY_HERE',
+  // Stripe Configuration — currently empty; checkout flow uses backend redirect (server.js
+  // creates a Stripe Checkout Session and returns the hosted URL). Populate this only if a
+  // future feature requires Stripe.js client-side (e.g. embedded payment elements).
+  STRIPE_PUBLISHABLE_KEY: '',
   STRIPE_PRICE_FREE: 'price_FREE_TIER',
   STRIPE_PRICE_STARTER: 'price_1TLQLJAPjhOPhXtY3ZKL0s7c',
   STRIPE_PRICE_PRO: 'price_1TLQMCAPjhOPhXtYzCpfJlU7',
@@ -2183,7 +2198,10 @@ const FirebaseHelper = {
   async signUp(email, password, name, opts) {
     const cred = await firebaseAuth.createUserWithEmailAndPassword(email, password);
     const uid = cred.user.uid;
-    const isOwner = email.toLowerCase().includes('holland');
+    // Owner-ness is set out-of-band (Firestore admin write or Firebase custom claim).
+    // Never derive from email — anyone with "holland" in their address would otherwise
+    // bypass every paid-plan check (see middleware/auth.js: isOwner === true skips gating).
+    const isOwner = false;
     const nowDate = new Date();
     const trialEndsDate = new Date(Date.now() + 7 * 86400000);
     const nowIso = nowDate.toISOString();
@@ -2238,7 +2256,9 @@ const FirebaseHelper = {
     // "Continue with Google" button after the AuthModal-level Terms-link explainer;
     // we still record an audit trail.
     const termsAccepted = !!(opts && opts.termsAccepted);
-    const isOwner = cred.user.email.toLowerCase().includes('holland');
+    // Owner-ness is set out-of-band (Firestore admin write or Firebase custom claim).
+    // Never derive from email — would otherwise let any "holland*" email bypass paid plans.
+    const isOwner = false;
     const nowDate = new Date();
     const trialEndsDate = new Date(Date.now() + 7 * 86400000);
     const nowIso = nowDate.toISOString();
@@ -2880,8 +2900,14 @@ function Sparkline({ data, width = 80, height = 32, color = '#3b82f6', label }) 
 
 // ===== LANDING PAGE =====
 function LandingPage({ onLogin, onSignup, onSubscribe }) {
-  // Pricing billing-cycle toggle (cosmetic — annual = monthly * 12 * 0.85, i.e. 15% off)
-  const [annual, setAnnual] = useState(false);
+  // Annual pricing is available only when both Stripe annual price IDs are real
+  // (not 'price_TODO_*' placeholders). Until then we hide the toggle and force monthly.
+  const annualPricingAvailable =
+    !!CONFIG.STRIPE_PRICE_STARTER_ANNUAL && !CONFIG.STRIPE_PRICE_STARTER_ANNUAL.startsWith('price_TODO') &&
+    !!CONFIG.STRIPE_PRICE_PRO_ANNUAL     && !CONFIG.STRIPE_PRICE_PRO_ANNUAL.startsWith('price_TODO');
+  const [annualState, setAnnualState] = useState(false);
+  const annual = annualPricingAvailable && annualState;
+  const setAnnual = (v) => setAnnualState(annualPricingAvailable && v);
   return (
     <div className="landing-hero">
       <nav className="landing-nav" aria-label="Marketing site navigation">
@@ -2974,25 +3000,29 @@ function LandingPage({ onLogin, onSignup, onSubscribe }) {
       <div className="pricing-section" id="pricing">
         <h2>Choose Your Plan</h2>
         <p className="subtitle">Two plans. 7-day full-feature trial. Cancel anytime.</p>
-        {/* Billing-cycle toggle: annual saves 15% vs. monthly. Cosmetic only — Stripe checkout still uses the monthly price IDs until annual price IDs are added (see TODO in CONFIG / StripeHelper). */}
-        <div role="radiogroup" aria-label="Billing period" style={{display:'inline-flex', gap:0, padding:4, background:'var(--bg-elevated)', border:'1px solid var(--border)', borderRadius:'var(--radius-md)', marginBottom:24}}>
-          <button
-            type="button"
-            role="radio"
-            aria-checked={!annual}
-            onClick={() => setAnnual(false)}
-            className="btn btn-sm"
-            style={{background: !annual ? 'var(--accent-blue)' : 'transparent', color: !annual ? '#fff' : 'var(--text-secondary)', border:'none', borderRadius:'var(--radius-sm)', padding:'6px 16px', fontWeight:600}}
-          >Monthly</button>
-          <button
-            type="button"
-            role="radio"
-            aria-checked={annual}
-            onClick={() => setAnnual(true)}
-            className="btn btn-sm"
-            style={{background: annual ? 'var(--accent-blue)' : 'transparent', color: annual ? '#fff' : 'var(--text-secondary)', border:'none', borderRadius:'var(--radius-sm)', padding:'6px 16px', fontWeight:600}}
-          >Annual <span style={{fontSize:11, opacity:0.85, marginLeft:4}}>save 15%</span></button>
-        </div>
+        {/* Billing-cycle toggle: only render once real annual Stripe price IDs exist
+            (post-Mercury Stripe activation). Hiding the toggle is safer than letting a
+            customer pick "Annual" and silently get charged monthly via the fallback. */}
+        {annualPricingAvailable && (
+          <div role="radiogroup" aria-label="Billing period" style={{display:'inline-flex', gap:0, padding:4, background:'var(--bg-elevated)', border:'1px solid var(--border)', borderRadius:'var(--radius-md)', marginBottom:24}}>
+            <button
+              type="button"
+              role="radio"
+              aria-checked={!annual}
+              onClick={() => setAnnual(false)}
+              className="btn btn-sm"
+              style={{background: !annual ? 'var(--accent-blue)' : 'transparent', color: !annual ? '#fff' : 'var(--text-secondary)', border:'none', borderRadius:'var(--radius-sm)', padding:'6px 16px', fontWeight:600}}
+            >Monthly</button>
+            <button
+              type="button"
+              role="radio"
+              aria-checked={annual}
+              onClick={() => setAnnual(true)}
+              className="btn btn-sm"
+              style={{background: annual ? 'var(--accent-blue)' : 'transparent', color: annual ? '#fff' : 'var(--text-secondary)', border:'none', borderRadius:'var(--radius-sm)', padding:'6px 16px', fontWeight:600}}
+            >Annual <span style={{fontSize:11, opacity:0.85, marginLeft:4}}>save 15%</span></button>
+          </div>
+        )}
         <div className="pricing-grid" style={{gridTemplateColumns:'repeat(2, minmax(280px, 360px))', justifyContent:'center', maxWidth:'800px', margin:'0 auto'}}>
           <div className="pricing-card">
             <div className="pricing-tier">Starter</div>
@@ -7148,7 +7178,7 @@ function TrialBanner({ daysLeft, onUpgrade }) {
 function PaywallScreen({ user, onCheckout, onSignOut }) {
   return (
     <div style={{
-      minHeight: '100vh',
+      minHeight: '100dvh',
       background: 'var(--bg-primary)',
       display: 'flex',
       flexDirection: 'column',
@@ -7374,21 +7404,28 @@ function App() {
       return;
     }
 
+    // GET — no Content-Type header (would force CORS preflight on every load and
+    // is the iOS Safari "Load failed" trigger when the preflight times out on LTE).
+    const stocksUrl = `${CONFIG.API_BASE_URL}/api/stocks?dte=${dteFilter}`;
     let response;
     try {
-      response = await fetch(`${CONFIG.API_BASE_URL}/api/stocks?dte=${dteFilter}`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-      });
+      response = await fetch(stocksUrl);
     } catch (err) {
-      // Network error / fetch reject — surface, do NOT show fake prices.
-      console.warn('[WheelPro] Network error fetching market data:', err.message);
-      if (!silent) {
-        setStocks([]);
-        setLoading(false);
-        setLoadingState({ status: 'error', message: err.message || 'Network error reaching market data.' });
+      // First attempt failed (network blip, DNS, TLS handshake on cold LTE, etc).
+      // Retry once after 1.5s — single transient drop should not strand the user.
+      console.warn('[WheelPro] First fetch failed, retrying once:', err.message);
+      await new Promise(r => setTimeout(r, 1500));
+      try {
+        response = await fetch(stocksUrl);
+      } catch (err2) {
+        console.warn('[WheelPro] Network error fetching market data (after retry):', err2.message);
+        if (!silent) {
+          setStocks([]);
+          setLoading(false);
+          setLoadingState({ status: 'error', message: err2.message || 'Network error reaching market data.' });
+        }
+        return;
       }
-      return;
     }
 
     // 202 = backend warming (cold-start cache fill). Parse progress + retry hint, schedule auto-retry.
@@ -7851,7 +7888,7 @@ function App() {
   // localStorage is empty (e.g. incognito, Stripe redirect, cross-device).
   if (authLoading && !user) {
     return (
-      <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',background:'var(--bg-primary)'}}>
+      <div style={{minHeight:'100dvh',display:'flex',alignItems:'center',justifyContent:'center',background:'var(--bg-primary)'}}>
         <div style={{textAlign:'center'}}>
           <div style={{width:40,height:40,border:'3px solid var(--border)',borderTopColor:'var(--accent-gold)',borderRadius:'50%',animation:'spin 0.8s linear infinite',margin:'0 auto 16px'}} />
           <div style={{fontFamily:'var(--font-body)',color:'var(--text-muted)',fontSize:14,letterSpacing:'0.02em'}}>Loading WheelPro…</div>
@@ -8230,7 +8267,7 @@ try {
 
 <!-- Protection: Ownership Watermark -->
 <noscript>
-  <div style="padding:40px;text-align:center;font-family:sans-serif;color:#94a3b8;background:#0a0e17;min-height:100vh;">
+  <div style="padding:40px;text-align:center;font-family:sans-serif;color:#94a3b8;background:#0a0e17;min-height:100dvh;">
     <h1>WheelPro™</h1>
     <p>JavaScript is required to run this application.</p>
     <p>WheelPro Analytics LLC — All Rights Reserved</p>
