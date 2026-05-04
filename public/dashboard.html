@@ -2345,7 +2345,7 @@ const StripeHelper = {
     };
     const priceId = priceMap[plan];
     if (!priceId) {
-      alert('Unknown plan: ' + plan);
+      showToast('Unknown plan: ' + plan);
       return;
     }
     try {
@@ -2358,11 +2358,11 @@ const StripeHelper = {
       if (data.url) {
         window.location.href = data.url; // Redirect to Stripe Checkout
       } else {
-        alert('Checkout error: ' + (data.error || 'Please try again.'));
+        showToast('Checkout error: ' + (data.error || 'Please try again.'));
       }
     } catch (err) {
       console.error('[Stripe] Checkout failed:', err);
-      alert('Unable to connect to payment system. Please try again.');
+      showToast('Unable to connect to payment system. Please try again.');
     }
   },
   async checkSubscription(email) {
@@ -2385,10 +2385,10 @@ const StripeHelper = {
       if (data.success && data.url) {
         window.location.href = data.url;
       } else {
-        alert('Unable to open billing portal: ' + (data.error || 'Please try again.'));
+        showToast('Unable to open billing portal: ' + (data.error || 'Please try again.'));
       }
     } catch (err) {
-      alert('Unable to connect to billing system. Please try again.');
+      showToast('Unable to connect to billing system. Please try again.');
     }
   }
 };
@@ -3174,7 +3174,7 @@ function AuthModal({ mode, onClose, onSubmit, onToggle, notice }) {
     try {
       await firebaseAuth.sendPasswordResetEmail(email);
       setError('');
-      alert('Password reset email sent! Check your inbox.');
+      showToast('Password reset email sent — check your inbox.', 'success');
     } catch (err) {
       setError(FirebaseHelper.getErrorMessage(err.code));
     }
@@ -3978,7 +3978,7 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
                     <tr key={stock.symbol} style={{animation: `slideIn 0.3s ease-out ${i * 0.04}s both`, background: highConc ? 'rgba(245,158,11,0.06)' : (stock.recommendation.confidence === 'HIGH' ? 'rgba(16,185,129,0.03)' : 'transparent')}}>
                       <td style={{background: highConc ? 'rgba(245,158,11,0.08)' : (stock.recommendation.confidence === 'HIGH' ? '#0e1a2e' : '#0d1526'), borderLeft: highConc ? '2px solid var(--accent-amber)' : undefined}}>
                         <div className="ticker" style={{cursor:'pointer'}} role="button" tabIndex={0} aria-label={`View ${stock.symbol} details`} onClick={() => onSelectStock && onSelectStock(stock)} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelectStock && onSelectStock(stock); } }}>
-                          {highConc && <span title={`Uses ~${Math.round(getConcentrationPct(stock))}% of your ${CAPITAL_TIERS[capitalTier]?.label || ''} capital`} style={{color:'var(--accent-amber)', marginRight:4}}>⚠</span>}
+                          {highConc && <Tip text={`Uses ~${Math.round(getConcentrationPct(stock))}% of your ${CAPITAL_TIERS[capitalTier]?.label || ''} capital`}><span style={{color:'var(--accent-amber)', marginRight:4}}>⚠</span></Tip>}
                           {stock.symbol}
                         </div>
                         <div className="fixed-col-subtext" style={{fontSize:'10px', color:'var(--text-muted)'}}>{stock.name}</div>
@@ -4003,9 +4003,9 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
                     <th scope="col">Premium</th>
                     <th scope="col">Wk Yield</th>
                     <th scope="col">Mo. Yield</th>
-                    <th scope="col" title={COL_TIP.theta}>Theta/Day</th>
-                    <th scope="col" title={COL_TIP.delta}>Delta</th>
-                    <th scope="col" title={COL_TIP.pop}>P.O.P.</th>
+                    <th scope="col"><Tip text={COL_TIP.theta}>Theta/Day</Tip></th>
+                    <th scope="col"><Tip text={COL_TIP.delta}>Delta</Tip></th>
+                    <th scope="col"><Tip text={COL_TIP.pop}>P.O.P.</Tip></th>
                     <th scope="col">Cash Req.</th>
                     <th scope="col">Max Loss</th>
                     <th scope="col">IV %ile</th>
@@ -4300,7 +4300,7 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
                       <div style={{display:'flex', alignItems:'center', gap:'10px'}}>
                         <div>
                           <div className="ticker" style={{cursor:'pointer'}} role="button" tabIndex={0} aria-label={`View ${stock.symbol} details`} onClick={() => onSelectStock && onSelectStock(stock)} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelectStock && onSelectStock(stock); } }}>
-                            {highConc && <span title={`Uses ~${Math.round(getConcentrationPct(stock))}% of your ${CAPITAL_TIERS[capitalTier]?.label || ''} capital`} style={{color:'var(--accent-amber)', marginRight:4}}>⚠</span>}
+                            {highConc && <Tip text={`Uses ~${Math.round(getConcentrationPct(stock))}% of your ${CAPITAL_TIERS[capitalTier]?.label || ''} capital`}><span style={{color:'var(--accent-amber)', marginRight:4}}>⚠</span></Tip>}
                             {stock.symbol}
                           </div>
                           <div className="fixed-col-subtext" style={{fontSize:'11px', color:'var(--text-muted)'}}>{stock.sector}</div>
@@ -4321,15 +4321,15 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
                   <th scope="col">Price</th>
                   <th scope="col">Score</th>
                   <th scope="col">Action</th>
-                  <th scope="col" title={COL_TIP.otm}>Strike</th>
+                  <th scope="col"><Tip text={COL_TIP.otm}>Strike</Tip></th>
                   <th scope="col">Support</th>
                   <th scope="col">Resist.</th>
                   <th scope="col">Exp Date</th>
                   <th scope="col">Premium</th>
                   <th scope="col">Wk Yield</th>
                   <th scope="col">Ann. Yield</th>
-                  <th scope="col" title={COL_TIP.delta}>Delta</th>
-                  <th scope="col" title={COL_TIP.pop}>P.O.P.</th>
+                  <th scope="col"><Tip text={COL_TIP.delta}>Delta</Tip></th>
+                  <th scope="col"><Tip text={COL_TIP.pop}>P.O.P.</Tip></th>
                   <th scope="col">Cash Req.</th>
                   <th scope="col">Max Loss</th>
                   <th scope="col">RSI</th>
@@ -4339,7 +4339,7 @@ function DashboardPage({ stocks, watchlist = [], toggleWatchlist, onSelectStock,
                   <th scope="col">Earnings</th>
                   <th scope="col">Ex-Div</th>
                   <th scope="col">Trend (20d)</th>
-                  <th scope="col" title={COL_TIP.ivr}>IV Rank</th>
+                  <th scope="col"><Tip text={COL_TIP.ivr}>IV Rank</Tip></th>
                   <th scope="col">Broker</th>
                 </tr>
               </thead>
@@ -4726,7 +4726,7 @@ function ScreenerPage({ stocks, user, subscriptionTier, capitalTier = 'all', onS
                   return (
                   <tr key={stock.symbol} style={{cursor:'pointer', background: highConc ? 'rgba(245,158,11,0.06)' : 'transparent', borderLeft: highConc ? '2px solid var(--accent-amber)' : undefined}} onClick={() => onSelectStock && onSelectStock(stock)}>
                     <td style={{background: highConc ? 'rgba(245,158,11,0.08)' : undefined}}>
-                      {highConc && <span title={`Uses ~${Math.round(getConcentrationPct(stock))}% of your ${CAPITAL_TIERS[capitalTier]?.label || ''} capital`} style={{color:'var(--accent-amber)', marginRight:4}}>⚠</span>}
+                      {highConc && <Tip text={`Uses ~${Math.round(getConcentrationPct(stock))}% of your ${CAPITAL_TIERS[capitalTier]?.label || ''} capital`}><span style={{color:'var(--accent-amber)', marginRight:4}}>⚠</span></Tip>}
                       <span className="ticker">{stock.symbol}</span>
                     </td>
                   </tr>
@@ -4750,8 +4750,8 @@ function ScreenerPage({ stocks, user, subscriptionTier, capitalTier = 'all', onS
                   <th scope="col" aria-sort={filters.sortBy === 'annualizedYield' ? (filters.sortDir === 'desc' ? 'descending' : 'ascending') : 'none'} style={{cursor:'pointer'}} onClick={() => handleSort('annualizedYield')}>Ann Yield <SortIcon field="annualizedYield"/></th>
                   <th scope="col" aria-sort={filters.sortBy === 'delta' ? (filters.sortDir === 'desc' ? 'descending' : 'ascending') : 'none'} style={{cursor:'pointer'}} title={COL_TIP.delta} onClick={() => handleSort('delta')}>Delta <SortIcon field="delta"/></th>
                   <th scope="col" aria-sort={filters.sortBy === 'rsi' ? (filters.sortDir === 'desc' ? 'descending' : 'ascending') : 'none'} style={{cursor:'pointer'}} onClick={() => handleSort('rsi')}>RSI <SortIcon field="rsi"/></th>
-                  <th scope="col" title={COL_TIP.macd}>MACD</th>
-                  <th scope="col" title={COL_TIP.bbPercentB}>BB %B</th>
+                  <th scope="col"><Tip text={COL_TIP.macd}>MACD</Tip></th>
+                  <th scope="col"><Tip text={COL_TIP.bbPercentB}>BB %B</Tip></th>
                   <th scope="col" aria-sort={filters.sortBy === 'iv' ? (filters.sortDir === 'desc' ? 'descending' : 'ascending') : 'none'} style={{cursor:'pointer'}} onClick={() => handleSort('iv')}>IV <SortIcon field="iv"/></th>
                   <th scope="col" aria-sort={filters.sortBy === 'optionVolume' ? (filters.sortDir === 'desc' ? 'descending' : 'ascending') : 'none'} style={{cursor:'pointer'}} onClick={() => handleSort('optionVolume')}>Opt Vol <SortIcon field="optionVolume"/></th>
                   <th scope="col">Earnings</th>
@@ -6663,6 +6663,60 @@ function Tip({ children, text }) {
   );
 }
 
+// ===== TOAST SYSTEM =====
+// Replaces window.alert() so error / success messages don't block the page or jar
+// the user with the OS dialog. Dispatches a CustomEvent so non-React utility
+// objects (StripeHelper, AuthHelper) can fire toasts without holding React state.
+function showToast(message, type) {
+  if (typeof window === 'undefined') return;
+  window.dispatchEvent(new CustomEvent('wp-toast', { detail: { message, type: type || 'error' } }));
+}
+
+function ToastHost() {
+  const [toasts, setToasts] = React.useState([]);
+  React.useEffect(() => {
+    const onToast = (e) => {
+      const id = Date.now() + Math.random();
+      const t = { id, message: e.detail.message, type: e.detail.type || 'error' };
+      setToasts(prev => [...prev, t]);
+      setTimeout(() => setToasts(prev => prev.filter(x => x.id !== id)), 5500);
+    };
+    window.addEventListener('wp-toast', onToast);
+    return () => window.removeEventListener('wp-toast', onToast);
+  }, []);
+  if (toasts.length === 0) return null;
+  return React.createElement('div', {
+    role: 'status',
+    'aria-live': 'polite',
+    style: {
+      position: 'fixed',
+      right: 16,
+      top: 'calc(env(safe-area-inset-top, 0px) + 16px)',
+      zIndex: 9999,
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 10,
+      maxWidth: 'min(420px, calc(100vw - 32px))',
+      pointerEvents: 'none',
+    },
+  }, toasts.map(t => React.createElement('div', {
+    key: t.id,
+    style: {
+      padding: '12px 16px',
+      borderRadius: '8px',
+      background: t.type === 'success' ? 'rgba(34,197,94,0.12)' : 'rgba(239,68,68,0.12)',
+      border: '1px solid ' + (t.type === 'success' ? 'rgba(34,197,94,0.45)' : 'rgba(239,68,68,0.45)'),
+      color: t.type === 'success' ? 'var(--accent-green)' : 'var(--accent-red)',
+      fontSize: 14,
+      fontWeight: 500,
+      lineHeight: 1.4,
+      boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
+      backdropFilter: 'blur(6px)',
+      pointerEvents: 'auto',
+    },
+  }, t.message)));
+}
+
 // ===== COLUMN HEADER TOOLTIPS (L4) =====
 // Plain-language explanations shown on hover (and tap on touch via the title attribute,
 // which mobile browsers also surface via long-press). Used by the three trade tables.
@@ -8258,7 +8312,13 @@ function App() {
 // ===== RENDER =====
 try {
   const root = ReactDOM.createRoot(document.getElementById('root'));
-  root.render(React.createElement(App));
+  // ToastHost lives outside <App> so toasts persist across App's early returns
+  // (loading screen, landing page, paywall, dashboard) without needing to mount
+  // it in each branch. Listens to the 'wp-toast' window event.
+  root.render(React.createElement(React.Fragment, null,
+    React.createElement(App),
+    React.createElement(ToastHost),
+  ));
 } catch(e) {
   console.error('Render error:', e);
   document.getElementById('root').innerHTML = '<div style="padding:40px;color:#ef4444;font-family:sans-serif;"><h2>Loading Error</h2><p>' + e.message + '</p><p>Please check your internet connection and reload.</p></div>';
